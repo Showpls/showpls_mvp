@@ -22,3 +22,6 @@ public/assets/
 
 # Coverage
 coverage/
+
+# Docs and internal notes
+*.md
