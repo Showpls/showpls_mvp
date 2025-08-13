@@ -1,8 +1,10 @@
 services:
   app:
     build: .
+    env_file: 
+      - .env
     environment:
-      NODE_ENV: production # Lie about the environment
+      NODE_ENV: production
     ports:
       - "5000:5000"
     restart: unless-stopped
