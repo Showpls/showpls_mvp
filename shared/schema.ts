@@ -11,6 +11,7 @@ import {
   pgEnum,
   numeric,
   index,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
@@ -60,9 +61,7 @@ export const providerRankEnum = pgEnum("provider_rank", [
 ]);
 
 export const users = pgTable("users", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
+  id: uuid("id").primaryKey().defaultRandom(),
   telegramId: varchar("telegram_id").notNull().unique(),
   username: text("username").notNull(),
   firstName: text("first_name"),
@@ -91,13 +90,11 @@ export const users = pgTable("users", {
 export const orders = pgTable(
   "orders",
   {
-    id: varchar("id")
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    requesterId: varchar("requester_id")
+    id: uuid("id").primaryKey().defaultRandom(),
+    requesterId: uuid("requester_id")
       .notNull()
       .references(() => users.id),
-    providerId: varchar("provider_id").references(() => users.id),
+    providerId: uuid("provider_id").references(() => users.id),
     title: text("title").notNull(),
     description: text("description").notNull(),
     mediaType: mediaTypeEnum("media_type").notNull(),
@@ -138,16 +135,14 @@ export const orders = pgTable(
 );
 
 export const ratings = pgTable("ratings", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  orderId: varchar("order_id")
+  id: uuid("id").primaryKey().defaultRandom(),
+  orderId: uuid("order_id")
     .notNull()
     .references(() => orders.id),
-  fromUserId: varchar("from_user_id")
+  fromUserId: uuid("from_user_id")
     .notNull()
     .references(() => users.id),
-  toUserId: varchar("to_user_id")
+  toUserId: uuid("to_user_id")
     .notNull()
     .references(() => users.id),
   rating: integer("rating").notNull(), // 1-5
@@ -156,13 +151,11 @@ export const ratings = pgTable("ratings", {
 });
 
 export const chatMessages = pgTable("chat_messages", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  orderId: varchar("order_id")
+  id: uuid("id").primaryKey().defaultRandom(),
+  orderId: uuid("order_id")
     .notNull()
     .references(() => orders.id),
-  senderId: varchar("sender_id")
+  senderId: uuid("sender_id")
     .notNull()
     .references(() => users.id),
   message: text("message").notNull(),
@@ -176,13 +169,11 @@ export const chatMessages = pgTable("chat_messages", {
 });
 
 export const notifications = pgTable("notifications", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  userId: varchar("user_id")
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
     .notNull()
     .references(() => users.id),
-  orderId: varchar("order_id").references(() => orders.id),
+  orderId: uuid("order_id").references(() => orders.id),
   type: varchar("type", { length: 30 }).notNull(), // ORDER_ACCEPTED, ORDER_DELIVERED, ORDER_APPROVED, etc.
   title: text("title").notNull(),
   message: text("message").notNull(),
@@ -206,11 +197,9 @@ export const idempotentRequests = pgTable(
 
 // SLA timers and audit trail
 export const disputeEvents = pgTable("dispute_events", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  disputeId: varchar("dispute_id").notNull(),
-  userId: varchar("user_id")
+  id: uuid("id").primaryKey().defaultRandom(),
+  disputeId: uuid("dispute_id").notNull(),
+  userId: uuid("user_id")
     .notNull()
     .references(() => users.id),
   action: varchar("action", { length: 50 }).notNull(),
@@ -221,14 +210,12 @@ export const disputeEvents = pgTable("dispute_events", {
 export const disputes = pgTable(
   "disputes",
   {
-    id: varchar("id")
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    orderId: varchar("order_id")
+    id: uuid("id").primaryKey().defaultRandom(),
+    orderId: uuid("order_id")
       .notNull()
       .references(() => orders.id),
-    disputeId: varchar("dispute_id").notNull().unique(),
-    openedBy: varchar("opened_by")
+    disputeId: uuid("dispute_id").notNull().unique(),
+    openedBy: uuid("opened_by")
       .notNull()
       .references(() => users.id),
     reason: text("reason").notNull(),
@@ -326,9 +313,7 @@ export const disputesRelations = relations(disputes, ({ one }) => ({
 
 // New tables for MVP improvements
 export const orderTemplates = pgTable("order_templates", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
+  id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
   category: varchar("category", { length: 50 }).notNull(), // товар, недвижимость, мероприятие, ностальгия
   title: text("title").notNull(),
@@ -343,9 +328,7 @@ export const orderTemplates = pgTable("order_templates", {
 });
 
 export const quickReplies = pgTable("quick_replies", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
+  id: uuid("id").primaryKey().defaultRandom(),
   text: text("text").notNull(),
   category: varchar("category", { length: 50 }).notNull(), // status_update, eta, clarification
   isDefault: boolean("is_default").default(false),
@@ -357,16 +340,14 @@ export const quickReplies = pgTable("quick_replies", {
 });
 
 export const tips = pgTable("tips", {
-  id: varchar("id")
-    .primaryKey()
-    .default(sql`gen_random_uuid()`),
-  orderId: varchar("order_id")
+  id: uuid("id").primaryKey().defaultRandom(),
+  orderId: uuid("order_id")
     .notNull()
     .references(() => orders.id),
-  fromUserId: varchar("from_user_id")
+  fromUserId: uuid("from_user_id")
     .notNull()
     .references(() => users.id),
-  toUserId: varchar("to_user_id")
+  toUserId: uuid("to_user_id")
     .notNull()
     .references(() => users.id),
   amountNanoTon: numeric("amount_nano_ton", {
@@ -381,10 +362,8 @@ export const tips = pgTable("tips", {
 export const onboardingSteps = pgTable(
   "onboarding_steps",
   {
-    id: varchar("id")
-      .primaryKey()
-      .default(sql`gen_random_uuid()`),
-    userId: varchar("user_id")
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
       .notNull()
       .references(() => users.id),
     stepName: varchar("step_name", { length: 50 }).notNull(), // wallet_connected, first_order, first_chat
