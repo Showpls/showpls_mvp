@@ -1,0 +1,185 @@
+{
+  "nav": {
+    "landing": "首页",
+    "webapp": "网页应用",
+    "chat": "聊天"
+  },
+  "hero": {
+    "tagline": "您的眼睛，无处不在。",
+    "realtimeTagline": "实时现实。",
+    "subtitle": "通过安全的TON区块链支付，与本地提供商联系，从世界任何地方获取实时照片、视频和直播。",
+    "openTelegram": "在Telegram中打开",
+    "watchDemo": "观看演示"
+  },
+  "stats": {
+    "coverage": "全球覆盖",
+    "countries": "国家",
+    "secure": "安全支付"
+  },
+  "howItWorks": {
+    "title": "工作原理",
+    "subtitle": "三个简单步骤，从世界任何地方获取实时内容",
+    "step1": {
+      "title": "创建请求",
+      "description": "标记位置，描述需求，设定预算，并向托管账户充值"
+    },
+    "step2": {
+      "title": "匹配服务商",
+      "description": "本地提供商看到您的请求并接受工作开始服务"
+    },
+    "step3": {
+      "title": "接收内容",
+      "description": "获取您的照片、视频或直播，并批准安全付款"
+    }
+  },
+  "useCases": {
+    "title": "完美适用于",
+    "market": {
+      "title": "市场研究",
+      "description": "从零售位置和竞争环境获取实时洞察"
+    },
+    "news": {
+      "title": "新闻媒体",
+      "description": "突发新闻报道和实地报告"
+    },
+    "realEstate": {
+      "title": "房地产",
+      "description": "房产检查，社区游览和位置验证"
+    },
+    "events": {
+      "title": "活动",
+      "description": "活动、音乐会和特殊场合的现场报道"
+    }
+  },
+  "blockchain": {
+    "title": "由TON区块链驱动",
+    "description": "使用智能合约托管的安全、快速、透明支付。您的资金受保护直到确认交付。",
+    "feature1": "智能合约托管保护",
+    "feature2": "即时微支付",
+    "feature3": "全球可访问",
+    "whitepaper": "下载白皮书"
+  },
+  "footer": {
+    "product": "产品",
+    "howItWorks": "工作原理",
+    "pricing": "价格",
+    "api": "API",
+    "support": "支持",
+    "help": "帮助中心",
+    "contact": "联系我们",
+    "status": "状态",
+    "rights": "版权所有。"
+  },
+  "twa": {
+    "demoMode": "演示模式已激活",
+    "newRequest": "新请求",
+    "createOrder": "创建订单",
+    "nearby": "附近",
+    "findRequests": "查找请求",
+    "recentActivity": "最近活动",
+    "sampleOrder1": "时代广场照片",
+    "sampleOrder2": "迪拜购物中心直播",
+    "delivered": "已交付",
+    "inProgress": "进行中",
+    "timeAgo": {
+      "recent": "2分钟前",
+      "hour": "1小时前"
+    },
+    "trySample": "尝试示例请求",
+    "yourOrders": "您的订单"
+  },
+  "createRequest": {
+    "title": "新请求",
+    "titlePlaceholder": "时代广场人群照片",
+    "description": "描述",
+    "descriptionPlaceholder": "需要时代广场的当前照片用于演示...",
+    "mediaType": "媒体类型",
+    "budget": "预算",
+    "location": "位置",
+    "selectLocation": "点击选择位置",
+    "creating": "创建中...",
+    "createAndFund": "创建并充值",
+    "sample": "示例"
+  },
+  "mediaType": {
+    "photo": "照片",
+    "video": "视频",
+    "live": "直播"
+  },
+  "map": {
+    "interactive": "交互式地图",
+    "mapboxIntegration": "Mapbox GL集成",
+    "nearMe": "我附近"
+  },
+  "order": {
+    "status": {
+      "created": "已创建",
+      "funded": "已充值",
+      "in_progress": "进行中",
+      "delivered": "已交付",
+      "approved": "已批准",
+      "disputed": "争议中",
+      "refunded": "已退款"
+    },
+    "locationUnknown": "位置未知",
+    "chat": "聊天",
+    "accept": "接受"
+  },
+  "wallet": {
+    "connect": "连接",
+    "connecting": "连接中...",
+    "connected": "已连接"
+  },
+  "chat": {
+    "loading": "加载聊天中...",
+    "unknown": "未知用户",
+    "online": "在线",
+    "orderHash": "订单",
+    "mediaDelivered": "媒体已交付 • 等待批准",
+    "approving": "批准中...",
+    "approvePayment": "批准并释放付款",
+    "typeMessage": "输入消息..."
+  },
+  "rating": {
+    "title": "为此提供商评分",
+    "commentPlaceholder": "很棒的照片，快速交付！",
+    "submitting": "提交中...",
+    "submitAndApprove": "提交评分并批准付款"
+  },
+  "whitepaper": {
+    "back": "返回首页",
+    "subtitle": "基于TON区块链的去中心化实时媒体市场",
+    "downloadPdf": "下载PDF",
+    "executiveSummary": "执行摘要",
+    "executiveText": "Showpls DAO代表去中心化媒体获取的下一个演进，利用TON区块链创建透明、安全、全球可访问的实时视觉内容市场。",
+    "mission": "使命",
+    "missionText": "通过区块链技术和社区治理，让全世界民主化地访问实时视觉信息。",
+    "vision": "愿景",
+    "visionText": "一个任何人都可以通过去中心化提供商网络从任何位置访问真实实时视觉内容的世界。",
+    "technology": "技术栈",
+    "blockchain": "TON区块链",
+    "blockchainText": "建立在The Open Network上，实现快速、安全、可扩展的交易。",
+    "smartContracts": "智能合约",
+    "smartContractsText": "自动化托管和支付系统确保信任和安全。",
+    "decentralized": "去中心化网络",
+    "decentralizedText": "点对点架构，没有单点故障。",
+    "tokenomics": "代币经济学",
+    "tokenDistribution": "代币分配",
+    "community": "社区奖励",
+    "team": "团队和顾问",
+    "ecosystem": "生态系统发展",
+    "treasury": "DAO资金库",
+    "governance": "治理模型",
+    "governanceText": "代币持有者通过去中心化投票机制参与协议决策。",
+    "roadmap": "路线图",
+    "phase1": "阶段1：MVP发布",
+    "phase1Text": "Telegram网络应用发布，具备基本市场功能和TON集成。",
+    "phase2": "阶段2：DAO形成",
+    "phase2Text": "代币发布，治理实施和社区驱动的开发。",
+    "phase3": "阶段3：全球扩张",
+    "phase3Text": "多平台支持，高级功能和全球提供商网络。",
+    "getFullDocument": "获取完整文档",
+    "fullDocumentText": "下载完整白皮书，获得详细的技术规格、经济模型和路线图。",
+    "downloadFullPdf": "下载完整白皮书（PDF）"
+  }
+}

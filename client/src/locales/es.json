@@ -1,0 +1,185 @@
+{
+  "nav": {
+    "landing": "Inicio",
+    "webapp": "Aplicación Web",
+    "chat": "Chat"
+  },
+  "hero": {
+    "tagline": "Tus ojos, en todas partes.",
+    "realtimeTagline": "Realidad en tiempo real.",
+    "subtitle": "Conéctate con proveedores locales para obtener fotos, videos y transmisiones en vivo desde cualquier ubicación mundial con pagos seguros de blockchain TON.",
+    "openTelegram": "Abrir en Telegram",
+    "watchDemo": "Ver demo"
+  },
+  "stats": {
+    "coverage": "Cobertura global",
+    "countries": "Países",
+    "secure": "Pagos seguros"
+  },
+  "howItWorks": {
+    "title": "Cómo funciona",
+    "subtitle": "Tres pasos simples para obtener contenido en tiempo real desde cualquier parte del mundo",
+    "step1": {
+      "title": "Crear solicitud",
+      "description": "Marca una ubicación, describe lo que necesitas, establece tu presupuesto y financia el depósito"
+    },
+    "step2": {
+      "title": "Encontrar coincidencia",
+      "description": "Los proveedores locales ven tu solicitud y aceptan el trabajo para empezar"
+    },
+    "step3": {
+      "title": "Recibir contenido",
+      "description": "Obtén tus fotos, videos o transmisiones en vivo y aprueba para el pago seguro"
+    }
+  },
+  "useCases": {
+    "title": "Perfecto para",
+    "market": {
+      "title": "Investigación de mercado",
+      "description": "Obtén información en tiempo real de ubicaciones comerciales y paisajes competitivos"
+    },
+    "news": {
+      "title": "Noticias y medios",
+      "description": "Cobertura de noticias de última hora y reportajes desde el terreno"
+    },
+    "realEstate": {
+      "title": "Bienes raíces",
+      "description": "Inspecciones de propiedades, tours de vecindarios y verificación de ubicaciones"
+    },
+    "events": {
+      "title": "Eventos",
+      "description": "Cobertura en vivo de eventos, conciertos y ocasiones especiales"
+    }
+  },
+  "blockchain": {
+    "title": "Impulsado por TON Blockchain",
+    "description": "Pagos seguros, rápidos y transparentes usando depósito de contratos inteligentes. Tus fondos están protegidos hasta que se confirme la entrega.",
+    "feature1": "Protección de depósito por contrato inteligente",
+    "feature2": "Micropagos instantáneos",
+    "feature3": "Accesibilidad global",
+    "whitepaper": "Descargar libro blanco"
+  },
+  "footer": {
+    "product": "Producto",
+    "howItWorks": "Cómo funciona",
+    "pricing": "Precios",
+    "api": "API",
+    "support": "Soporte",
+    "help": "Centro de ayuda",
+    "contact": "Contáctanos",
+    "status": "Estado",
+    "rights": "Todos los derechos reservados."
+  },
+  "twa": {
+    "demoMode": "Modo demo activo",
+    "newRequest": "Nueva solicitud",
+    "createOrder": "Crear orden",
+    "nearby": "Cercano",
+    "findRequests": "Buscar solicitudes",
+    "recentActivity": "Actividad reciente",
+    "sampleOrder1": "Fotos Times Square",
+    "sampleOrder2": "Dubai Mall en vivo",
+    "delivered": "Entregado",
+    "inProgress": "En progreso",
+    "timeAgo": {
+      "recent": "hace 2 min",
+      "hour": "hace 1h"
+    },
+    "trySample": "Probar solicitud de muestra",
+    "yourOrders": "Tus órdenes"
+  },
+  "createRequest": {
+    "title": "Nueva solicitud",
+    "titlePlaceholder": "Fotos multitud Times Square",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Necesito fotos actuales de Times Square para una presentación...",
+    "mediaType": "Tipo de medios",
+    "budget": "Presupuesto",
+    "location": "Ubicación",
+    "selectLocation": "Toca para seleccionar ubicación",
+    "creating": "Creando...",
+    "createAndFund": "Crear y financiar",
+    "sample": "Muestra"
+  },
+  "mediaType": {
+    "photo": "Foto",
+    "video": "Video",
+    "live": "En vivo"
+  },
+  "map": {
+    "interactive": "Mapa interactivo",
+    "mapboxIntegration": "Integración Mapbox GL",
+    "nearMe": "Cerca de mí"
+  },
+  "order": {
+    "status": {
+      "created": "Creado",
+      "funded": "Financiado",
+      "in_progress": "En progreso",
+      "delivered": "Entregado",
+      "approved": "Aprobado",
+      "disputed": "Disputado",
+      "refunded": "Reembolsado"
+    },
+    "locationUnknown": "Ubicación desconocida",
+    "chat": "Chat",
+    "accept": "Aceptar"
+  },
+  "wallet": {
+    "connect": "Conectar",
+    "connecting": "Conectando...",
+    "connected": "Conectado"
+  },
+  "chat": {
+    "loading": "Cargando chat...",
+    "unknown": "Usuario desconocido",
+    "online": "En línea",
+    "orderHash": "Orden",
+    "mediaDelivered": "Medios entregados • Pendiente de aprobación",
+    "approving": "Aprobando...",
+    "approvePayment": "Aprobar y liberar pago",
+    "typeMessage": "Escribe un mensaje..."
+  },
+  "rating": {
+    "title": "Califica este proveedor",
+    "commentPlaceholder": "¡Excelentes fotos, entrega rápida!",
+    "submitting": "Enviando...",
+    "submitAndApprove": "Enviar calificación y aprobar pago"
+  },
+  "whitepaper": {
+    "back": "Volver al inicio",
+    "subtitle": "Mercado de medios descentralizado en tiempo real en TON Blockchain",
+    "downloadPdf": "Descargar PDF",
+    "executiveSummary": "Resumen ejecutivo",
+    "executiveText": "Showpls DAO representa la siguiente evolución en la adquisición descentralizada de medios, aprovechando la blockchain TON para crear un mercado transparente, seguro y globalmente accesible para contenido visual en tiempo real.",
+    "mission": "Misión",
+    "missionText": "Democratizar el acceso a información visual en tiempo real mundialmente a través de tecnología blockchain y gobernanza comunitaria.",
+    "vision": "Visión",
+    "visionText": "Un mundo donde cualquiera puede acceder a contenido visual auténtico en tiempo real desde cualquier ubicación a través de una red descentralizada de proveedores.",
+    "technology": "Stack tecnológico",
+    "blockchain": "TON Blockchain",
+    "blockchainText": "Construido en The Open Network para transacciones rápidas, seguras y escalables.",
+    "smartContracts": "Contratos inteligentes",
+    "smartContractsText": "Sistemas automatizados de depósito y pago que aseguran confianza y seguridad.",
+    "decentralized": "Red descentralizada",
+    "decentralizedText": "Arquitectura peer-to-peer sin punto único de falla.",
+    "tokenomics": "Tokenomics",
+    "tokenDistribution": "Distribución de tokens",
+    "community": "Recompensas comunitarias",
+    "team": "Equipo y asesores",
+    "ecosystem": "Desarrollo del ecosistema",
+    "treasury": "Tesoro DAO",
+    "governance": "Modelo de gobernanza",
+    "governanceText": "Los poseedores de tokens participan en decisiones del protocolo a través de mecanismos de votación descentralizados.",
+    "roadmap": "Hoja de ruta",
+    "phase1": "Fase 1: Lanzamiento MVP",
+    "phase1Text": "Lanzamiento de aplicación web Telegram con funcionalidad básica de mercado e integración TON.",
+    "phase2": "Fase 2: Formación DAO",
+    "phase2Text": "Lanzamiento de token, implementación de gobernanza y desarrollo dirigido por la comunidad.",
+    "phase3": "Fase 3: Expansión global",
+    "phase3Text": "Soporte multiplataforma, características avanzadas y red mundial de proveedores.",
+    "getFullDocument": "Obtener el documento completo",
+    "fullDocumentText": "Descarga el libro blanco completo para especificaciones técnicas detalladas, modelo económico y hoja de ruta.",
+    "downloadFullPdf": "Descargar libro blanco completo (PDF)"
+  }
+}

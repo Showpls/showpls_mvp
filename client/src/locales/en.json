@@ -1,0 +1,268 @@
+{
+  "nav": {
+    "landing": "Landing",
+    "webapp": "Web App",
+    "chat": "Chat"
+  },
+  "hero": {
+    "tagline": "Your Eyes, Everywhere.",
+    "realtimeTagline": "Reality in real-time.",
+    "subtitle": "Connect with local providers to get live photos, videos, and streams from any location worldwide with secure TON blockchain payments.",
+    "openTelegram": "Open in Telegram",
+    "watchDemo": "Watch Demo"
+  },
+  "stats": {
+    "coverage": "Global Coverage",
+    "countries": "Countries",
+    "secure": "Secure Payments"
+  },
+  "howItWorks": {
+    "title": "How It Works",
+    "subtitle": "Three simple steps to get real-time content from anywhere in the world",
+    "step1": {
+      "title": "Create Request",
+      "description": "Pin a location, describe what you need, set your budget, and fund the escrow"
+    },
+    "step2": {
+      "title": "Get Matched",
+      "description": "Local providers see your request and accept the job to start working"
+    },
+    "step3": {
+      "title": "Receive Content",
+      "description": "Get your photos, videos, or live streams delivered and approve for secure payout"
+    }
+  },
+  "useCases": {
+    "title": "Perfect For",
+    "market": {
+      "title": "Market Research",
+      "description": "Get real-time insights from retail locations and competitive landscapes"
+    },
+    "news": {
+      "title": "News & Media",
+      "description": "Breaking news coverage and on-ground reporting from anywhere"
+    },
+    "realEstate": {
+      "title": "Real Estate",
+      "description": "Property inspections, neighborhood tours, and location verification"
+    },
+    "events": {
+      "title": "Events",
+      "description": "Live coverage of events, concerts, and special occasions"
+    }
+  },
+  "blockchain": {
+    "title": "Powered by TON Blockchain",
+    "description": "Secure, fast, and transparent payments using smart contract escrow. Your funds are protected until delivery is confirmed.",
+    "feature1": "Smart contract escrow protection",
+    "feature2": "Instant micropayments",
+    "feature3": "Global accessibility",
+    "whitepaper": "Download Whitepaper"
+  },
+  "footer": {
+    "product": "Product",
+    "howItWorks": "How it works",
+    "pricing": "Pricing",
+    "api": "API",
+    "support": "Support",
+    "help": "Help Center",
+    "contact": "Contact Us",
+    "status": "Status",
+    "rights": "All rights reserved."
+  },
+  "twa": {
+    "demoMode": "Demo Mode Active",
+    "newRequest": "New Request",
+    "createOrder": "Create order",
+    "nearby": "Nearby",
+    "findRequests": "Find requests",
+    "recentActivity": "Recent Activity",
+    "sampleOrder1": "Times Square Photos",
+    "sampleOrder2": "Dubai Mall Live",
+    "delivered": "Delivered",
+    "inProgress": "In Progress",
+    "timeAgo": {
+      "recent": "2 min ago",
+      "hour": "1h ago"
+    },
+    "trySample": "Try a Sample Request",
+    "yourOrders": "Your Orders"
+  },
+  "createRequest": {
+    "title": "New Request",
+    "titlePlaceholder": "Times Square crowd photos",
+    "description": "Description",
+    "descriptionPlaceholder": "Need current photos of Times Square for a presentation...",
+    "mediaType": "Media Type",
+    "budget": "Budget",
+    "location": "Location",
+    "selectLocation": "Tap to select location",
+    "creating": "Creating...",
+    "createAndFund": "Create & Fund",
+    "sample": "Sample"
+  },
+  "mediaType": {
+    "photo": "Photo",
+    "video": "Video",
+    "live": "Live"
+  },
+  "map": {
+    "interactive": "Interactive Map",
+    "mapboxIntegration": "Mapbox GL integration",
+    "nearMe": "Near me"
+  },
+  "order": {
+    "status": {
+      "created": "Created",
+      "funded": "Funded",
+      "in_progress": "In Progress",
+      "delivered": "Delivered",
+      "approved": "Approved",
+      "disputed": "Disputed",
+      "refunded": "Refunded"
+    },
+    "locationUnknown": "Location unknown",
+    "chat": "Chat",
+    "accept": "Accept"
+  },
+  "wallet": {
+    "connect": "Connect",
+    "connecting": "Connecting...",
+    "connected": "Connected"
+  },
+  "chat": {
+    "loading": "Loading chat...",
+    "unknown": "Unknown User",
+    "online": "Online",
+    "orderHash": "Order",
+    "mediaDelivered": "Media delivered • Pending approval",
+    "approving": "Approving...",
+    "approvePayment": "Approve & Release Payment",
+    "typeMessage": "Type a message...",
+    "openDispute": "Open Dispute"
+  },
+  "error": "Error",
+  "cancel": "Cancel",
+  "creating": "Creating...",
+  "uploading": "Uploading...",
+  "rating": {
+    "title": "Rate this provider",
+    "commentPlaceholder": "Great photos, fast delivery!",
+    "submitting": "Submitting...",
+    "submitAndApprove": "Submit Rating & Approve Payment"
+  },
+  "dispute": {
+    "openTitle": "Open Dispute",
+    "viewTitle": "Dispute Details",
+    "warning": "Important Notice",
+    "warningText": "Opening a dispute will pause the escrow payment and start the arbitration process. Please provide detailed information and evidence.",
+    "reason": "Dispute Reason",
+    "reasonPlaceholder": "Describe the issue with this order in detail...",
+    "reasonRequired": "Please provide a reason for the dispute",
+    "uploadEvidence": "Upload Evidence",
+    "evidenceHelp": "Upload photos, videos, or documents that support your case",
+    "attachedEvidence": "Attached Evidence",
+    "pendingEvidence": "Pending Evidence",
+    "openDispute": "Open Dispute",
+    "created": "Dispute Created",
+    "createdDescription": "Your dispute has been opened and the escrow has been paused. An arbiter will review your case within 24-48 hours.",
+    "createError": "Failed to create dispute. Please try again.",
+    "details": "Dispute Details",
+    "id": "Dispute ID",
+    "createdAt": "Created At",
+    "evidence": "Evidence",
+    "addEvidence": "Add Additional Evidence",
+    "submitEvidence": "Submit Evidence",
+    "evidenceAdded": "Evidence Added",
+    "evidenceAddedDescription": "Your evidence has been added to the dispute case.",
+    "resolution": "Resolution",
+    "decision": "Decision",
+    "statusOpen": "Open",
+    "statusInReview": "Under Review",
+    "statusResolved": "Resolved",
+    "process": "Dispute Resolution Process",
+    "step1": "Dispute opened - escrow paused automatically",
+    "step2": "Both parties can submit evidence within 24 hours",
+    "step3": "Arbiter reviews case and makes decision",
+    "step4": "Payment released or refunded based on decision"
+  },
+  "whitepaper": {
+    "back": "Back to Home",
+    "subtitle": "Decentralized Real-Time Media Marketplace on TON Blockchain",
+    "downloadPdf": "Download PDF",
+    "executiveSummary": "Executive Summary",
+    "executiveText": "Showpls DAO represents the next evolution in decentralized media acquisition, leveraging the TON blockchain to create a transparent, secure, and globally accessible marketplace for real-time visual content.",
+    "mission": "Mission",
+    "missionText": "To democratize access to real-time visual information worldwide through blockchain technology and community governance.",
+    "vision": "Vision",
+    "visionText": "A world where anyone can access authentic, real-time visual content from any location through a decentralized network of providers.",
+    "technology": "Technology Stack",
+    "blockchain": "TON Blockchain",
+    "blockchainText": "Built on The Open Network for fast, secure, and scalable transactions.",
+    "smartContracts": "Smart Contracts",
+    "smartContractsText": "Automated escrow and payment systems ensuring trust and security.",
+    "decentralized": "Decentralized Network",
+    "decentralizedText": "Peer-to-peer architecture with no single point of failure.",
+    "tokenomics": "Tokenomics",
+    "tokenDistribution": "Token Distribution",
+    "community": "Community Rewards",
+    "team": "Team & Advisors",
+    "ecosystem": "Ecosystem Development",
+    "treasury": "DAO Treasury",
+    "governance": "Governance Model",
+    "governanceText": "Token holders participate in protocol decisions through decentralized voting mechanisms.",
+    "roadmap": "Roadmap",
+    "phase1": "Phase 1: MVP Launch",
+    "phase1Text": "Telegram Web App launch with basic marketplace functionality and TON integration.",
+    "phase2": "Phase 2: DAO Formation",
+    "phase2Text": "Token launch, governance implementation, and community-driven development.",
+    "phase3": "Phase 3: Global Expansion",
+    "phase3Text": "Multi-platform support, advanced features, and worldwide provider network.",
+    "getFullDocument": "Get the Full Document",
+    "fullDocumentText": "Download the complete whitepaper for detailed technical specifications, economic model, and roadmap.",
+    "downloadFullPdf": "Download Full Whitepaper (PDF)"
+  },
+  "landing": {
+    "title": "SHOWPLS",
+    "subtitle": "Real-time global content marketplace",
+    "description": "Request live photos, videos, and streams from any location worldwide with secure TON blockchain payments",
+    "cta": "Start Right Now",
+    "promo": "Promo video below ↓",
+    "videoDescription": "Complete Showpls platform demonstration: from order creation to content delivery",
+    "stats": {
+      "countries": "Countries Available",
+      "uptime": "Always Working", 
+      "avgTime": "Average Time",
+      "success": "Successful Orders"
+    },
+    "features": {
+      "instant": {
+        "title": "Instant Results",
+        "description": "Get content in minutes"
+      },
+      "secure": {
+        "title": "Secure Payments", 
+        "description": "TON blockchain escrow"
+      },
+      "global": {
+        "title": "Global Network",
+        "description": "Worldwide coverage"
+      },
+      "quality": {
+        "title": "Quality Guaranteed",
+        "description": "Professional content"
+      }
+    },
+    "demo": {
+      "title": "Live Demo",
+      "step1": "1. Create Request",
+      "step2": "2. Set Location", 
+      "step3": "3. Wait for Provider",
+      "step4": "4. Receive Content",
+      "location": "Times Square, NYC",
+      "price": "0.5 TON",
+      "status": "Provider found!",
+      "global": "Global"
+    }
+  }
+}

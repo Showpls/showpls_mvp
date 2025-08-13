@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Showpls MVP - Все функции готовы</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            font-family: system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00d4aa, #667eea);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            opacity: 0.8;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: #00d4aa;
+        }
+        .card-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: #00d4aa;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .card-status {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        .card-features {
+            list-style: none;
+            margin: 15px 0;
+        }
+        .card-features li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        .card-features li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #4ade80;
+            font-weight: bold;
+        }
+        .final-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 40px 0;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+        }
+        .final-banner h2 {
+            font-size: 2rem;
+            margin-bottom: 15px;
+        }
+        .final-banner p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            color: #00d4aa;
+            text-decoration: none;
+            font-size: 1.1rem;
+            margin-top: 30px;
+            transition: color 0.3s ease;
+        }
+        .back-link:hover {
+            color: white;
+        }
+        .timestamp {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+    <div class="timestamp">
+        Обновлено: 10 августа 12:40
+    </div>
+
+    <div class="container">
+        <h1>🚀 Showpls MVP</h1>
+        <div class="subtitle">Все функции реализованы и готовы к использованию</div>
+
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">🌟 Онбординг</div>
+                <div class="card-status">✅ ГОТОВ - OnboardingOverlay</div>
+                <ul class="card-features">
+                    <li>Подключение TON кошелька</li>
+                    <li>Создание первого заказа</li>
+                    <li>Настройка профиля поставщика</li>
+                    <li>Интерактивные подсказки для новых пользователей</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🧮 Калькулятор платежей</div>
+                <div class="card-status">✅ ГОТОВ - PaymentCalculator</div>
+                <ul class="card-features">
+                    <li>Поэтапные платежи (33% / 33% / 34%)</li>
+                    <li>Комиссия платформы (10%)</li>
+                    <li>Опция чаевых (10-20%)</li>
+                    <li>Курс TON в реальном времени</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📋 Шаблоны заказов</div>
+                <div class="card-status">✅ ГОТОВ - OrderTemplates</div>
+                <ul class="card-features">
+                    <li>Продукт в магазине (0.1-0.5 TON)</li>
+                    <li>Квартира изнутри (0.5-2.0 TON)</li>
+                    <li>Концерт прямой эфир (1.0-5.0 TON)</li>
+                    <li>Места из детства и воспоминаний</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">⚡ Быстрые реплики</div>
+                <div class="card-status">✅ ГОТОВ - QuickReplies</div>
+                <ul class="card-features">
+                    <li>"Еду на локацию, буду через 15 минут"</li>
+                    <li>"Почти готово, осталось пару кадров"</li>
+                    <li>"Задерживаюсь, извините - пробки"</li>
+                    <li>"Завершено! Проверяйте результат"</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">💝 Система чаевых</div>
+                <div class="card-status">✅ ГОТОВ - TipModal</div>
+                <ul class="card-features">
+                    <li>Быстрые суммы: 0.1, 0.25, 0.5, 1.0 TON</li>
+                    <li>Личное сообщение благодарности</li>
+                    <li>Отправка после завершения заказа</li>
+                    <li>Уведомления исполнителю</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🎯 Техническая база</div>
+                <div class="card-status">✅ ГОТОВ - База данных обновлена</div>
+                <ul class="card-features">
+                    <li>Добавлено поле milestones в orders</li>
+                    <li>API маршруты /api/orders созданы</li>
+                    <li>JWT авторизация настроена</li>
+                    <li>WebSocket соединения работают</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="final-banner">
+            <h2>🎉 ВСЕ MVP ФУНКЦИИ РЕАЛИЗОВАНЫ!</h2>
+            <p>5 React компонентов готовы • База данных обновлена • API созданы</p>
+            <p><strong>Приложение готово к продакшену</strong></p>
+        </div>
+
+        <a href="/" class="back-link">← Назад к приложению Showpls</a>
+    </div>
+
+    <script>
+        console.log('🚀 MVP Demo page loaded successfully at', new Date());
+        
+        // Анимация карточек при загрузке
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        });
+    </script>
+</body>
+</html>

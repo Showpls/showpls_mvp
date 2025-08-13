@@ -1,0 +1,18 @@
+NODE_ENV=production
+PORT=5000
+
+DATABASE_URL="postgresql://username:password@localhost:5432/showpls_db"
+
+JWT_SECRET="your-super-secure-jwt-secret-key-here"
+ADMIN_API_SECRET="your-admin-api-secret"
+
+TELEGRAM_BOT_TOKEN="your_telegram_bot_token_here"
+TELEGRAM_BOT_USERNAME="ShowplsBot"
+TELEGRAM_WEBHOOK_SECRET="showpls-webhook-secret-2025"
+APP_BASE_URL="https://app.showpls.com"
+WEBAPP_BASE_URL="https://app.showpls.com"
+
+TON_API_KEY="your-toncenter-api-key"
+TON_PLATFORM_WALLET="word1 word2 word3 ..."
+FEE_RECEIVER_WALLET="EQDxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+ESCROW_CODE_B64="paste_base64_boc_here"
