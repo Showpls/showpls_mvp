@@ -4,6 +4,9 @@ services:
     build: .
     env_file: .env
     restart: unless-stopped
+    volumes:
+      - ./dist:/app/dist:ro
+      - ./attached_assets:/app/attached_assets:ro
     networks:
       - showpls-net
 
