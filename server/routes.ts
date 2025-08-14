@@ -40,7 +40,7 @@ async function processTelegramUpdate(update: any) {
             inline_keyboard: [[
               {
                 text: "Open Showpls App",
-                web_app: { url: (process.env.WEBAPP_URL || 'https://your-domain.example/twa') }
+                web_app: { url: (process.env.WEBAPP_BASE_URL || process.env.WEBAPP_URL || 'https://app.showpls.io') + '/twa' }
               }
             ]]
           }
@@ -131,6 +131,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (e) {
       console.error('[ADMIN] setup-webapp error:', e);
       return res.status(500).json({ error: 'Failed to set up Web App' });
+    }
+  });
+
+  // Simple status endpoint to check Web App configuration
+  app.get('/api/status', async (req, res) => {
+    try {
+      const base = process.env.WEBAPP_BASE_URL || process.env.WEBAPP_URL || '';
+      const webAppUrl = base ? `${base.replace(/\/$/, '')}/twa` : undefined;
+      
+      res.json({
+        status: 'ok',
+        webAppUrl,
+        environment: {
+          hasBotToken: !!process.env.TELEGRAM_BOT_TOKEN,
+          hasWebAppUrl: !!webAppUrl,
+          nodeEnv: process.env.NODE_ENV
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ error: 'Status check failed' });
     }
   });
 
