@@ -1,19 +1,25 @@
+version: "3.9"
 services:
   app:
     build: .
-    env_file: 
-      - .env
-    environment:
-      NODE_ENV: production
-    ports:
-      - "5000:5000"
+    env_file: .env
     restart: unless-stopped
+    networks:
+      - showpls-net
 
   nginx:
     image: nginx:stable-alpine
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - app
+    networks:
+      - showpls-net
+
+networks:
+  showpls-net:
+    driver: bridge
