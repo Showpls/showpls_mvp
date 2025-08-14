@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { Camera, Video, Radio, Crosshair } from "lucide-react";
 import { getAuthToken } from "@/lib/auth";
+import { locationManager } from '@telegram-apps/sdk';
 
 interface MapViewProps {
   selectedMediaType: string;
@@ -14,100 +15,106 @@ export function MapView({ selectedMediaType, onMediaTypeChange }: MapViewProps) 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [orders, setOrders] = useState<any[]>([]);
+  const [isLocationSupported, setIsLocationSupported] = useState(false);
+  const [isLocationMounted, setIsLocationMounted] = useState(false);
 
-  const handleNearMe = () => {
+  useEffect(() => {
+    // Check if location is supported
+    const supported = locationManager.isSupported();
+    setIsLocationSupported(supported);
+
+    if (supported) {
+      // Mount the location manager
+      const mountLocationManager = async () => {
+        try {
+          if (locationManager.mount.isAvailable()) {
+            await locationManager.mount();
+            setIsLocationMounted(true);
+            console.log('[MAP] Location manager mounted successfully');
+          }
+        } catch (err) {
+          console.error('[MAP] Failed to mount location manager:', err);
+          setError('Failed to initialize location services');
+        }
+      };
+
+      mountLocationManager();
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (isLocationMounted) {
+        locationManager.unmount();
+      }
+    };
+  }, []);
+
+  const handleNearMe = async () => {
     setError(null);
     setLoading(true);
 
-    // Check if we're in Telegram Web App
-    const telegramWebApp = (window as any)?.Telegram?.WebApp;
+    try {
+      let location: any;
 
-    if (telegramWebApp) {
-      // Use Telegram's geolocation API
-      console.log('[MAP] Using Telegram WebApp geolocation');
+      if (isLocationSupported && isLocationMounted) {
+        // Use Telegram's location manager
+        console.log('[MAP] Using Telegram location manager');
 
-      // Request location permission and get current position
-      telegramWebApp.requestLocation()
-        .then(async (location: any) => {
-          try {
-            console.log('[MAP] Telegram location received:', location);
-            const token = getAuthToken();
-            const url = `/api/orders/nearby?lat=${location.lat}&lng=${location.lng}&radius=15`;
-            const res = await fetch(url, {
-              headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
-            if (!res.ok) {
-              const txt = await res.text();
-              throw new Error(txt || res.statusText);
-            }
-            const json = await res.json();
-            setOrders(Array.isArray(json.orders) ? json.orders : []);
-          } catch (e: any) {
-            setError(e?.message || 'Не удалось получить заказы рядом');
-          } finally {
-            setLoading(false);
-          }
-        })
-        .catch((err: any) => {
-          console.error('[MAP] Telegram geolocation error:', err);
-          setLoading(false);
-          // Provide specific error message for Telegram Web App
-          if (err?.message?.includes('denied') || err?.message?.includes('permission')) {
-            setError(t('map.telegramLocationDenied') || 'Разрешите доступ к местоположению в Telegram для поиска заказов рядом');
-          } else {
-            setError(t('map.telegramLocationError') || 'Не удалось получить местоположение через Telegram');
-          }
+        if (locationManager.requestLocation.isAvailable()) {
+          location = await locationManager.requestLocation();
+          console.log('[MAP] Telegram location received:', location);
+        } else {
+          throw new Error('Location request not available');
+        }
+      } else if (navigator.geolocation) {
+        // Fall back to browser geolocation API
+        console.log('[MAP] Using browser geolocation API');
+
+        location = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve({
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude,
+              horizontal_accuracy: pos.coords.accuracy
+            }),
+            (err) => reject(err),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+          );
         });
-    } else {
-      // Fall back to browser geolocation API
-      console.log('[MAP] Using browser geolocation API');
-
-      if (!navigator.geolocation) {
-        setError(t('map.geoNotSupported') || 'Геолокация не поддерживается');
-        setLoading(false);
-        return;
+      } else {
+        throw new Error('Geolocation not supported');
       }
 
-      navigator.geolocation.getCurrentPosition(
-        async (pos) => {
-          try {
-            const token = getAuthToken();
-            const url = `/api/orders/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&radius=15`;
-            const res = await fetch(url, {
-              headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
-            if (!res.ok) {
-              const txt = await res.text();
-              throw new Error(txt || res.statusText);
-            }
-            const json = await res.json();
-            setOrders(Array.isArray(json.orders) ? json.orders : []);
-          } catch (e: any) {
-            setError(e?.message || 'Не удалось получить заказы рядом');
-          } finally {
-            setLoading(false);
-          }
-        },
-        (err) => {
-          console.error('[MAP] Browser geolocation error:', err);
-          setLoading(false);
-          // Provide specific error messages based on error code
-          switch (err.code) {
-            case err.PERMISSION_DENIED:
-              setError(t('map.locationDenied') || 'Доступ к местоположению запрещен. Разрешите доступ в настройках браузера.');
-              break;
-            case err.POSITION_UNAVAILABLE:
-              setError(t('map.locationUnavailable') || 'Информация о местоположении недоступна');
-              break;
-            case err.TIMEOUT:
-              setError(t('map.locationTimeout') || 'Превышено время ожидания получения местоположения');
-              break;
-            default:
-              setError(t('map.locationError') || 'Не удалось получить ваше местоположение');
-          }
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-      );
+      // Fetch orders with location
+      const token = getAuthToken();
+      const url = `/api/orders/nearby?lat=${location.latitude}&lng=${location.longitude}&radius=15`;
+      const res = await fetch(url, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+
+      if (!res.ok) {
+        const txt = await res.text();
+        throw new Error(txt || res.statusText);
+      }
+
+      const json = await res.json();
+      setOrders(Array.isArray(json.orders) ? json.orders : []);
+
+    } catch (e: any) {
+      console.error('[MAP] Location error:', e);
+
+      // Provide specific error messages
+      if (e?.message?.includes('denied') || e?.message?.includes('permission')) {
+        setError(t('map.locationDenied') || 'Location access denied. Please allow access in settings.');
+      } else if (e?.message?.includes('timeout')) {
+        setError(t('map.locationTimeout') || 'Location request timed out');
+      } else if (e?.message?.includes('unavailable')) {
+        setError(t('map.locationUnavailable') || 'Location information is unavailable');
+      } else {
+        setError(e?.message || t('map.locationError') || 'Failed to get your location');
+      }
+    } finally {
+      setLoading(false);
     }
   };
 

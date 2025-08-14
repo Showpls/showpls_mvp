@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Camera, Video, Smartphone, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import { getAuthToken, bootstrapTelegramAuth } from "@/lib/auth";
+import { locationManager } from '@telegram-apps/sdk';
 import TelegramWebApp from "./TelegramWebApp";
 
 interface OrderData {
@@ -34,6 +35,9 @@ export default function CreateOrder() {
     isSampleOrder: false,
   });
 
+  const [isLocationSupported, setIsLocationSupported] = useState(false);
+  const [isLocationMounted, setIsLocationMounted] = useState(false);
+
   const queryClient = useQueryClient();
 
   useEffect(() => {
@@ -43,6 +47,32 @@ export default function CreateOrder() {
         await bootstrapTelegramAuth();
       }
     })();
+
+    // Check if location is supported
+    const supported = locationManager.isSupported();
+    setIsLocationSupported(supported);
+
+    if (supported) {
+      // Mount the location manager
+      const mountLocationManager = async () => {
+        try {
+          await locationManager.mount();
+          setIsLocationMounted(true);
+          console.log('[CREATE_ORDER] Location manager mounted successfully');
+        } catch (err) {
+          console.error('[CREATE_ORDER] Failed to mount location manager:', err);
+        }
+      };
+
+      mountLocationManager();
+    }
+
+    // Cleanup on unmount
+    return () => {
+      if (isLocationMounted) {
+        locationManager.unmount();
+      }
+    };
   }, []);
 
   const createOrderMutation = useMutation({
@@ -87,75 +117,67 @@ export default function CreateOrder() {
     createOrderMutation.mutate(orderData);
   };
 
-  const getLocationFromBrowser = () => {
-    // Check if we're in Telegram Web App
-    const telegramWebApp = (window as any)?.Telegram?.WebApp;
+  const getLocationFromBrowser = async () => {
+    console.log('[CREATE_ORDER] Location button clicked');
 
-    if (telegramWebApp) {
-      // Use Telegram's geolocation API
-      console.log('[CREATE_ORDER] Using Telegram WebApp geolocation');
+    try {
+      let location: any;
 
-      // Request location permission and get current position
-      telegramWebApp.requestLocation()
-        .then((location: any) => {
-          console.log('[CREATE_ORDER] Telegram location received:', location);
-          setOrderData({
-            ...orderData,
-            location: {
-              lat: location.lat,
-              lng: location.lng,
-              address: 'Ваше текущее местоположение',
-            }
-          });
-        })
-        .catch((err: any) => {
-          console.error('[CREATE_ORDER] Telegram geolocation error:', err);
-          // Provide specific error message for Telegram Web App
-          if (err?.message?.includes('denied') || err?.message?.includes('permission')) {
-            alert('Разрешите доступ к местоположению в Telegram для получения вашего местоположения');
-          } else {
-            alert('Не удалось получить местоположение через Telegram');
+      if (isLocationSupported && isLocationMounted) {
+        // Use Telegram's location manager
+        console.log('[CREATE_ORDER] Using Telegram location manager');
+
+        location = await locationManager.requestLocation();
+        console.log('[CREATE_ORDER] Telegram location received:', location);
+
+        setOrderData({
+          ...orderData,
+          location: {
+            lat: location.latitude,
+            lng: location.longitude,
+            address: 'Ваше текущее местоположение',
           }
         });
-    } else {
-      // Fall back to browser geolocation API
-      console.log('[CREATE_ORDER] Using browser geolocation API');
+      } else if (navigator.geolocation) {
+        // Fall back to browser geolocation API
+        console.log('[CREATE_ORDER] Using browser geolocation API');
 
-      if (!navigator.geolocation) {
+        location = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => resolve({
+              latitude: pos.coords.latitude,
+              longitude: pos.coords.longitude
+            }),
+            (err) => reject(err),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+          );
+        });
+
+        setOrderData({
+          ...orderData,
+          location: {
+            lat: location.latitude,
+            lng: location.longitude,
+            address: 'Ваше текущее местоположение',
+          }
+        });
+      } else {
         alert('Геолокация не поддерживается вашим браузером');
         return;
       }
+    } catch (e: any) {
+      console.error('[CREATE_ORDER] Location error:', e);
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setOrderData({
-            ...orderData,
-            location: {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-              address: 'Ваше текущее местоположение',
-            }
-          });
-        },
-        (error) => {
-          console.error('[CREATE_ORDER] Browser geolocation error:', error);
-          // Provide specific error messages based on error code
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              alert('Доступ к местоположению запрещен. Разрешите доступ в настройках браузера.');
-              break;
-            case error.POSITION_UNAVAILABLE:
-              alert('Информация о местоположении недоступна');
-              break;
-            case error.TIMEOUT:
-              alert('Превышено время ожидания получения местоположения');
-              break;
-            default:
-              alert('Не удалось получить ваше местоположение');
-          }
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-      );
+      // Provide specific error messages
+      if (e?.message?.includes('denied') || e?.message?.includes('permission')) {
+        alert('Доступ к местоположению запрещен. Разрешите доступ в настройках.');
+      } else if (e?.message?.includes('timeout')) {
+        alert('Превышено время ожидания получения местоположения');
+      } else if (e?.message?.includes('unavailable')) {
+        alert('Информация о местоположении недоступна');
+      } else {
+        alert('Не удалось получить ваше местоположение');
+      }
     }
   };
 
@@ -278,7 +300,10 @@ export default function CreateOrder() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={getLocationFromBrowser}
+                    onClick={() => {
+                      console.log('[CREATE_ORDER] Button clicked');
+                      getLocationFromBrowser();
+                    }}
                     className="shrink-0"
                   >
                     <MapPin size={16} />
