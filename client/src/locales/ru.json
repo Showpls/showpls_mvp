@@ -109,7 +109,16 @@
   "map": {
     "interactive": "Интерактивная карта",
     "mapboxIntegration": "Интеграция Mapbox GL",
-    "nearMe": "Рядом со мной"
+    "nearMe": "Рядом со мной",
+    "searching": "Поиск...",
+    "found": "Найдено",
+    "geoNotSupported": "Геолокация не поддерживается",
+    "telegramLocationDenied": "Разрешите доступ к местоположению в Telegram для поиска заказов рядом",
+    "telegramLocationError": "Не удалось получить местоположение через Telegram",
+    "locationDenied": "Доступ к местоположению запрещен. Разрешите доступ в настройках браузера.",
+    "locationUnavailable": "Информация о местоположении недоступна",
+    "locationTimeout": "Превышено время ожидания получения местоположения",
+    "locationError": "Не удалось получить ваше местоположение"
   },
   "order": {
     "status": {

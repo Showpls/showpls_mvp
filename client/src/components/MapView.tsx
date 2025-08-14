@@ -17,37 +17,98 @@ export function MapView({ selectedMediaType, onMediaTypeChange }: MapViewProps) 
 
   const handleNearMe = () => {
     setError(null);
-    if (!navigator.geolocation) {
-      setError(t('map.geoNotSupported') || 'Геолокация не поддерживается');
-      return;
-    }
     setLoading(true);
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        try {
-          const token = getAuthToken();
-          const url = `/api/orders/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&radius=15`;
-          const res = await fetch(url, {
-            headers: token ? { Authorization: `Bearer ${token}` } : {},
-          });
-          if (!res.ok) {
-            const txt = await res.text();
-            throw new Error(txt || res.statusText);
+
+    // Check if we're in Telegram Web App
+    const telegramWebApp = (window as any)?.Telegram?.WebApp;
+
+    if (telegramWebApp) {
+      // Use Telegram's geolocation API
+      console.log('[MAP] Using Telegram WebApp geolocation');
+
+      // Request location permission and get current position
+      telegramWebApp.requestLocation()
+        .then(async (location: any) => {
+          try {
+            console.log('[MAP] Telegram location received:', location);
+            const token = getAuthToken();
+            const url = `/api/orders/nearby?lat=${location.lat}&lng=${location.lng}&radius=15`;
+            const res = await fetch(url, {
+              headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            if (!res.ok) {
+              const txt = await res.text();
+              throw new Error(txt || res.statusText);
+            }
+            const json = await res.json();
+            setOrders(Array.isArray(json.orders) ? json.orders : []);
+          } catch (e: any) {
+            setError(e?.message || 'Не удалось получить заказы рядом');
+          } finally {
+            setLoading(false);
           }
-          const json = await res.json();
-          setOrders(Array.isArray(json.orders) ? json.orders : []);
-        } catch (e: any) {
-          setError(e?.message || 'Не удалось получить заказы рядом');
-        } finally {
+        })
+        .catch((err: any) => {
+          console.error('[MAP] Telegram geolocation error:', err);
           setLoading(false);
-        }
-      },
-      (err) => {
+          // Provide specific error message for Telegram Web App
+          if (err?.message?.includes('denied') || err?.message?.includes('permission')) {
+            setError(t('map.telegramLocationDenied') || 'Разрешите доступ к местоположению в Telegram для поиска заказов рядом');
+          } else {
+            setError(t('map.telegramLocationError') || 'Не удалось получить местоположение через Telegram');
+          }
+        });
+    } else {
+      // Fall back to browser geolocation API
+      console.log('[MAP] Using browser geolocation API');
+
+      if (!navigator.geolocation) {
+        setError(t('map.geoNotSupported') || 'Геолокация не поддерживается');
         setLoading(false);
-        setError(err.message || 'Не удалось получить ваше местоположение');
-      },
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
+        return;
+      }
+
+      navigator.geolocation.getCurrentPosition(
+        async (pos) => {
+          try {
+            const token = getAuthToken();
+            const url = `/api/orders/nearby?lat=${pos.coords.latitude}&lng=${pos.coords.longitude}&radius=15`;
+            const res = await fetch(url, {
+              headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            if (!res.ok) {
+              const txt = await res.text();
+              throw new Error(txt || res.statusText);
+            }
+            const json = await res.json();
+            setOrders(Array.isArray(json.orders) ? json.orders : []);
+          } catch (e: any) {
+            setError(e?.message || 'Не удалось получить заказы рядом');
+          } finally {
+            setLoading(false);
+          }
+        },
+        (err) => {
+          console.error('[MAP] Browser geolocation error:', err);
+          setLoading(false);
+          // Provide specific error messages based on error code
+          switch (err.code) {
+            case err.PERMISSION_DENIED:
+              setError(t('map.locationDenied') || 'Доступ к местоположению запрещен. Разрешите доступ в настройках браузера.');
+              break;
+            case err.POSITION_UNAVAILABLE:
+              setError(t('map.locationUnavailable') || 'Информация о местоположении недоступна');
+              break;
+            case err.TIMEOUT:
+              setError(t('map.locationTimeout') || 'Превышено время ожидания получения местоположения');
+              break;
+            default:
+              setError(t('map.locationError') || 'Не удалось получить ваше местоположение');
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
+      );
+    }
   };
 
   const filteredOrders = orders.filter((o) =>

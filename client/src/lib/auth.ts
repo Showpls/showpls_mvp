@@ -153,6 +153,7 @@ declare global {
         readTextFromClipboard?: (callback?: (data: string) => void) => void;
         requestWriteAccess?: (callback?: (access: boolean) => void) => void;
         requestContact?: (callback?: (contact: { phone_number: string; first_name: string; last_name?: string; user_id?: number }) => void) => void;
+        requestLocation?: () => Promise<{ lat: number; lng: number }>;
         invokeCustomMethod?: (method: string, params?: any, callback?: (result: any) => void) => void;
         version?: string;
         platform?: string;

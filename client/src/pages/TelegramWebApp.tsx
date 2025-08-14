@@ -109,15 +109,6 @@ export default function TelegramWebApp() {
 
       {/* Main TWA Content */}
       <div className="max-w-sm mx-auto px-4 space-y-6">
-        {/* Demo Mode Banner */}
-        <Card className="bg-brand-accent/20 border-brand-accent/30">
-          <CardContent className="p-3 text-center">
-            <Badge variant="secondary" className="bg-brand-accent/20 text-brand-accent">
-              <Video className="w-3 h-3 mr-1" />
-              {String(t('twa.demoMode'))}
-            </Badge>
-          </CardContent>
-        </Card>
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4">

@@ -101,6 +101,20 @@
     "video": "Video",
     "live": "Live"
   },
+  "map": {
+    "interactive": "Interactive Map",
+    "mapboxIntegration": "Mapbox GL Integration",
+    "nearMe": "Near Me",
+    "searching": "Searching...",
+    "found": "Found",
+    "geoNotSupported": "Geolocation is not supported",
+    "telegramLocationDenied": "Please allow location access in Telegram to find orders nearby",
+    "telegramLocationError": "Failed to get location through Telegram",
+    "locationDenied": "Location access denied. Please allow access in browser settings.",
+    "locationUnavailable": "Location information is unavailable",
+    "locationTimeout": "Location request timed out",
+    "locationError": "Failed to get your location"
+  },
   "common": {
     "all": "All",
     "skip": "Skip",
