@@ -1,9 +1,20 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
+import { createHtmlPlugin } from "vite-plugin-html"; // Add this
 
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    createHtmlPlugin({
+      minify: true,
+      inject: {
+        data: {
+          buildTime: new Date().toISOString(),
+        },
+      },
+    }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -15,10 +26,13 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    manifest: true, // Generate manifest.json
     rollupOptions: {
+      input: path.resolve(import.meta.dirname, "client", "index.html"),
       output: {
-        entryFileNames: "assets/[name].[hash].js",
-        assetFileNames: "assets/[name].[hash][extname]",
+        entryFileNames: "assets/[name]-[hash].js",
+        chunkFileNames: "assets/[name]-[hash].js",
+        assetFileNames: "assets/[name]-[hash][extname]",
       },
     },
   },
