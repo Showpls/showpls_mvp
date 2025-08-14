@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { MapPin, Camera, Video, Smartphone, ArrowLeft } from "lucide-react";
 import { Link } from "wouter";
 import { getAuthToken, bootstrapTelegramAuth } from "@/lib/auth";
+import TelegramWebApp from "./TelegramWebApp";
 
 interface OrderData {
   title: string;
@@ -87,7 +88,44 @@ export default function CreateOrder() {
   };
 
   const getLocationFromBrowser = () => {
-    if (navigator.geolocation) {
+    // Check if we're in Telegram Web App
+    const telegramWebApp = (window as any)?.Telegram?.WebApp;
+
+    if (telegramWebApp) {
+      // Use Telegram's geolocation API
+      console.log('[CREATE_ORDER] Using Telegram WebApp geolocation');
+
+      // Request location permission and get current position
+      telegramWebApp.requestLocation()
+        .then((location: any) => {
+          console.log('[CREATE_ORDER] Telegram location received:', location);
+          setOrderData({
+            ...orderData,
+            location: {
+              lat: location.lat,
+              lng: location.lng,
+              address: 'Ваше текущее местоположение',
+            }
+          });
+        })
+        .catch((err: any) => {
+          console.error('[CREATE_ORDER] Telegram geolocation error:', err);
+          // Provide specific error message for Telegram Web App
+          if (err?.message?.includes('denied') || err?.message?.includes('permission')) {
+            alert('Разрешите доступ к местоположению в Telegram для получения вашего местоположения');
+          } else {
+            alert('Не удалось получить местоположение через Telegram');
+          }
+        });
+    } else {
+      // Fall back to browser geolocation API
+      console.log('[CREATE_ORDER] Using browser geolocation API');
+
+      if (!navigator.geolocation) {
+        alert('Геолокация не поддерживается вашим браузером');
+        return;
+      }
+
       navigator.geolocation.getCurrentPosition(
         (position) => {
           setOrderData({
@@ -100,12 +138,24 @@ export default function CreateOrder() {
           });
         },
         (error) => {
-          console.error('Ошибка получения геолокации:', error);
-          alert('Не удалось получить ваше местоположение');
-        }
+          console.error('[CREATE_ORDER] Browser geolocation error:', error);
+          // Provide specific error messages based on error code
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              alert('Доступ к местоположению запрещен. Разрешите доступ в настройках браузера.');
+              break;
+            case error.POSITION_UNAVAILABLE:
+              alert('Информация о местоположении недоступна');
+              break;
+            case error.TIMEOUT:
+              alert('Превышено время ожидания получения местоположения');
+              break;
+            default:
+              alert('Не удалось получить ваше местоположение');
+          }
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
       );
-    } else {
-      alert('Геолокация не поддерживается вашим браузером');
     }
   };
 
