@@ -1,0 +1,16 @@
+{
+  "name": "Showpls",
+  "short_name": "Showpls",
+  "description": "Reality in real-time. Connect with local providers to get live photos, videos, and streams from any location worldwide.",
+  "start_url": "/twa",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "icons": [
+    {
+      "src": "/logo-showpls.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

@@ -265,3 +265,43 @@ export async function getBotInfo(): Promise<any> {
     return null;
   }
 }
+
+// Set up Telegram Web App
+export async function setupTelegramWebApp(webAppUrl: string): Promise<boolean> {
+  if (!TELEGRAM_BOT_TOKEN) {
+    console.warn('[TELEGRAM] Cannot set up Web App - bot token not available');
+    return false;
+  }
+
+  try {
+    // Set the Web App URL using setChatMenuButton
+    const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/setChatMenuButton`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        menu_button: {
+          type: 'web_app',
+          text: 'Open Showpls',
+          web_app: {
+            url: webAppUrl
+          }
+        }
+      })
+    });
+
+    const result = await response.json();
+    
+    if (!result.ok) {
+      console.error('[TELEGRAM] Failed to set up Web App:', result);
+      return false;
+    }
+
+    console.log('[TELEGRAM] Web App set up successfully:', webAppUrl);
+    return true;
+  } catch (error) {
+    console.error('[TELEGRAM] Error setting up Web App:', error);
+    return false;
+  }
+}

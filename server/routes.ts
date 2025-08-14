@@ -4,7 +4,7 @@ import express from "express";
 import path from "path";
 import { storage } from "./storage";
 import { processTelegramInitData, authenticateTelegramUser } from "./middleware/telegramAuth";
-import { getBotInfo, sendTelegramMessage, setTelegramWebhook } from "./telegram";
+import { getBotInfo, sendTelegramMessage, setTelegramWebhook, setupTelegramWebApp } from "./telegram";
 import { createWSServer } from "./ws";
 import { setupOrderRoutes } from "./routes/orders";
 import { setupAuthRoutes } from "./routes/auth";
@@ -106,6 +106,35 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: 'Failed to retrieve bot information' });
     }
   });
+
+  // Admin: set up Telegram Web App (protected by ADMIN_API_SECRET)
+  app.post('/api/admin/setup-webapp', async (req, res) => {
+    try {
+      const adminSecret = req.get('x-admin-secret');
+      if (!adminSecret || adminSecret !== (process.env.ADMIN_API_SECRET || process.env.TELEGRAM_WEBHOOK_SECRET)) {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+      
+      const base = process.env.WEBAPP_BASE_URL || process.env.WEBAPP_URL || '';
+      const webAppUrl = base ? `${base.replace(/\/$/, '')}/twa` : undefined;
+      
+      if (!webAppUrl) {
+        return res.status(400).json({ error: 'WEBAPP_BASE_URL or WEBAPP_URL not configured' });
+      }
+      
+      const ok = await setupTelegramWebApp(webAppUrl);
+      if (!ok) {
+        return res.status(500).json({ error: 'Failed to set up Web App' });
+      }
+      
+      return res.json({ success: true, webAppUrl });
+    } catch (e) {
+      console.error('[ADMIN] setup-webapp error:', e);
+      return res.status(500).json({ error: 'Failed to set up Web App' });
+    }
+  });
+
+
 
   // Admin: set Telegram webhook (protected by ADMIN_API_SECRET)
   app.post('/api/admin/set-webhook', async (req, res) => {

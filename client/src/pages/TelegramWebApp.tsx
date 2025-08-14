@@ -29,7 +29,38 @@ export default function TelegramWebApp() {
   const [selectedMediaType, setSelectedMediaType] = useState<string>('');
 
   useEffect(() => {
-    bootstrapTelegramAuth();
+    // Initialize Telegram Web App
+    const initTelegramWebApp = async () => {
+      try {
+        // Check if Telegram WebApp is available
+        const telegramWebApp = (window as any)?.Telegram?.WebApp;
+
+        if (telegramWebApp) {
+          console.log('[TWA] Telegram WebApp detected, initializing...');
+
+          // Tell Telegram that the Web App is ready
+          if (telegramWebApp.ready) {
+            telegramWebApp.ready();
+          }
+
+          // Expand the Web App to full height
+          if (telegramWebApp.expand) {
+            telegramWebApp.expand();
+          }
+
+          console.log('[TWA] Telegram WebApp initialized successfully');
+        } else {
+          console.warn('[TWA] Telegram WebApp not available - make sure you\'re opening this in Telegram');
+        }
+
+        // Attempt authentication
+        await bootstrapTelegramAuth();
+      } catch (error) {
+        console.error('[TWA] Error initializing Telegram WebApp:', error);
+      }
+    };
+
+    initTelegramWebApp();
   }, []);
 
   const { data: user } = useQuery({
