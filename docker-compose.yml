@@ -10,11 +10,9 @@ services:
   nginx:
     image: nginx:stable-alpine
     ports:
-      - "80:80"
-      - "443:443"
+      - "80:80" # Only HTTP for now
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
-      - /etc/letsencrypt:/etc/letsencrypt:ro
     depends_on:
       - app
     networks:
