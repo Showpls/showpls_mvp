@@ -111,12 +111,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/admin/setup-webapp', async (req, res) => {
     try {
       const adminSecret = req.get('x-admin-secret');
-      if (!adminSecret || adminSecret !== (process.env.ADMIN_API_SECRET || process.env.TELEGRAM_WEBHOOK_SECRET)) {
+      const expectedSecret = process.env.ADMIN_API_SECRET || process.env.TELEGRAM_WEBHOOK_SECRET;
+      
+      console.log('[ADMIN] Setup WebApp request:', {
+        hasAdminSecret: !!adminSecret,
+        hasExpectedSecret: !!expectedSecret,
+        adminSecret: adminSecret?.substring(0, 10) + '...',
+        expectedSecret: expectedSecret?.substring(0, 10) + '...'
+      });
+      
+      if (!adminSecret || adminSecret !== expectedSecret) {
+        console.log('[ADMIN] Forbidden - secret mismatch');
         return res.status(403).json({ error: 'Forbidden' });
       }
       
       const base = process.env.WEBAPP_BASE_URL || process.env.WEBAPP_URL || '';
       const webAppUrl = base ? `${base.replace(/\/$/, '')}/twa` : undefined;
+      
+      console.log('[ADMIN] WebApp setup:', { base, webAppUrl });
       
       if (!webAppUrl) {
         return res.status(400).json({ error: 'WEBAPP_BASE_URL or WEBAPP_URL not configured' });
@@ -127,6 +139,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(500).json({ error: 'Failed to set up Web App' });
       }
       
+      console.log('[ADMIN] WebApp setup successful:', webAppUrl);
       return res.json({ success: true, webAppUrl });
     } catch (e) {
       console.error('[ADMIN] setup-webapp error:', e);
