@@ -28,4 +28,11 @@ export default defineConfig({
       },
     },
   },
+  // Ensure proper base path for production
+  base: "/",
+  // Add server config for development
+  server: {
+    host: true,
+    port: 3000,
+  },
 });
