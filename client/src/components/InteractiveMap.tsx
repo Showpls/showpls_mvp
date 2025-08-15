@@ -229,106 +229,132 @@ export function InteractiveMap({
         )}
       </div>
 
-      {/* Filter Panel */}
+      {/* Mobile Filter Panel */}
       {showFilters && showFilterPanel && (
-        <Card className="absolute top-4 right-4 w-80 bg-white/95 backdrop-blur-sm border-white/20">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg">{t('map.filters') || 'Фильтры'}</CardTitle>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end">
+          <div className="w-full bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
+              <div className="flex items-center justify-between">
+                <h3 className="text-lg font-semibold text-gray-900">{t('map.filters') || 'Фильтры'}</h3>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setShowFilterPanel(false)}
+                  className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="p-4 space-y-6">
+              {/* Media Type Filter */}
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-gray-900">{t('map.mediaType') || 'Тип контента'}</label>
+                <Select
+                  value={filters.mediaType}
+                  onValueChange={(value) => setFilters({ ...filters, mediaType: value })}
+                >
+                  <SelectTrigger className="w-full bg-gray-50 border-gray-300 text-gray-900">
+                    <SelectValue placeholder={t('map.allTypes') || 'Все типы'} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="">
+                      <div className="flex items-center gap-2">
+                        <span className="text-gray-900">{t('map.allTypes') || 'Все типы'}</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="photo">
+                      <div className="flex items-center gap-2">
+                        <Camera className="w-4 h-4 text-blue-600" />
+                        <span className="text-gray-900">{t('mediaType.photo') || 'Фото'}</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="video">
+                      <div className="flex items-center gap-2">
+                        <Video className="w-4 h-4 text-red-600" />
+                        <span className="text-gray-900">{t('mediaType.video') || 'Видео'}</span>
+                      </div>
+                    </SelectItem>
+                    <SelectItem value="live">
+                      <div className="flex items-center gap-2">
+                        <Radio className="w-4 h-4 text-green-600" />
+                        <span className="text-gray-900">{t('mediaType.live') || 'Прямая трансляция'}</span>
+                      </div>
+                    </SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Radius Filter */}
+              {userLocation && (
+                <div className="space-y-3">
+                  <label className="text-sm font-semibold text-gray-900">
+                    {t('map.radius') || 'Радиус поиска'}: {filters.radius} км
+                  </label>
+                  <div className="px-3">
+                    <Slider
+                      value={[filters.radius]}
+                      onValueChange={(value) => setFilters({ ...filters, radius: value[0] })}
+                      max={50}
+                      min={1}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                      <span>1 км</span>
+                      <span>50 км</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Budget Filter */}
+              <div className="space-y-3">
+                <label className="text-sm font-semibold text-gray-900">
+                  {t('map.budget') || 'Бюджет'}: {filters.minBudget}-{filters.maxBudget} TON
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-gray-600 mb-1 block">Минимум</label>
+                    <input
+                      type="number"
+                      value={filters.minBudget}
+                      onChange={(e) => setFilters({ ...filters, minBudget: parseInt(e.target.value) || 0 })}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="0"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-600 mb-1 block">Максимум</label>
+                    <input
+                      type="number"
+                      value={filters.maxBudget}
+                      onChange={(e) => setFilters({ ...filters, maxBudget: parseInt(e.target.value) || 100 })}
+                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg bg-gray-50 text-gray-900 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      placeholder="100"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Results Count */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                <div className="text-sm font-medium text-blue-900">
+                  {t('map.found') || 'Найдено'}: {getFilteredOrdersCount()} {t('map.orders') || 'заказов'}
+                </div>
+              </div>
+              
+              {/* Apply Button */}
               <Button
-                size="sm"
-                variant="ghost"
                 onClick={() => setShowFilterPanel(false)}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3"
               >
-                <X className="w-4 h-4" />
+                Применить фильтры
               </Button>
             </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Media Type Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">{t('map.mediaType') || 'Тип контента'}</label>
-              <Select
-                value={filters.mediaType}
-                onValueChange={(value) => setFilters({ ...filters, mediaType: value })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder={t('map.allTypes') || 'Все типы'} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="">
-                    <div className="flex items-center gap-2">
-                      <span>{t('map.allTypes') || 'Все типы'}</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="photo">
-                    <div className="flex items-center gap-2">
-                      <Camera className="w-4 h-4" />
-                      {t('mediaType.photo') || 'Фото'}
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="video">
-                    <div className="flex items-center gap-2">
-                      <Video className="w-4 h-4" />
-                      {t('mediaType.video') || 'Видео'}
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="live">
-                    <div className="flex items-center gap-2">
-                      <Radio className="w-4 h-4" />
-                      {t('mediaType.live') || 'Прямая трансляция'}
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Radius Filter */}
-            {userLocation && (
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
-                  {t('map.radius') || 'Радиус поиска'}: {filters.radius} км
-                </label>
-                <Slider
-                  value={[filters.radius]}
-                  onValueChange={(value) => setFilters({ ...filters, radius: value[0] })}
-                  max={50}
-                  min={1}
-                  step={1}
-                  className="w-full"
-                />
-              </div>
-            )}
-
-            {/* Budget Filter */}
-            <div className="space-y-2">
-              <label className="text-sm font-medium">
-                {t('map.budget') || 'Бюджет'}: {filters.minBudget}-{filters.maxBudget} TON
-              </label>
-              <div className="flex gap-2">
-                <input
-                  type="number"
-                  value={filters.minBudget}
-                  onChange={(e) => setFilters({ ...filters, minBudget: parseInt(e.target.value) || 0 })}
-                  className="flex-1 px-2 py-1 text-sm border rounded"
-                  placeholder="Мин"
-                />
-                <input
-                  type="number"
-                  value={filters.maxBudget}
-                  onChange={(e) => setFilters({ ...filters, maxBudget: parseInt(e.target.value) || 100 })}
-                  className="flex-1 px-2 py-1 text-sm border rounded"
-                  placeholder="Макс"
-                />
-              </div>
-            </div>
-
-            {/* Results Count */}
-            <div className="text-sm text-gray-600">
-              {t('map.found') || 'Найдено'}: {getFilteredOrdersCount()} {t('map.orders') || 'заказов'}
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Loading Overlay */}

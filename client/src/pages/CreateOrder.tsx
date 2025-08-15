@@ -279,19 +279,17 @@ export default function CreateOrder() {
 
               {/* Location Picker Modal */}
               {showLocationPicker && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-                  <LocationPicker
-                    initialLocation={orderData.location}
-                    onLocationSelect={(location) => {
-                      setOrderData({
-                        ...orderData,
-                        location: location
-                      });
-                      setShowLocationPicker(false);
-                    }}
-                    onClose={() => setShowLocationPicker(false)}
-                  />
-                </div>
+                <LocationPicker
+                  initialLocation={orderData.location}
+                  onLocationSelect={(location) => {
+                    setOrderData({
+                      ...orderData,
+                      location: location
+                    });
+                    setShowLocationPicker(false);
+                  }}
+                  onClose={() => setShowLocationPicker(false)}
+                />
               )}
 
               {/* Interactive Map for nearby orders */}

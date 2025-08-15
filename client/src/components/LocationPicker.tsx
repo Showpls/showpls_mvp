@@ -95,12 +95,10 @@ export function LocationPicker({
             setSelectedLocation(newLocation);
 
             // Update map center and marker
-            if (mapService.map) {
-                mapService.setCenter(location.longitude, location.latitude);
-                mapService.setZoom(15);
-                mapService.clearMarkers();
-                mapService.addLocationMarker(location.latitude, location.longitude);
-            }
+            mapService.setCenter(location.longitude, location.latitude);
+            mapService.setZoom(15);
+            mapService.clearMarkers();
+            mapService.addLocationMarker(location.latitude, location.longitude);
 
             console.log('[LOCATION_PICKER] Current location set:', newLocation);
         } catch (error: any) {
@@ -119,76 +117,88 @@ export function LocationPicker({
     };
 
     return (
-        <Card className={`w-full max-w-4xl mx-auto ${className}`}>
-            <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                        <MapPin className="w-5 h-5" />
-                        {t('location.pickLocation') || 'Pick Location'}
-                    </CardTitle>
+        <div className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 p-2 ${className}`}>
+            <div className="h-full flex flex-col bg-white rounded-t-2xl mt-8 overflow-hidden">
+                {/* Mobile Header */}
+                <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
+                    <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                        <MapPin className="w-5 h-5 text-blue-600" />
+                        {t('location.pickLocation') || 'Выберите место'}
+                    </h2>
                     <Button
                         size="sm"
                         variant="ghost"
                         onClick={onClose}
+                        className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
                     >
-                        <X className="w-4 h-4" />
+                        <X className="w-5 h-5" />
                     </Button>
                 </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
+
                 {/* Instructions */}
-                <div className="text-sm text-gray-600">
-                    {t('location.clickMap') || 'Click anywhere on the map to select a location, or use your current location.'}
+                <div className="px-4 py-2 bg-blue-50 border-b border-blue-100">
+                    <div className="text-sm text-blue-800">
+                        {t('location.clickMap') || 'Нажмите на карту для выбора места или используйте текущее местоположение'}
+                    </div>
                 </div>
 
-                {/* Map Container */}
-                <div
-                    ref={mapContainerRef}
-                    className="w-full h-96 rounded-lg overflow-hidden border"
-                    style={{ minHeight: '400px' }}
-                />
-
-                {/* Controls */}
-                <div className="flex items-center justify-between">
-                    <Button
-                        onClick={getCurrentLocation}
-                        disabled={isLoading}
-                        variant="outline"
-                        size="sm"
-                    >
-                        <Crosshair className="w-4 h-4 mr-2" />
-                        {isLoading ? (t('location.gettingLocation') || 'Getting Location...') : (t('location.useCurrent') || 'Use Current Location')}
-                    </Button>
-
-                    {selectedLocation && (
-                        <div className="flex items-center gap-2">
-                            <Badge variant="secondary" className="text-xs">
-                                {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
-                            </Badge>
-                            <Button
-                                onClick={handleConfirm}
-                                size="sm"
-                                className="bg-green-600 hover:bg-green-700"
-                            >
-                                <Check className="w-4 h-4 mr-2" />
-                                {t('location.confirm') || 'Confirm Location'}
-                            </Button>
+                {/* Map Container - Takes remaining space */}
+                <div className="flex-1 relative">
+                    <div
+                        ref={mapContainerRef}
+                        className="w-full h-full"
+                    />
+                    
+                    {/* Loading overlay */}
+                    {isLoading && (
+                        <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
+                            <div className="bg-white p-4 rounded-lg shadow-lg">
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
+                                <p className="text-sm mt-2 text-gray-700">Получение местоположения...</p>
+                            </div>
                         </div>
                     )}
                 </div>
 
-                {/* Selected Location Display */}
-                {selectedLocation && (
-                    <div className="p-3 bg-gray-50 rounded-lg">
-                        <div className="text-sm font-medium mb-1">
-                            {t('location.selectedAddress') || 'Selected Address'}:
+                {/* Bottom Controls Panel */}
+                <div className="bg-white border-t border-gray-200 p-4 space-y-3">
+                    {/* Current Location Button */}
+                    <Button
+                        onClick={getCurrentLocation}
+                        disabled={isLoading}
+                        variant="outline"
+                        className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+                    >
+                        <Crosshair className="w-4 h-4 mr-2" />
+                        {isLoading ? 'Получение местоположения...' : 'Использовать текущее место'}
+                    </Button>
+
+                    {/* Selected Location Info */}
+                    {selectedLocation && (
+                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                            <div className="text-sm font-medium text-gray-900 mb-1">
+                                Выбранный адрес:
+                            </div>
+                            <div className="text-sm text-gray-700 mb-2">
+                                {selectedLocation.address}
+                            </div>
+                            <div className="flex items-center justify-between">
+                                <div className="text-xs text-gray-500">
+                                    {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
+                                </div>
+                                <Button
+                                    onClick={handleConfirm}
+                                    size="sm"
+                                    className="bg-green-600 hover:bg-green-700 text-white"
+                                >
+                                    <Check className="w-4 h-4 mr-1" />
+                                    Подтвердить
+                                </Button>
+                            </div>
                         </div>
-                        <div className="text-sm text-gray-600">
-                            {selectedLocation.address}
-                        </div>
-                    </div>
-                )}
-            </CardContent>
-        </Card>
+                    )}
+                </div>
+            </div>
+        </div>
     );
 }

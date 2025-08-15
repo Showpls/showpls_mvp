@@ -88,92 +88,111 @@ export default function MapPage() {
                         className="h-[calc(100vh-200px)] min-h-[600px]"
                     />
 
-                    {/* Filter Panel */}
+                    {/* Mobile Filter Panel */}
                     {showFilterPanel && (
-                        <Card className="absolute top-4 right-4 w-80 bg-white/95 backdrop-blur-sm border-white/20 z-10">
-                            <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="text-lg">{t('map.filters') || 'Фильтры'}</CardTitle>
+                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end">
+                            <div className="w-full bg-white rounded-t-2xl max-h-[60vh] overflow-y-auto">
+                                <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold text-gray-900">{t('map.filters') || 'Фильтры'}</h3>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={() => setShowFilterPanel(false)}
+                                            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </Button>
+                                    </div>
+                                </div>
+                                <div className="p-4">
+                                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                        <p className="text-sm text-blue-900 font-medium">
+                                            💡 Фильтры доступны прямо на карте
+                                        </p>
+                                        <p className="text-xs text-blue-700 mt-1">
+                                            Нажмите на кнопку "Фильтры" в левом верхнем углу карты для настройки поиска по типу контента, радиусу и бюджету.
+                                        </p>
+                                    </div>
                                     <Button
-                                        size="sm"
-                                        variant="ghost"
                                         onClick={() => setShowFilterPanel(false)}
+                                        className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white"
                                     >
-                                        <X className="w-4 h-4" />
+                                        Понятно
                                     </Button>
                                 </div>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="text-sm text-gray-600">
-                                    Фильтры доступны в карте. Нажмите на кнопку "Фильтры" на карте для настройки.
-                                </p>
-                            </CardContent>
-                        </Card>
+                            </div>
+                        </div>
                     )}
 
-                    {/* Order Details Modal */}
+                    {/* Mobile Order Details Modal */}
                     {selectedOrder && (
-                        <Card className="absolute top-4 left-4 w-96 bg-white/95 backdrop-blur-sm border-white/20 z-10">
-                            <CardHeader className="pb-3">
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="text-lg">{selectedOrder.title}</CardTitle>
-                                    <Button
-                                        size="sm"
-                                        variant="ghost"
-                                        onClick={closeOrderDetails}
-                                    >
-                                        <X className="w-4 h-4" />
-                                    </Button>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="space-y-3">
-                                <p className="text-sm text-gray-600">{selectedOrder.description}</p>
-
-                                <div className="flex items-center justify-between">
-                                    <Badge
-                                        variant="secondary"
-                                        className={`${selectedOrder.mediaType === 'photo' ? 'bg-blue-500 text-white' :
-                                            selectedOrder.mediaType === 'video' ? 'bg-red-500 text-white' :
-                                                'bg-green-500 text-white'
-                                            }`}
-                                    >
-                                        {selectedOrder.mediaType === 'photo' && '📷 Фото'}
-                                        {selectedOrder.mediaType === 'video' && '🎥 Видео'}
-                                        {selectedOrder.mediaType === 'live' && '📡 Прямая трансляция'}
-                                    </Badge>
-                                    <span className="font-semibold text-green-600">
-                                        {(parseInt(selectedOrder.budgetNanoTon) / 1e9).toFixed(1)} TON
-                                    </span>
-                                </div>
-
-                                {selectedOrder.location?.address && (
-                                    <div className="text-sm text-gray-600">
-                                        📍 {selectedOrder.location.address}
+                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end">
+                            <div className="w-full bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto">
+                                <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-lg font-semibold text-gray-900">{selectedOrder.title}</h3>
+                                        <Button
+                                            size="sm"
+                                            variant="ghost"
+                                            onClick={closeOrderDetails}
+                                            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </Button>
                                     </div>
-                                )}
-
-                                <div className="flex gap-2">
-                                    <Button size="sm" className="flex-1">
-                                        <Eye className="w-4 h-4 mr-1" />
-                                        Подробнее
-                                    </Button>
-                                    {currentUser && (
-                                        <OrderAcceptButton
-                                            orderId={selectedOrder.id}
-                                            orderStatus={selectedOrder.status}
-                                            requesterId={selectedOrder.requesterId}
-                                            currentUserId={currentUser.id}
-                                            onSuccess={() => {
-                                                setSelectedOrder(null);
-                                                // Refresh the map
-                                                window.location.reload();
-                                            }}
-                                            className="flex-1"
-                                        />
-                                    )}
                                 </div>
-                            </CardContent>
-                        </Card>
+                                
+                                <div className="p-4 space-y-4">
+                                    <p className="text-sm text-gray-700 leading-relaxed">{selectedOrder.description}</p>
+
+                                    <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                                        <Badge
+                                            variant="secondary"
+                                            className={`${selectedOrder.mediaType === 'photo' ? 'bg-blue-500 text-white' :
+                                                selectedOrder.mediaType === 'video' ? 'bg-red-500 text-white' :
+                                                    'bg-green-500 text-white'
+                                                }`}
+                                        >
+                                            {selectedOrder.mediaType === 'photo' && '📷 Фото'}
+                                            {selectedOrder.mediaType === 'video' && '🎥 Видео'}
+                                            {selectedOrder.mediaType === 'live' && '📡 Прямая трансляция'}
+                                        </Badge>
+                                        <span className="font-bold text-green-600 text-lg">
+                                            {(parseInt(selectedOrder.budgetNanoTon) / 1e9).toFixed(1)} TON
+                                        </span>
+                                    </div>
+
+                                    {selectedOrder.location?.address && (
+                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                            <div className="text-sm font-medium text-blue-900 mb-1">📍 Местоположение</div>
+                                            <div className="text-sm text-blue-800">{selectedOrder.location.address}</div>
+                                        </div>
+                                    )}
+
+                                    <div className="grid grid-cols-1 gap-3 pt-2">
+                                        <Button size="lg" variant="outline" className="w-full">
+                                            <Eye className="w-4 h-4 mr-2" />
+                                            Подробнее
+                                        </Button>
+                                        {currentUser && (
+                                            <OrderAcceptButton
+                                                orderId={selectedOrder.id}
+                                                orderStatus={selectedOrder.status}
+                                                requesterId={selectedOrder.requesterId}
+                                                currentUserId={currentUser.id}
+                                                onSuccess={() => {
+                                                    setSelectedOrder(null);
+                                                    // Refresh the map
+                                                    window.location.reload();
+                                                }}
+                                                className="w-full"
+                                            />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     )}
 
                     {/* Map Legend */}
