@@ -81,7 +81,7 @@ export class MapService {
   }
 
   // Add markers for orders
-  addOrderMarkers(orders: any[], currentUser?: any, onMarkerClick?: (order: any) => void, interactive: boolean = true) {
+  addOrderMarkers(orders: any[], currentUser?: any, onMarkerClick?: (order: any) => void, isClickable: boolean = true) {
     if (!this.map) return;
 
     // Clear existing markers
@@ -120,7 +120,7 @@ export class MapService {
           this.createPopupHTML(order, currentUser)
         );
 
-        if (interactive) {
+        if (isClickable) {
           marker.setPopup(popup);
 
           // Add click handler

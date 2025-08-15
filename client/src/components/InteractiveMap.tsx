@@ -95,14 +95,14 @@ export function InteractiveMap({
     if (allOrders.length > 0) {
       setTimeout(() => mapService.fitBounds(), 100);
     }
-  }, [isMapInitialized, allOrders, currentUser, onOrderClick]);
+  }, [isMapInitialized, allOrders, currentUser, onOrderClick, isClickable]);
 
   return (
-    <div className="relative">
+    <div className={`relative ${className}`}>
       {/* Map Container */}
       <div
         ref={mapContainerRef}
-        className={`w-full h-full rounded-lg overflow-hidden ${className}`}
+        className="w-full h-full rounded-lg overflow-hidden"
       />
 
       {/* Loading Overlay */}
