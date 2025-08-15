@@ -74,13 +74,16 @@ export default function TelegramWebApp() {
   const { data: userOrders } = useQuery({ queryKey: ['/api/orders/user'], enabled: !!user });
 
   const { data: recentOrders, isLoading: isLoadingRecent } = useQuery<any[]>({
-    queryKey: ['/api/orders', { limit: 2 }],
+    queryKey: ['/api/orders', { limit: 2, sort: 'desc' }],
     queryFn: async () => {
-      const response = await fetch('/api/orders?limit=2');
+      const response = await fetch('/api/orders?limit=2&sort=desc');
       if (!response.ok) throw new Error('Failed to fetch recent orders');
       const data = await response.json();
-      // Ensure we only return the last 2 orders
-      return Array.isArray(data.orders) ? data.orders.slice(0, 2) : [];
+      // Ensure we only return the last 2 orders, sorted by creation date descending
+      const orders = Array.isArray(data.orders) ? data.orders : [];
+      return orders
+        .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 2);
     },
   });
 

@@ -96,7 +96,7 @@ export class MapService {
         el.style.height = '32px';
         el.style.borderRadius = '50%';
         el.style.background = this.getMarkerColor(order.mediaType);
-        el.style.border = '2px solid white';
+        el.style.border = '2px solid var(--background)';
         el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
         el.style.cursor = 'pointer';
         el.style.display = 'flex';
@@ -107,7 +107,7 @@ export class MapService {
         const icon = document.createElement('div');
         icon.innerHTML = this.getMarkerIcon(order.mediaType);
         icon.style.fontSize = '14px';
-        icon.style.color = 'white';
+        icon.style.color = 'var(--primary-foreground)';
         el.appendChild(icon);
 
         // Create marker
@@ -173,7 +173,7 @@ export class MapService {
         onclick="window.acceptOrder('${order.id}')" 
         style="
           background: #3b82f6; 
-          color: white; 
+          color: var(--primary-foreground); 
           border: none; 
           padding: 8px 16px; 
           border-radius: 6px; 
@@ -192,7 +192,7 @@ export class MapService {
         <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">${order.title}</h3>
         <p style="margin: 0 0 8px 0; font-size: 14px; color: #666;">${order.description?.substring(0, 100)}${order.description?.length > 100 ? '...' : ''}</p>
         <div style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-bottom: 8px;">
-          <span style="background: ${this.getMarkerColor(order.mediaType)}; color: white; padding: 2px 8px; border-radius: 12px;">
+          <span style="background: ${this.getMarkerColor(order.mediaType)}; color: var(--primary-foreground); padding: 2px 8px; border-radius: 12px;">
             ${order.mediaType}
           </span>
           <span style="font-weight: 600; color: #059669;">${this.formatTON(order.budgetNanoTon)}</span>
@@ -228,7 +228,7 @@ export class MapService {
     el.style.height = '24px';
     el.style.borderRadius = '50%';
     el.style.background = '#ef4444'; // Red color for location picker
-    el.style.border = '3px solid white';
+    el.style.border = '3px solid var(--background)';
     el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
     el.style.display = 'flex';
     el.style.alignItems = 'center';

@@ -87,9 +87,9 @@ export function MapView({ selectedMediaType, onMediaTypeChange, isClickable = tr
       />
 
       {/* Map Controls */}
-      {isClickable && (
-        <div className="p-4 bg-panel/50">
-          <div className="flex items-center justify-between">
+      <div className="p-4 bg-panel/50">
+        {isClickable && (
+          <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-2">
               <Button
                 size="sm"
@@ -139,29 +139,29 @@ export function MapView({ selectedMediaType, onMediaTypeChange, isClickable = tr
               {loading ? (t('map.searching') || 'Поиск...') : (t('map.nearMe') || 'Рядом со мной')}
             </Button>
           </div>
-          {error && (
-            <div className="text-red-400 text-xs mt-2">{error}</div>
-          )}
-          {filteredOrders.length > 0 && (
-            <div className="mt-4 space-y-2">
-              <div className="text-sm text-text-muted">
-                {t('map.found') || 'Найдено'}: {filteredOrders.length}
-              </div>
-              <div className="grid gap-2">
-                {filteredOrders.map((o) => (
-                  <div key={o.id} className="p-3 bg-panel rounded border border-white/10 flex justify-between items-center">
-                    <div>
-                      <div className="text-sm font-medium text-text-primary">{o.title}</div>
-                      <div className="text-xs text-text-muted">{o.mediaType} • {o.location?.address || `${o.location?.lat}, ${o.location?.lng}`}</div>
-                    </div>
-                    {isClickable && <OrderAcceptButton orderId={o.id} orderStatus={o.status} requesterId={o.requesterId} />}
-                  </div>
-                ))}
-              </div>
+        )}
+        {error && (
+          <div className="text-red-400 text-xs mt-2">{error}</div>
+        )}
+        {filteredOrders.length > 0 && (
+          <div className="mt-4 space-y-2">
+            <div className="text-sm text-text-muted">
+              {t('map.found') || 'Найдено'}: {filteredOrders.length}
             </div>
-          )}
-        </div>
-      )}
+            <div className="grid gap-2">
+              {filteredOrders.map((o) => (
+                <div key={o.id} className="p-3 bg-panel rounded border border-white/10 flex justify-between items-center">
+                  <div>
+                    <div className="text-sm font-medium text-text-primary">{o.title}</div>
+                    <div className="text-xs text-text-muted">{o.mediaType} • {o.location?.address || `${o.location?.lat}, ${o.location?.lng}`}</div>
+                  </div>
+                  {isClickable && <OrderAcceptButton orderId={o.id} orderStatus={o.status} requesterId={o.requesterId} />}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
