@@ -5,6 +5,7 @@ import { WalletConnect } from "@/components/WalletConnect";
 import { CreateRequestForm } from "@/components/CreateRequestForm";
 import { MapView } from "@/components/MapView";
 import { OrderCard } from "@/components/OrderCard";
+import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from 'date-fns';
@@ -37,24 +38,15 @@ export default function TelegramWebApp() {
   const { t, i18n } = useTranslation();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedMediaType, setSelectedMediaType] = useState<string>('');
-  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+  const { theme, setTheme } = useTheme();
 
   const formatTON = (nanoTon: string | number): string => {
     const ton = Number(nanoTon) / 1e9;
     return `${ton.toLocaleString()} TON`;
   };
 
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
-
   const toggleTheme = () => {
-    setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
+    setTheme(theme === 'dark' ? 'light' : 'dark');
   };
 
   useEffect(() => {
@@ -82,7 +74,7 @@ export default function TelegramWebApp() {
   const { data: userOrders } = useQuery({ queryKey: ['/api/orders/user'], enabled: !!user });
 
   const { data: recentOrders, isLoading: isLoadingRecent } = useQuery<any[]>({
-    queryKey: ['/api/orders/recent'],
+    queryKey: ['/api/orders', { limit: 2 }],
     queryFn: async () => {
       const response = await fetch('/api/orders?limit=2');
       if (!response.ok) throw new Error('Failed to fetch recent orders');

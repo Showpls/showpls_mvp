@@ -82,6 +82,7 @@ export function MapView({ selectedMediaType, onMediaTypeChange, isClickable = tr
           console.log('Order clicked:', order);
           // Handle order click - could open details modal or navigate to order page
         } : undefined}
+        isClickable={isClickable}
         className="h-64"
       />
 

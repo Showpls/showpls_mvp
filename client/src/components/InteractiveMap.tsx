@@ -6,6 +6,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface InteractiveMapProps {
   onOrderClick?: (order: any) => void;
+  isClickable?: boolean;
   initialCenter?: [number, number];
   initialZoom?: number;
   className?: string;
@@ -15,7 +16,8 @@ export function InteractiveMap({
   onOrderClick,
   initialCenter = [37.6176, 55.7558],
   initialZoom = 10,
-  className = ""
+  className = "",
+  isClickable = true
 }: InteractiveMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
@@ -88,7 +90,7 @@ export function InteractiveMap({
   useEffect(() => {
     if (!isMapInitialized) return;
 
-    mapService.addOrderMarkers(allOrders, currentUser, onOrderClick);
+    mapService.addOrderMarkers(allOrders, currentUser, onOrderClick, isClickable);
 
     if (allOrders.length > 0) {
       setTimeout(() => mapService.fitBounds(), 100);
@@ -96,12 +98,11 @@ export function InteractiveMap({
   }, [isMapInitialized, allOrders, currentUser, onOrderClick]);
 
   return (
-    <div className={`relative ${className}`}>
+    <div className="relative h-full w-full">
       {/* Map Container */}
       <div
         ref={mapContainerRef}
-        className="w-full h-96 rounded-lg overflow-hidden"
-        style={{ minHeight: '400px' }}
+        className={`w-full h-full rounded-lg overflow-hidden ${className}`}
       />
 
       {/* Loading Overlay */}

@@ -100,7 +100,8 @@ export function LocationPicker({
     };
 
     return (
-        <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col ${className}`}>
+        <div className={`fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 ${className}`}>
+            <div className="bg-background rounded-2xl shadow-2xl w-full max-w-2xl h-full max-h-[90vh] flex flex-col overflow-hidden border border-border">
             {/* Header */}
             <div className="bg-background flex items-center justify-between p-4 border-b border-border">
                 <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
@@ -162,6 +163,7 @@ export function LocationPicker({
                     <Check className="w-4 h-4 mr-2" />
                     {t('location.confirm')}
                 </Button>
+            </div>
             </div>
         </div>
     );
