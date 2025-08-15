@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { MapPin, Camera, Video, Smartphone, ArrowLeft, Map } from "lucide-react";
 import { Link } from "wouter";
+import { useTranslation } from "react-i18next";
 import { getAuthToken, bootstrapTelegramAuth } from "@/lib/auth";
 import { locationService } from "@/lib/location";
 import { InteractiveMap } from "@/components/InteractiveMap";
@@ -39,6 +40,7 @@ export default function CreateOrder() {
 
   const [showMap, setShowMap] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const { t } = useTranslation();
 
 
 
@@ -84,7 +86,7 @@ export default function CreateOrder() {
 
       if (!response.ok) {
         const error = await response.json().catch(() => ({} as any));
-        throw new Error(error.error || 'Не удалось создать заказ');
+        throw new Error(error.error || t('createOrder.failedToCreate'));
       }
 
       return response.json();
@@ -100,12 +102,12 @@ export default function CreateOrder() {
     e.preventDefault();
 
     if (!orderData.title.trim() || !orderData.description.trim()) {
-      alert('Заполните название и описание заказа');
+      alert(t('createOrder.fillTitleAndDescription'));
       return;
     }
 
     if (!getAuthToken()) {
-      alert('Пожалуйста, авторизуйтесь через Telegram WebApp и попробуйте снова.');
+      alert(t('createOrder.authRequired'));
       return;
     }
 
@@ -132,16 +134,16 @@ export default function CreateOrder() {
       });
     } catch (e: any) {
       console.error('[CREATE_ORDER] Location error:', e);
-      alert(e.message || 'Не удалось получить ваше местоположение');
+      alert(e.message || t('createOrder.failedToGetLocation'));
     }
   };
 
   const fillSampleData = () => {
     setOrderData({
-      title: 'Фото Красной площади',
-      description: 'Нужны свежие фотографии Красной площади с видом на Кремль. Желательно во время заката.',
+      title: t('createOrder.sampleTitle'),
+      description: t('createOrder.sampleDescription'),
       mediaType: 'photo',
-      location: { lat: 55.7539, lng: 37.6208, address: 'Красная площадь, Москва' },
+      location: { lat: 55.7539, lng: 37.6208, address: t('createOrder.sampleAddress') },
       budgetNanoTon: '2500000000', // 2.5 TON
       isSampleOrder: true,
     });
@@ -157,14 +159,14 @@ export default function CreateOrder() {
               <ArrowLeft size={20} />
             </Button>
           </Link>
-          <h1 className="text-2xl font-bold">Создать заказ</h1>
+          <h1 className="text-2xl font-bold">{t('createOrder.title')}</h1>
         </div>
 
         <Card className="glass-panel border-white/20">
           <CardHeader>
             <CardTitle className="text-white flex items-center gap-2">
               <Camera size={24} />
-              Новый запрос на контент
+              {t('createOrder.newContentRequest')}
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -176,29 +178,29 @@ export default function CreateOrder() {
                 onClick={fillSampleData}
                 className="w-full"
               >
-                Заполнить примером
+                {t('createOrder.fillSample')}
               </Button>
 
               {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-white">Название заказа</Label>
+                <Label htmlFor="title" className="text-white">{t('createOrder.orderTitle')}</Label>
                 <Input
                   id="title"
                   value={orderData.title}
                   onChange={(e) => setOrderData({ ...orderData, title: e.target.value })}
-                  placeholder="Например: Фото Эйфелевой башни"
+                  placeholder={t('createOrder.orderTitlePlaceholder')}
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
                 />
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-white">Описание</Label>
+                <Label htmlFor="description" className="text-white">{t('createOrder.description')}</Label>
                 <Textarea
                   id="description"
                   value={orderData.description}
                   onChange={(e) => setOrderData({ ...orderData, description: e.target.value })}
-                  placeholder="Опишите детально, что вам нужно..."
+                  placeholder={t('createOrder.descriptionPlaceholder')}
                   rows={4}
                   className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
                 />
@@ -206,7 +208,7 @@ export default function CreateOrder() {
 
               {/* Media Type */}
               <div className="space-y-2">
-                <Label className="text-white">Тип контента</Label>
+                <Label className="text-white">{t('createOrder.contentType')}</Label>
                 <Select
                   value={orderData.mediaType}
                   onValueChange={(value: 'photo' | 'video' | 'live') =>
@@ -220,19 +222,19 @@ export default function CreateOrder() {
                     <SelectItem value="photo">
                       <div className="flex items-center gap-2">
                         <Camera size={16} />
-                        Фотография
+                        {t('createOrder.photo')}
                       </div>
                     </SelectItem>
                     <SelectItem value="video">
                       <div className="flex items-center gap-2">
                         <Video size={16} />
-                        Видео
+                        {t('createOrder.video')}
                       </div>
                     </SelectItem>
                     <SelectItem value="live">
                       <div className="flex items-center gap-2">
                         <Smartphone size={16} />
-                        Прямая трансляция
+                        {t('createOrder.liveStream')}
                       </div>
                     </SelectItem>
                   </SelectContent>
@@ -241,15 +243,15 @@ export default function CreateOrder() {
 
               {/* Location */}
               <div className="space-y-2">
-                <Label className="text-white">Местоположение</Label>
+                <Label className="text-white">{t('createOrder.location')}</Label>
                 <div className="flex gap-2">
                   <Input
-                    value={orderData.location.address || 'Укажите адрес'}
+                    value={orderData.location.address || t('createOrder.specifyAddress')}
                     onChange={(e) => setOrderData({
                       ...orderData,
                       location: { ...orderData.location, address: e.target.value }
                     })}
-                    placeholder="Адрес или описание места"
+                    placeholder={t('createOrder.addressPlaceholder')}
                     className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
                   />
                   <Button
@@ -273,7 +275,7 @@ export default function CreateOrder() {
                   </Button>
                 </div>
                 <div className="text-sm text-white/60">
-                  Координаты: {orderData.location.lat.toFixed(4)}, {orderData.location.lng.toFixed(4)}
+                  {t('createOrder.coordinates', { lat: orderData.location.lat.toFixed(4), lng: orderData.location.lng.toFixed(4) })}
                 </div>
               </div>
 
@@ -295,7 +297,7 @@ export default function CreateOrder() {
               {/* Interactive Map for nearby orders */}
               {showMap && (
                 <div className="space-y-2">
-                  <Label className="text-white">Карта с заказами поблизости</Label>
+                  <Label className="text-white">{t('createOrder.nearbyOrdersMap')}</Label>
                   <InteractiveMap
                     onOrderClick={(order) => {
                       console.log('Nearby order clicked:', order);
@@ -311,7 +313,7 @@ export default function CreateOrder() {
 
               {/* Budget */}
               <div className="space-y-2">
-                <Label htmlFor="budget" className="text-white">Бюджет (TON)</Label>
+                <Label htmlFor="budget" className="text-white">{t('createOrder.budget')}</Label>
                 <Select
                   value={orderData.budgetNanoTon}
                   onValueChange={(value) => setOrderData({ ...orderData, budgetNanoTon: value })}
@@ -335,12 +337,12 @@ export default function CreateOrder() {
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
                 disabled={createOrderMutation.isPending}
               >
-                {createOrderMutation.isPending ? 'Создание...' : 'Создать заказ'}
+                {createOrderMutation.isPending ? t('createOrder.creating') : t('createOrder.createOrder')}
               </Button>
 
               {createOrderMutation.error && (
                 <div className="text-red-400 text-sm">
-                  Ошибка: {createOrderMutation.error.message}
+                  {t('createOrder.errorPrefix', { message: createOrderMutation.error.message })}
                 </div>
               )}
             </form>

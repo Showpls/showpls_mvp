@@ -210,6 +210,12 @@
     "live": "Live"
   },
   "map": {
+    "title": "Order Map",
+    "filterPanel": {
+      "infoTitle": "💡 Filters are available directly on the map",
+      "infoText": "Click the 'Filters' button in the top left corner of the map to customize your search by content type, radius, and budget.",
+      "closeButton": "Got it"
+    },
     "interactive": "Interactive Map",
     "mapboxIntegration": "Mapbox GL Integration",
     "nearMe": "Near Me",
@@ -221,7 +227,9 @@
     "locationDenied": "Location access denied. Please allow access in browser settings.",
     "locationUnavailable": "Location information is unavailable",
     "locationTimeout": "Location request timed out",
-    "locationError": "Failed to get your location"
+    "locationError": "Failed to get your location",
+    "myLocation": "My Location",
+    "filters": "Filters"
   },
   "order": {
     "status": {
@@ -273,6 +281,43 @@
     "commentPlaceholder": "Great photos, fast delivery!",
     "submitting": "Submitting...",
     "submitAndApprove": "Submit Rating & Approve Payment"
+  },
+  "createOrder": {
+    "title": "Create Order",
+    "newContentRequest": "New Content Request",
+    "fillSample": "Fill with Sample Data",
+    "orderTitle": "Order Title",
+    "orderTitlePlaceholder": "e.g., Photos of the Eiffel Tower",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe in detail what you need...",
+    "contentType": "Content Type",
+    "photo": "Photo",
+    "video": "Video",
+    "liveStream": "Live Stream",
+    "location": "Location",
+    "specifyAddress": "Specify address",
+    "addressPlaceholder": "Address or place description",
+    "coordinates": "Coordinates: {{lat}}, {{lng}}",
+    "nearbyOrdersMap": "Map of nearby orders",
+    "budget": "Budget (TON)",
+    "creating": "Creating...",
+    "createOrder": "Create Order",
+    "errorPrefix": "Error: {{message}}",
+    "fillTitleAndDescription": "Please fill in the order title and description",
+    "authRequired": "Please authenticate via Telegram WebApp and try again.",
+    "failedToCreate": "Failed to create order",
+    "failedToGetLocation": "Failed to get your location",
+    "sampleTitle": "Photos of Red Square",
+    "sampleDescription": "Need recent photos of Red Square with a view of the Kremlin. Preferably at sunset.",
+    "sampleAddress": "Red Square, Moscow"
+  },
+  "orderDetails": {
+    "budget": "Budget",
+    "mediaType": "Media Type",
+    "status": "Status",
+    "location": "Location",
+    "addressNotAvailable": "Address not available",
+    "acceptOrderToChat": "Accept the order to start chatting with the client."
   },
   "dispute": {
     "openTitle": "Open Dispute",

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -11,6 +11,7 @@ import { mapService, filterOrdersByRadius, filterOrdersByType, filterOrdersByBud
 import { getAuthToken } from "@/lib/auth";
 import { locationService } from "@/lib/location";
 import { OrderAcceptButton } from "./OrderAcceptButton";
+import { useDebounce } from "@/hooks/useDebounce";
 import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface InteractiveMapProps {
@@ -38,6 +39,7 @@ export function InteractiveMap({
     minBudget: 0,
     maxBudget: 100,
   });
+  const debouncedFilters = useDebounce(filters, 500);
   const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
 
   // Fetch current user
@@ -55,13 +57,14 @@ export function InteractiveMap({
   });
 
   // Fetch orders based on user location
-  const { data: allOrders = [], isLoading } = useQuery({
-    queryKey: ['/api/orders', userLocation],
-    enabled: true,
+  const { data: allOrders = [], isLoading } = useQuery<any[]>({
+    queryKey: ['/api/orders', userLocation?.[0], userLocation?.[1]],
+    enabled: !!userLocation, // Fetch only when user location is known
     queryFn: async () => {
       const token = getAuthToken();
 
       // If user location is available, fetch nearby orders
+      // Fetch nearby orders if user location is available
       if (userLocation) {
         try {
           const response = await fetch(`/api/orders/nearby?lat=${userLocation[1]}&lng=${userLocation[0]}&radius=15`, {
@@ -75,11 +78,16 @@ export function InteractiveMap({
         }
       }
 
-      // Otherwise fetch all orders (public endpoint)
-      const response = await fetch('/api/orders');
-      if (!response.ok) throw new Error('Failed to fetch orders');
-      const data = await response.json();
-      return Array.isArray(data.orders) ? data.orders : [];
+      // Fallback to fetching all orders if nearby fails or no location
+      try {
+        const response = await fetch('/api/orders');
+        if (!response.ok) throw new Error('Failed to fetch all orders');
+        const data = await response.json();
+        return Array.isArray(data.orders) ? data.orders : [];
+      } catch (error) {
+        console.error('[INTERACTIVE_MAP] Failed to fetch all orders:', error);
+        return []; // Return empty array on failure
+      }
     },
   });
 
@@ -130,33 +138,35 @@ export function InteractiveMap({
     };
   }, [initialCenter, initialZoom, isMapInitialized]);
 
-  // Apply filters and update markers
-  useEffect(() => {
-    if (!isMapInitialized || !allOrders.length) return;
+  // Memoize filtered orders to avoid re-calculation on every render
+  const filteredOrders = useMemo(() => {
+    if (!allOrders.length) return [];
 
-    let filteredOrders = [...allOrders];
+    let orders = [...allOrders];
 
-    // Apply media type filter
-    if (filters.mediaType) {
-      filteredOrders = filterOrdersByType(filteredOrders, filters.mediaType);
+    if (debouncedFilters.mediaType) {
+      orders = filterOrdersByType(orders, debouncedFilters.mediaType);
     }
 
-    // Apply budget filter
-    filteredOrders = filterOrdersByBudget(filteredOrders, filters.minBudget, filters.maxBudget);
+    orders = filterOrdersByBudget(orders, debouncedFilters.minBudget, debouncedFilters.maxBudget);
 
-    // Apply radius filter if user location is available
     if (userLocation) {
-      filteredOrders = filterOrdersByRadius(filteredOrders, userLocation[1], userLocation[0], filters.radius);
+      orders = filterOrdersByRadius(orders, userLocation[1], userLocation[0], debouncedFilters.radius);
     }
 
-    // Add markers to map
+    return orders;
+  }, [allOrders, debouncedFilters, userLocation]);
+
+  // Effect to update map markers when filtered orders change
+  useEffect(() => {
+    if (!isMapInitialized) return;
+
     mapService.addOrderMarkers(filteredOrders, currentUser, onOrderClick);
 
-    // Fit bounds if we have markers
     if (filteredOrders.length > 0) {
       setTimeout(() => mapService.fitBounds(), 100);
     }
-  }, [isMapInitialized, allOrders, filters, userLocation, onOrderClick]);
+  }, [isMapInitialized, filteredOrders, currentUser, onOrderClick]);
 
   // Get user location
   const getUserLocation = async () => {
@@ -175,18 +185,9 @@ export function InteractiveMap({
     }
   };
 
-  // Get filtered orders count
-  const getFilteredOrdersCount = () => {
-    let filtered = [...allOrders];
-    if (filters.mediaType) {
-      filtered = filterOrdersByType(filtered, filters.mediaType);
-    }
-    if (userLocation) {
-      filtered = filterOrdersByRadius(filtered, userLocation[1], userLocation[0], filters.radius);
-    }
-    filtered = filterOrdersByBudget(filtered, filters.minBudget, filters.maxBudget);
-    return filtered.length;
-  };
+  const getFilteredOrdersCount = useCallback(() => {
+    return filteredOrders.length;
+  }, [filteredOrders]);
 
   return (
     <div className={`relative ${className}`}>
