@@ -21,7 +21,6 @@ RUN npm ci --no-audit --no-fund
 COPY client/ ./client/
 COPY server/ ./server/
 COPY shared/ ./shared/
-COPY index.html ./
 
 # Build the application with environment variables
 RUN npm run build
