@@ -32,9 +32,6 @@ export const OrderDetailsSheet: React.FC<OrderDetailsSheetProps> = ({ order, isO
       <SheetContent className="w-full sm:max-w-lg p-0 flex flex-col bg-slate-900 text-white border-l-slate-800">
         <SheetHeader className="p-6 relative">
           <SheetTitle className="pr-10">{order.title}</SheetTitle>
-          <Button variant="ghost" size="icon" className="absolute top-4 right-4 text-white hover:bg-white/10" onClick={() => onOpenChange(false)}>
-            <X size={20} />
-          </Button>
           <SheetDescription>{order.description}</SheetDescription>
         </SheetHeader>
         <div className="flex-grow overflow-y-auto p-6 space-y-4">

@@ -218,7 +218,7 @@ export default function CreateOrder() {
                   <SelectTrigger className="bg-white/10 border-white/20 text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-slate-800/95 border-slate-700 text-white">
                     <SelectItem value="photo">
                       <div className="flex items-center gap-2">
                         <Camera size={16} />
@@ -305,7 +305,6 @@ export default function CreateOrder() {
                     }}
                     initialCenter={[orderData.location.lng, orderData.location.lat]}
                     initialZoom={12}
-                    showFilters={true}
                     className="h-80"
                   />
                 </div>
@@ -321,7 +320,7 @@ export default function CreateOrder() {
                   <SelectTrigger className="bg-white/10 border-white/20 text-white">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-slate-800/95 border-slate-700 text-white">
                     <SelectItem value="1000000000">1 TON</SelectItem>
                     <SelectItem value="2500000000">2.5 TON</SelectItem>
                     <SelectItem value="5000000000">5 TON</SelectItem>

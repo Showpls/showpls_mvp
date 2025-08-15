@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { WalletConnect } from "@/components/WalletConnect";
 import { CreateRequestForm } from "@/components/CreateRequestForm";
 import { MapView } from "@/components/MapView";
 import { OrderCard } from "@/components/OrderCard";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
+import { formatDistanceToNow } from 'date-fns';
+import { ru } from 'date-fns/locale';
 import {
   Eye,
   Plus,
@@ -17,79 +18,94 @@ import {
   Video,
   Radio,
   User,
-  Star,
-  Coins,
+  Sun,
+  Moon,
   MessageSquare
 } from "lucide-react";
 import { bootstrapTelegramAuth } from "@/lib/auth";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 export default function TelegramWebApp() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedMediaType, setSelectedMediaType] = useState<string>('');
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+  const formatTON = (nanoTon: string | number): string => {
+    const ton = Number(nanoTon) / 1e9;
+    return `${ton.toLocaleString()} TON`;
+  };
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prevTheme => prevTheme === 'dark' ? 'light' : 'dark');
+  };
 
   useEffect(() => {
     // Initialize Telegram Web App
     const initTelegramWebApp = async () => {
       try {
-        // Check if Telegram WebApp is available
         const telegramWebApp = (window as any)?.Telegram?.WebApp;
-
         if (telegramWebApp) {
           console.log('[TWA] Telegram WebApp detected, initializing...');
-
-          // Tell Telegram that the Web App is ready
-          if (telegramWebApp.ready) {
-            telegramWebApp.ready();
-          }
-
-          // Expand the Web App to full height
-          if (telegramWebApp.expand) {
-            telegramWebApp.expand();
-          }
-
+          if (telegramWebApp.ready) telegramWebApp.ready();
+          if (telegramWebApp.expand) telegramWebApp.expand();
           console.log('[TWA] Telegram WebApp initialized successfully');
         } else {
-          console.warn('[TWA] Telegram WebApp not available - make sure you\'re opening this in Telegram');
+          console.warn('[TWA] Telegram WebApp not available');
         }
-
-        // Attempt authentication
         await bootstrapTelegramAuth();
       } catch (error) {
         console.error('[TWA] Error initializing Telegram WebApp:', error);
       }
     };
-
     initTelegramWebApp();
   }, []);
 
-  const { data: user } = useQuery({
-    queryKey: ['/api/me'],
-    enabled: true,
+  const { data: user } = useQuery({ queryKey: ['/api/me'], enabled: true });
+  const { data: userOrders } = useQuery({ queryKey: ['/api/orders/user'], enabled: !!user });
+
+  const { data: recentOrders, isLoading: isLoadingRecent } = useQuery<any[]>({
+    queryKey: ['/api/orders/recent'],
+    queryFn: async () => {
+      const response = await fetch('/api/orders?limit=2');
+      if (!response.ok) throw new Error('Failed to fetch recent orders');
+      const data = await response.json();
+      return data.orders;
+    },
   });
 
-  const { data: userOrders } = useQuery({
-    queryKey: ['/api/orders/user'],
-    enabled: !!user,
-  });
+  const handleCreateRequest = () => window.location.href = '/create-order';
+  const handleMapFilter = (mediaType: string) => setSelectedMediaType(mediaType);
+  const fillSampleRequest = () => setShowCreateForm(true);
 
-  const handleCreateRequest = () => {
-    // Redirect to create order page
-    window.location.href = '/create-order';
-  };
-
-  const handleMapFilter = (mediaType: string) => {
-    setSelectedMediaType(mediaType);
-  };
-
-  const fillSampleRequest = () => {
-    setShowCreateForm(true);
-    // The CreateRequestForm component will handle sample data
+  const getMediaTypeIcon = (mediaType: string) => {
+    switch (mediaType) {
+      case 'photo': return <Camera className="w-5 h-5 text-brand-primary" />;
+      case 'video': return <Video className="w-5 h-5 text-brand-accent" />;
+      case 'live': return <Radio className="w-5 h-5 text-green-500" />;
+      default: return null;
+    }
   };
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
-      {/* TWA Header */}
       <div className="glass-panel p-4 mb-6">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
@@ -98,11 +114,27 @@ export default function TelegramWebApp() {
             </div>
             <span className="font-bold">Showpls</span>
           </div>
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-2">
             <WalletConnect />
-            <Button variant="ghost" size="sm">
-              <User className="w-5 h-5" />
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="bg-panel border-brand-primary/30 w-10 h-10">
+                  <User className="w-5 h-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56 bg-panel border-brand-primary/30 text-text-primary">
+                <DropdownMenuLabel>{t('twa.settings')}</DropdownMenuLabel>
+                <DropdownMenuSeparator className="bg-brand-primary/20" />
+                <div className="p-2">
+                  <LanguageSwitcher />
+                </div>
+                <DropdownMenuSeparator className="bg-brand-primary/20" />
+                <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer">
+                  {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
+                  <span>{theme === 'dark' ? t('twa.lightMode') : t('twa.darkMode')}</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>
@@ -142,39 +174,31 @@ export default function TelegramWebApp() {
               {String(t('twa.recentActivity'))}
             </h3>
             <div className="space-y-3">
-              <div className="flex items-center justify-between p-3 bg-panel/50 rounded-lg">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-brand-primary/20 rounded-full flex items-center justify-center mr-3">
-                    <Camera className="w-5 h-5 text-brand-primary" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-sm">{String(t('twa.sampleOrder1'))}</div>
-                    <div className="text-xs text-text-muted flex items-center">
-                      {String(t('twa.delivered'))} • <Star className="w-3 h-3 text-yellow-400 ml-1" /> 5.0
+              {isLoadingRecent ? (
+                <p className="text-text-muted text-sm">{t('twa.loadingActivity')}</p>
+              ) : recentOrders && recentOrders.length > 0 ? (
+                recentOrders.map((order: any) => (
+                  <div key={order.id} className="flex items-center justify-between p-3 bg-panel/50 rounded-lg">
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 bg-brand-primary/20 rounded-full flex items-center justify-center mr-3">
+                        {getMediaTypeIcon(order.mediaType)}
+                      </div>
+                      <div>
+                        <div className="font-medium text-sm truncate w-40">{order.title}</div>
+                        <div className="text-xs text-text-muted capitalize">{order.status}</div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <div className="text-sm font-medium text-brand-accent">+{formatTON(order.budgetNanoTon)}</div>
+                      <div className="text-xs text-text-muted">
+                        {formatDistanceToNow(new Date(order.createdAt), { addSuffix: true, locale: i18n.language === 'ru' ? ru : undefined })}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-brand-accent">+2.5 TON</div>
-                  <div className="text-xs text-text-muted">{String(t('twa.timeAgo.recent'))}</div>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-between p-3 bg-panel/50 rounded-lg">
-                <div className="flex items-center">
-                  <div className="w-10 h-10 bg-brand-accent/20 rounded-full flex items-center justify-center mr-3">
-                    <Video className="w-5 h-5 text-brand-accent" />
-                  </div>
-                  <div>
-                    <div className="font-medium text-sm">{String(t('twa.sampleOrder2'))}</div>
-                    <div className="text-xs text-text-muted">{String(t('twa.inProgress'))}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-sm font-medium text-yellow-400">5.0 TON</div>
-                  <div className="text-xs text-text-muted">{String(t('twa.timeAgo.hour'))}</div>
-                </div>
-              </div>
+                ))
+              ) : (
+                <p className="text-text-muted text-sm">{t('twa.noRecentActivity')}</p>
+              )}
             </div>
           </CardContent>
         </Card>
