@@ -98,7 +98,7 @@ export function InteractiveMap({
   }, [isMapInitialized, allOrders, currentUser, onOrderClick]);
 
   return (
-    <div className="relative h-full w-full">
+    <div className="relative">
       {/* Map Container */}
       <div
         ref={mapContainerRef}
