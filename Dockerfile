@@ -29,6 +29,9 @@ RUN npm run build
 FROM node:20-alpine AS production
 WORKDIR /app
 
+# Set production environment
+ENV NODE_ENV=production
+
 # Install curl for healthcheck
 RUN apk add --no-cache curl
 
