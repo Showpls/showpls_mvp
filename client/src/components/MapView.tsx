@@ -5,6 +5,7 @@ import { Camera, Video, Radio, Crosshair } from "lucide-react";
 import { getAuthToken } from "@/lib/auth";
 import { locationService } from "@/lib/location";
 import { InteractiveMap } from "./InteractiveMap";
+import { OrderAcceptButton } from "./OrderAcceptButton";
 
 interface MapViewProps {
   selectedMediaType: string;
@@ -146,9 +147,12 @@ export function MapView({ selectedMediaType, onMediaTypeChange }: MapViewProps) 
             </div>
             <div className="grid gap-2">
               {filteredOrders.map((o) => (
-                <div key={o.id} className="p-3 bg-panel rounded border border-white/10">
-                  <div className="text-sm font-medium">{o.title}</div>
-                  <div className="text-xs text-text-muted">{o.mediaType} • {o.location?.address || `${o.location?.lat}, ${o.location?.lng}`}</div>
+                                <div key={o.id} className="p-3 bg-panel rounded border border-white/10 flex justify-between items-center">
+                  <div>
+                    <div className="text-sm font-medium text-text-primary">{o.title}</div>
+                    <div className="text-xs text-text-muted">{o.mediaType} • {o.location?.address || `${o.location?.lat}, ${o.location?.lng}`}</div>
+                  </div>
+                  <OrderAcceptButton orderId={o.id} orderStatus={o.status} requesterId={o.requesterId} />
                 </div>
               ))}
             </div>

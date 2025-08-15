@@ -240,12 +240,14 @@
     },
     "locationUnknown": "Локация неизвестна",
     "chat": "Чат",
-    "accept": "Принять"
+    "accept": "Принять",
+    "mustBeProvider": "Только исполнители могут принимать заказы"
   },
   "wallet": {
     "connect": "Подключить",
     "connecting": "Подключение...",
-    "connected": "Подключено"
+    "connected": "Подключено",
+    "disconnect": "Отключить"
   },
   "chat": {
     "loading": "Загрузка чата...",

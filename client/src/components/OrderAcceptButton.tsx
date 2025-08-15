@@ -85,6 +85,11 @@ export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
             return false;
         }
 
+        // User must be a provider to accept
+        if (!currentUser?.isProvider) {
+            return false;
+        }
+
         // Order must be in CREATED or FUNDED status
         if (orderStatus !== 'CREATED' && orderStatus !== 'FUNDED') {
             return false;
@@ -96,6 +101,10 @@ export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
     const getButtonText = () => {
         if (requesterId === currentUser?.id) {
             return t('order.yourOrder') || 'Your Order';
+        }
+
+        if (!currentUser?.isProvider) {
+            return t('order.mustBeProvider') || 'Only providers can accept';
         }
 
         if (orderStatus !== 'CREATED' && orderStatus !== 'FUNDED') {

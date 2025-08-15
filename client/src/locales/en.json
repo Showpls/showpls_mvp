@@ -235,12 +235,14 @@
     },
     "locationUnknown": "Location unknown",
     "chat": "Chat",
-    "accept": "Accept"
+    "accept": "Accept",
+    "mustBeProvider": "Only providers can accept orders"
   },
   "wallet": {
     "connect": "Connect",
     "connecting": "Connecting...",
-    "connected": "Connected"
+    "connected": "Connected",
+    "disconnect": "Disconnect"
   },
   "chat": {
     "loading": "Loading chat...",
