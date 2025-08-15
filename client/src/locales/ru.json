@@ -189,7 +189,23 @@
       "hour": "1ч назад"
     },
     "trySample": "Попробовать образец запроса",
-    "yourOrders": "Ваши заказы"
+    "yourOrders": "Ваши заказы",
+    "settings": "Настройки",
+    "lightMode": "Светлая тема",
+    "darkMode": "Темная тема",
+    "loadingActivity": "Загрузка активности...",
+    "noRecentActivity": "Нет недавней активности."
+  },
+  "location": {
+    "pickLocation": "Выберите место",
+    "clickMap": "Нажмите на карту, чтобы выбрать место",
+    "loadingAddress": "Загрузка адреса...",
+    "addressError": "Не удалось определить адрес",
+    "getCurrentLocationError": "Не удалось получить текущее местоположение",
+    "gettingLocation": "Получение местоположения...",
+    "useCurrentLocation": "Использовать текущее местоположение",
+    "selectedAddress": "Выбранный адрес",
+    "confirm": "Подтвердить"
   },
   "createRequest": {
     "title": "Новый запрос",

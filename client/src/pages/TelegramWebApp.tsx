@@ -118,7 +118,7 @@ export default function TelegramWebApp() {
             <WalletConnect />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="bg-panel border-brand-primary/30 w-10 h-10">
+                <Button variant="outline" size="sm" className="bg-panel border-brand-primary/30 w-9 h-9 p-2">
                   <User className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
@@ -208,6 +208,7 @@ export default function TelegramWebApp() {
             <MapView
               selectedMediaType={selectedMediaType}
               onMediaTypeChange={handleMapFilter}
+              isClickable={false}
             />
           </Card>
         ) : null}

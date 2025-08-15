@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { MapPin, Crosshair, X, Check } from "lucide-react";
 import { mapService } from "@/lib/map";
@@ -27,60 +25,42 @@ export function LocationPicker({
     const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address: string } | null>(
         initialLocation ? { lat: initialLocation.lat, lng: initialLocation.lng, address: initialLocation.address || '' } : null
     );
-    const [isLoading, setIsLoading] = useState(false); // For 'Use Current Location'
-    const [isGeocoding, setIsGeocoding] = useState(false); // For reverse geocoding on map click
+    const [isLoading, setIsLoading] = useState(false);
+    const [isGeocoding, setIsGeocoding] = useState(false);
 
-    // Initialize map
     useEffect(() => {
         if (mapContainerRef.current && !isMapInitialized) {
-            try {
-                const center: [number, number] = selectedLocation
-                    ? [selectedLocation.lng, selectedLocation.lat]
-                    : [37.6176, 55.7558]; // Moscow default
+            const center: [number, number] = selectedLocation
+                ? [selectedLocation.lng, selectedLocation.lat]
+                : [37.6176, 55.7558]; // Default to Moscow
 
-                const map = mapService.initializeMap(mapContainerRef.current, center, 12);
-                if (map) {
-                    setIsMapInitialized(true);
-                    console.log('[LOCATION_PICKER] Map initialized successfully');
+            const map = mapService.initializeMap(mapContainerRef.current, center, 12);
+            if (map) {
+                setIsMapInitialized(true);
 
-                    // Add click handler to map
-                    const handleMapClick = async (e: mapboxgl.MapMouseEvent & {
-                        lngLat: mapboxgl.LngLat;
-                    }) => {
-                        const { lng, lat } = e.lngLat;
+                const handleMapClick = async (e: mapboxgl.MapMouseEvent & { lngLat: mapboxgl.LngLat }) => {
+                    const { lng, lat } = e.lngLat;
+                    setSelectedLocation({ lat, lng, address: t('location.loadingAddress') });
+                    mapService.clearMarkers();
+                    mapService.addLocationMarker(lat, lng);
 
-                        // --- Immediate UI Update ---
-                        // 1. Set location with placeholder text for address
-                        setSelectedLocation({ lat, lng, address: 'Загрузка адреса...' });
-
-                        // 2. Immediately place marker on the map
-                        mapService.clearMarkers();
-                        mapService.addLocationMarker(lat, lng);
-                        // --- End Immediate UI Update ---
-
-                        // Fetch address asynchronously
-                        setIsGeocoding(true);
-                        try {
-                            const address = await locationService.getAddressFromCoordinates(lat, lng);
-                            setSelectedLocation({ lat, lng, address }); // Update with real address
-                            console.log('[LOCATION_PICKER] Location selected from map:', { lat, lng, address });
-                        } catch (error) {
-                            console.error('[LOCATION_PICKER] Error getting address from coords:', error);
-                            setSelectedLocation({ lat, lng, address: 'Не удалось определить адрес' });
-                        } finally {
-                            setIsGeocoding(false);
-                        }
-                    };
-
-                    map.on('click', handleMapClick);
-
-                    // Add initial marker if location exists
-                    if (selectedLocation) {
-                        mapService.addLocationMarker(selectedLocation.lat, selectedLocation.lng);
+                    setIsGeocoding(true);
+                    try {
+                        const address = await locationService.getAddressFromCoordinates(lat, lng);
+                        setSelectedLocation({ lat, lng, address });
+                    } catch (error) {
+                        console.error('[LOCATION_PICKER] Error getting address:', error);
+                        setSelectedLocation({ lat, lng, address: t('location.addressError') });
+                    } finally {
+                        setIsGeocoding(false);
                     }
+                };
+
+                map.on('click', handleMapClick);
+
+                if (selectedLocation) {
+                    mapService.addLocationMarker(selectedLocation.lat, selectedLocation.lng);
                 }
-            } catch (error) {
-                console.error('[LOCATION_PICKER] Failed to initialize map:', error);
             }
         }
 
@@ -90,28 +70,23 @@ export function LocationPicker({
                 setIsMapInitialized(false);
             }
         };
-    }, [isMapInitialized, selectedLocation]);
+    }, [isMapInitialized, selectedLocation, t]);
 
-    // Get current location
     const getCurrentLocation = async () => {
         setIsLoading(true);
         try {
             const location = await locationService.getCurrentLocation();
             const address = await locationService.getAddressFromCoordinates(location.latitude, location.longitude);
-
             const newLocation = { lat: location.latitude, lng: location.longitude, address };
             setSelectedLocation(newLocation);
 
-            // Update map center and marker
             mapService.setCenter(location.longitude, location.latitude);
             mapService.setZoom(15);
             mapService.clearMarkers();
             mapService.addLocationMarker(location.latitude, location.longitude);
-
-            console.log('[LOCATION_PICKER] Current location set:', newLocation);
         } catch (error: any) {
             console.error('[LOCATION_PICKER] Error getting current location:', error);
-            alert(error.message || 'Failed to get current location');
+            alert(error.message || t('location.getCurrentLocationError'));
         } finally {
             setIsLoading(false);
         }
@@ -125,90 +100,68 @@ export function LocationPicker({
     };
 
     return (
-        <div className={`fixed inset-0 bg-black/50 backdrop-blur-sm z-50 p-2 ${className}`}>
-            <div className="h-full flex flex-col bg-white rounded-t-2xl mt-8 overflow-hidden">
-                {/* Mobile Header */}
-                <div className="flex items-center justify-between p-4 bg-white border-b border-gray-200">
-                    <h2 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                        <MapPin className="w-5 h-5 text-blue-600" />
-                        {t('location.pickLocation') || 'Выберите место'}
-                    </h2>
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={onClose}
-                        className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                    >
-                        <X className="w-5 h-5" />
-                    </Button>
-                </div>
+        <div className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex flex-col ${className}`}>
+            {/* Header */}
+            <div className="bg-background flex items-center justify-between p-4 border-b border-border">
+                <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-brand-primary" />
+                    {t('location.pickLocation')}
+                </h2>
+                <Button size="icon" variant="ghost" onClick={onClose}>
+                    <X className="w-5 h-5" />
+                </Button>
+            </div>
 
-                {/* Instructions */}
-                <div className="px-4 py-2 bg-blue-50 border-b border-blue-100">
-                    <div className="text-sm text-blue-800">
-                        {t('location.clickMap') || 'Нажмите на карту для выбора места или используйте текущее местоположение'}
+            {/* Instructions */}
+            <div className="px-4 py-2 bg-background-secondary border-b border-border">
+                <p className="text-sm text-text-secondary text-center">{t('location.clickMap')}</p>
+            </div>
+
+            {/* Map Container */}
+            <div className="flex-1 relative">
+                <div ref={mapContainerRef} className="w-full h-full" />
+                {(isLoading || isGeocoding) && (
+                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2 bg-background p-4 rounded-lg shadow-lg">
+                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
+                            <p className="text-sm text-text-secondary">
+                                {isLoading ? t('location.gettingLocation') : t('location.loadingAddress')}
+                            </p>
+                        </div>
                     </div>
-                </div>
+                )}
+            </div>
 
-                {/* Map Container - Takes remaining space */}
-                <div className="flex-1 relative">
-                    <div
-                        ref={mapContainerRef}
-                        className="w-full h-full"
-                    />
-                    
-                    {/* Loading overlay */}
-                    {isLoading && (
-                        <div className="absolute inset-0 bg-white/80 flex items-center justify-center">
-                            <div className="bg-white p-4 rounded-lg shadow-lg">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-                                <p className="text-sm mt-2 text-gray-700">Получение местоположения...</p>
-                            </div>
-                        </div>
-                    )}
-                </div>
+            {/* Bottom Controls Panel */}
+            <div className="bg-background border-t border-border p-4 space-y-4">
+                <Button
+                    onClick={getCurrentLocation}
+                    disabled={isLoading}
+                    variant="outline"
+                    className="w-full"
+                >
+                    <Crosshair className="w-4 h-4 mr-2" />
+                    {t('location.useCurrentLocation')}
+                </Button>
 
-                {/* Bottom Controls Panel */}
-                <div className="bg-white border-t border-gray-200 p-4 space-y-3">
-                    {/* Current Location Button */}
-                    <Button
-                        onClick={getCurrentLocation}
-                        disabled={isLoading}
-                        variant="outline"
-                        className="w-full bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
-                    >
-                        <Crosshair className="w-4 h-4 mr-2" />
-                        {isLoading ? 'Получение местоположения...' : 'Использовать текущее место'}
-                    </Button>
+                {selectedLocation && (
+                    <div className="p-3 bg-background-secondary rounded-lg border border-border text-left">
+                        <p className="text-sm font-medium text-text-primary mb-1">{t('location.selectedAddress')}</p>
+                        <p className="text-sm text-text-secondary min-h-[20px]">{selectedLocation.address}</p>
+                        <p className="text-xs text-text-muted mt-1">
+                            {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
+                        </p>
+                    </div>
+                )}
 
-                    {/* Selected Location Info */}
-                    {selectedLocation && (
-                        <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                            <div className="text-sm font-medium text-gray-900 mb-1 flex items-center">
-                                Выбранный адрес:
-                                {isGeocoding && (
-                                    <div className="ml-2 animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
-                                )}
-                            </div>
-                            <div className="text-sm text-gray-700 mb-2 min-h-[20px]">
-                                {selectedLocation.address}
-                            </div>
-                            <div className="flex items-center justify-between">
-                                <div className="text-xs text-gray-500">
-                                    {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
-                                </div>
-                                <Button
-                                    onClick={handleConfirm}
-                                    size="sm"
-                                    className="bg-green-600 hover:bg-green-700 text-white"
-                                >
-                                    <Check className="w-4 h-4 mr-1" />
-                                    Подтвердить
-                                </Button>
-                            </div>
-                        </div>
-                    )}
-                </div>
+                <Button
+                    onClick={handleConfirm}
+                    disabled={!selectedLocation || isGeocoding}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                >
+                    <Check className="w-4 h-4 mr-2" />
+                    {t('location.confirm')}
+                </Button>
             </div>
         </div>
     );

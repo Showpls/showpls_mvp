@@ -10,9 +10,10 @@ import { OrderAcceptButton } from "./OrderAcceptButton";
 interface MapViewProps {
   selectedMediaType: string;
   onMediaTypeChange: (mediaType: string) => void;
+  isClickable?: boolean;
 }
 
-export function MapView({ selectedMediaType, onMediaTypeChange }: MapViewProps) {
+export function MapView({ selectedMediaType, onMediaTypeChange, isClickable = true }: MapViewProps) {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -77,11 +78,10 @@ export function MapView({ selectedMediaType, onMediaTypeChange }: MapViewProps) 
     <div>
       {/* Interactive Map */}
       <InteractiveMap
-        onOrderClick={(order) => {
+        onOrderClick={isClickable ? (order) => {
           console.log('Order clicked:', order);
           // Handle order click - could open details modal or navigate to order page
-        }}
-        showFilters={true}
+        } : undefined}
         className="h-64"
       />
 

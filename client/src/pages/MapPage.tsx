@@ -56,12 +56,11 @@ export default function MapPage() {
             </div>
 
             {/* Main Content */}
-            <div className="flex-grow max-w-6xl w-full mx-auto px-4 pb-4">
+            <div className="flex-grow">
                 <div className="relative h-full">
                     {/* Interactive Map */}
                     <InteractiveMap
                         onOrderClick={handleOrderClick}
-                        showFilters={true}
                         className="h-full w-full"
                     />
 

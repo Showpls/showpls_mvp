@@ -40,7 +40,7 @@ export function LanguageSwitcher() {
           <SelectItem 
             key={language.code} 
             value={language.code}
-            className="text-text-primary hover:bg-brand-primary/20"
+            className="text-text-primary focus:bg-brand-primary/20 focus:text-text-primary cursor-pointer"
           >
             <div className="flex items-center space-x-2">
               <span>{language.label}</span>
