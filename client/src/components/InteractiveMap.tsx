@@ -56,32 +56,38 @@ export function InteractiveMap({
     },
   });
 
-  // Fetch orders based on user location
+  // Fetch orders
   const { data: allOrders = [], isLoading } = useQuery<any[]>({
     queryKey: ['/api/orders', userLocation?.[0], userLocation?.[1]],
-    enabled: !!userLocation, // Fetch only when user location is known
+    enabled: true, // Always enabled
     queryFn: async () => {
       const token = getAuthToken();
-
-      // If user location is available, fetch nearby orders
-      // Fetch nearby orders if user location is available
+      
+      // If user location is available, try fetching nearby orders first
       if (userLocation) {
         try {
           const response = await fetch(`/api/orders/nearby?lat=${userLocation[1]}&lng=${userLocation[0]}&radius=15`, {
             headers: token ? { Authorization: `Bearer ${token}` } : {},
           });
-          if (!response.ok) throw new Error('Failed to fetch nearby orders');
-          const data = await response.json();
-          return Array.isArray(data.orders) ? data.orders : [];
+          if (response.ok) {
+            const data = await response.json();
+            return Array.isArray(data.orders) ? data.orders : [];
+          }
+          // Log a warning if nearby fetch fails but don't throw an error, to allow fallback
+          console.warn(`[INTERACTIVE_MAP] Failed to fetch nearby orders (status: ${response.status}), falling back to all orders.`);
         } catch (error) {
-          console.warn('[INTERACTIVE_MAP] Failed to fetch nearby orders, falling back to all orders:', error);
+          console.warn('[INTERACTIVE_MAP] Error fetching nearby orders, falling back to all orders:', error);
         }
       }
 
-      // Fallback to fetching all orders if nearby fails or no location
+      // Fallback to fetching all orders if no location or nearby fetch failed
       try {
-        const response = await fetch('/api/orders');
-        if (!response.ok) throw new Error('Failed to fetch all orders');
+        const response = await fetch('/api/orders', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch all orders');
+        }
         const data = await response.json();
         return Array.isArray(data.orders) ? data.orders : [];
       } catch (error) {

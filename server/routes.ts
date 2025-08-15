@@ -311,9 +311,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'User not authenticated' });
       }
 
-      // Return empty array for demo purposes
-      const orders: any[] = [];
-      res.json(orders);
+      const orders = await storage.getAllOrders();
+      res.json({ success: true, orders });
     } catch (error) {
       console.error('Get orders error:', error);
       res.status(500).json({ error: 'Failed to get orders' });
