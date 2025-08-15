@@ -6,10 +6,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Camera, Video, Smartphone, ArrowLeft } from "lucide-react";
+import { MapPin, Camera, Video, Smartphone, ArrowLeft, Map } from "lucide-react";
 import { Link } from "wouter";
 import { getAuthToken, bootstrapTelegramAuth } from "@/lib/auth";
-import { locationManager } from '@telegram-apps/sdk';
+import { locationService } from "@/lib/location";
+import { InteractiveMap } from "@/components/InteractiveMap";
 import TelegramWebApp from "./TelegramWebApp";
 
 interface OrderData {
@@ -35,8 +36,9 @@ export default function CreateOrder() {
     isSampleOrder: false,
   });
 
-  const [isLocationSupported, setIsLocationSupported] = useState(false);
-  const [isLocationMounted, setIsLocationMounted] = useState(false);
+  const [showMap, setShowMap] = useState(false);
+
+
 
   const queryClient = useQueryClient();
 
@@ -48,30 +50,21 @@ export default function CreateOrder() {
       }
     })();
 
-    // Check if location is supported
-    const supported = locationManager.isSupported();
-    setIsLocationSupported(supported);
+    // Initialize location service
+    const initLocation = async () => {
+      try {
+        await locationService.initialize();
+        console.log('[CREATE_ORDER] Location service initialized successfully');
+      } catch (err) {
+        console.error('[CREATE_ORDER] Failed to initialize location service:', err);
+      }
+    };
 
-    if (supported) {
-      // Mount the location manager
-      const mountLocationManager = async () => {
-        try {
-          await locationManager.mount();
-          setIsLocationMounted(true);
-          console.log('[CREATE_ORDER] Location manager mounted successfully');
-        } catch (err) {
-          console.error('[CREATE_ORDER] Failed to mount location manager:', err);
-        }
-      };
-
-      mountLocationManager();
-    }
+    initLocation();
 
     // Cleanup on unmount
     return () => {
-      if (isLocationMounted) {
-        locationManager.unmount();
-      }
+      locationService.destroy();
     };
   }, []);
 
@@ -121,63 +114,23 @@ export default function CreateOrder() {
     console.log('[CREATE_ORDER] Location button clicked');
 
     try {
-      let location: any;
+      const location = await locationService.getCurrentLocation();
+      console.log('[CREATE_ORDER] Location received:', location);
 
-      if (isLocationSupported && isLocationMounted) {
-        // Use Telegram's location manager
-        console.log('[CREATE_ORDER] Using Telegram location manager');
+      // Get address from coordinates
+      const address = await locationService.getAddressFromCoordinates(location.latitude, location.longitude);
 
-        location = await locationManager.requestLocation();
-        console.log('[CREATE_ORDER] Telegram location received:', location);
-
-        setOrderData({
-          ...orderData,
-          location: {
-            lat: location.latitude,
-            lng: location.longitude,
-            address: 'Ваше текущее местоположение',
-          }
-        });
-      } else if (navigator.geolocation) {
-        // Fall back to browser geolocation API
-        console.log('[CREATE_ORDER] Using browser geolocation API');
-
-        location = await new Promise((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(
-            (pos) => resolve({
-              latitude: pos.coords.latitude,
-              longitude: pos.coords.longitude
-            }),
-            (err) => reject(err),
-            { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
-          );
-        });
-
-        setOrderData({
-          ...orderData,
-          location: {
-            lat: location.latitude,
-            lng: location.longitude,
-            address: 'Ваше текущее местоположение',
-          }
-        });
-      } else {
-        alert('Геолокация не поддерживается вашим браузером');
-        return;
-      }
+      setOrderData({
+        ...orderData,
+        location: {
+          lat: location.latitude,
+          lng: location.longitude,
+          address: address,
+        }
+      });
     } catch (e: any) {
       console.error('[CREATE_ORDER] Location error:', e);
-
-      // Provide specific error messages
-      if (e?.message?.includes('denied') || e?.message?.includes('permission')) {
-        alert('Доступ к местоположению запрещен. Разрешите доступ в настройках.');
-      } else if (e?.message?.includes('timeout')) {
-        alert('Превышено время ожидания получения местоположения');
-      } else if (e?.message?.includes('unavailable')) {
-        alert('Информация о местоположении недоступна');
-      } else {
-        alert('Не удалось получить ваше местоположение');
-      }
+      alert(e.message || 'Не удалось получить ваше местоположение');
     }
   };
 
@@ -308,11 +261,36 @@ export default function CreateOrder() {
                   >
                     <MapPin size={16} />
                   </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setShowMap(!showMap)}
+                    className="shrink-0"
+                  >
+                    <Map size={16} />
+                  </Button>
                 </div>
                 <div className="text-sm text-white/60">
                   Координаты: {orderData.location.lat.toFixed(4)}, {orderData.location.lng.toFixed(4)}
                 </div>
               </div>
+
+              {/* Interactive Map */}
+              {showMap && (
+                <div className="space-y-2">
+                  <Label className="text-white">Карта с заказами поблизости</Label>
+                  <InteractiveMap
+                    onOrderClick={(order) => {
+                      console.log('Nearby order clicked:', order);
+                      // Could show order details or use as reference
+                    }}
+                    initialCenter={[orderData.location.lng, orderData.location.lat]}
+                    initialZoom={12}
+                    showFilters={true}
+                    className="h-80"
+                  />
+                </div>
+              )}
 
               {/* Budget */}
               <div className="space-y-2">

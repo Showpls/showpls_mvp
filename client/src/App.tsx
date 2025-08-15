@@ -10,7 +10,9 @@ import TelegramWebApp from "./pages/TelegramWebApp";
 import CreateOrder from "./pages/CreateOrder";
 import Chat from "./pages/Chat";
 import DaoWhitepaper from "./pages/DaoWhitepaper";
+import MapPage from "./pages/MapPage";
 import NotFound from "@/pages/not-found";
+import { TonConnectUIProvider } from '@tonconnect/ui-react';
 
 function Router() {
   return (
@@ -18,6 +20,7 @@ function Router() {
       <Route path="/" component={NewLanding} />
       <Route path="/twa" component={TelegramWebApp} />
       <Route path="/create-order" component={CreateOrder} />
+      <Route path="/map" component={MapPage} />
       <Route path="/chat/:orderId" component={Chat} />
       <Route path="/dao/whitepaper" component={DaoWhitepaper} />
       <Route component={NotFound} />
@@ -29,12 +32,14 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-        <TooltipProvider>
-          <div className="min-h-screen bg-bg-primary text-text-primary">
-            <Toaster />
-            <Router />
-          </div>
-        </TooltipProvider>
+        <TonConnectUIProvider manifestUrl={`${window.location.origin}/tonconnect-manifest.json`}>
+          <TooltipProvider>
+            <div className="min-h-screen bg-bg-primary text-text-primary">
+              <Toaster />
+              <Router />
+            </div>
+          </TooltipProvider>
+        </TonConnectUIProvider>
       </I18nextProvider>
     </QueryClientProvider>
   );

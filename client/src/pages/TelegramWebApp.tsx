@@ -122,7 +122,10 @@ export default function TelegramWebApp() {
               <div className="text-sm text-text-muted">{String(t('twa.createOrder'))}</div>
             </CardContent>
           </Card>
-          <Card className="glass-panel border-brand-primary/20 hover:bg-brand-accent/10 transition-all cursor-pointer">
+          <Card
+            className="glass-panel border-brand-primary/20 hover:bg-brand-accent/10 transition-all cursor-pointer"
+            onClick={() => window.location.href = '/map'}
+          >
             <CardContent className="p-4 text-center">
               <MapPin className="w-8 h-8 text-brand-accent mb-2 mx-auto" />
               <div className="font-medium">{String(t('twa.nearby'))}</div>

@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import 'mapbox-gl/dist/mapbox-gl.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -99,6 +100,31 @@
   
   .animate-glow {
     animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  /* Mapbox custom styles */
+  .mapboxgl-popup-content {
+    @apply bg-white rounded-lg shadow-lg border-0;
+  }
+  
+  .mapboxgl-popup-close-button {
+    @apply text-gray-600 hover:text-gray-800;
+  }
+  
+  .order-marker {
+    transition: transform 0.2s ease-in-out;
+  }
+  
+  .order-marker:hover {
+    transform: scale(1.1);
+  }
+  
+  .mapboxgl-ctrl-group {
+    @apply bg-white/90 backdrop-blur-sm border-white/20;
+  }
+  
+  .mapboxgl-ctrl-group button {
+    @apply text-gray-800 hover:bg-gray-100;
   }
 }
 

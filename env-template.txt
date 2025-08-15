@@ -16,3 +16,6 @@ TON_API_KEY="your-toncenter-api-key"
 TON_PLATFORM_WALLET="word1 word2 word3 ..."
 FEE_RECEIVER_WALLET="EQDxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
 ESCROW_CODE_B64="paste_base64_boc_here"
+
+# Mapbox Configuration
+VITE_MAPBOX_ACCESS_TOKEN="your_mapbox_access_token_here"

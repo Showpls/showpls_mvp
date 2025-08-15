@@ -1,5 +1,5 @@
-import { TonConnect, TonConnectUI, THEME } from '@tonconnect/ui';
-import { getAuthToken } from './auth';
+import { TonConnect, TonConnectUI, THEME } from "@tonconnect/ui";
+import { getAuthToken } from "./auth";
 
 class TonConnectService {
   private tonConnect: TonConnect | null = null;
@@ -9,7 +9,7 @@ class TonConnectService {
     try {
       // Initialize TonConnect
       this.tonConnect = new TonConnect({
-        manifestUrl: `${window.location.origin}/tonconnect-manifest.json`
+        manifestUrl: `${window.location.origin}/tonconnect-manifest.json`,
       });
 
       // Initialize TonConnect UI
@@ -20,26 +20,26 @@ class TonConnectService {
           colorsSet: {
             [THEME.DARK]: {
               connectButton: {
-                background: '#7c5cff',
-                foreground: '#ffffff',
+                background: "#7c5cff",
+                foreground: "#ffffff",
               },
-              accent: '#7c5cff',
-              telegramButton: '#29e3e3',
+              accent: "#7c5cff",
+              telegramButton: "#29e3e3",
               icon: {
-                primary: '#7c5cff',
-                secondary: '#29e3e3',
-                tertiary: '#96a0b5',
-                success: '#4ade80',
-                error: '#ef4444',
+                primary: "#7c5cff",
+                secondary: "#29e3e3",
+                tertiary: "#96a0b5",
+                success: "#4ade80",
+                error: "#ef4444",
               },
               background: {
-                primary: '#0b0f14',
-                secondary: '#121826',
-                segment: '#121826',
+                primary: "#0b0f14",
+                secondary: "#121826",
+                segment: "#121826",
               },
               text: {
-                primary: '#e8eefc',
-                secondary: '#96a0b5',
+                primary: "#e8eefc",
+                secondary: "#96a0b5",
               },
             },
           },
@@ -48,8 +48,8 @@ class TonConnectService {
 
       // Set up event listeners
       this.tonConnect.onStatusChange((wallet) => {
-        console.log('Wallet connection status changed:', wallet);
-        
+        console.log("Wallet connection status changed:", wallet);
+
         // Update user wallet address in backend
         if (wallet) {
           this.updateUserWallet(wallet.account.address);
@@ -58,14 +58,14 @@ class TonConnectService {
 
       return true;
     } catch (error) {
-      console.error('Failed to initialize TON Connect:', error);
+      console.error("Failed to initialize TON Connect:", error);
       return false;
     }
   }
 
   async connectWallet() {
     if (!this.tonConnect) {
-      throw new Error('TonConnect not initialized');
+      throw new Error("TonConnect not initialized");
     }
 
     try {
@@ -73,34 +73,34 @@ class TonConnectService {
       const wallet = await this.tonConnect.connect(walletsList[0]);
       return wallet;
     } catch (error) {
-      console.error('Failed to connect wallet:', error);
+      console.error("Failed to connect wallet:", error);
       throw error;
     }
   }
 
   async disconnectWallet() {
     if (!this.tonConnect) {
-      throw new Error('TonConnect not initialized');
+      throw new Error("TonConnect not initialized");
     }
 
     try {
       await this.tonConnect.disconnect();
     } catch (error) {
-      console.error('Failed to disconnect wallet:', error);
+      console.error("Failed to disconnect wallet:", error);
       throw error;
     }
   }
 
   async sendTransaction(transaction: any) {
     if (!this.tonConnect) {
-      throw new Error('TonConnect not initialized');
+      throw new Error("TonConnect not initialized");
     }
 
     try {
       const result = await this.tonConnect.sendTransaction(transaction);
       return result;
     } catch (error) {
-      console.error('Failed to send transaction:', error);
+      console.error("Failed to send transaction:", error);
       throw error;
     }
   }
@@ -122,16 +122,16 @@ class TonConnectService {
       const token = getAuthToken();
       if (!token) return;
 
-      await fetch('/api/me/wallet', {
-        method: 'PUT',
+      await fetch("/api/me/wallet", {
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({ walletAddress: address }),
       });
     } catch (error) {
-      console.error('Failed to update user wallet:', error);
+      console.error("Failed to update user wallet:", error);
     }
   }
 
@@ -140,19 +140,19 @@ class TonConnectService {
       if (window.Telegram?.WebApp?.initDataUnsafe?.user) {
         return window.Telegram.WebApp.initDataUnsafe.user;
       }
-      
-      if (process.env.NODE_ENV === 'development') {
+
+      if (process.env.NODE_ENV === "development") {
         return {
-          id: 'demo_user_123',
-          username: 'demo_user',
-          first_name: 'Demo',
-          language_code: 'en'
+          id: "demo_user_123",
+          username: "demo_user",
+          first_name: "Demo",
+          language_code: "en",
         };
       }
 
       return null;
     } catch (error) {
-      console.error('Error getting Telegram auth data:', error);
+      console.error("Error getting Telegram auth data:", error);
       return null;
     }
   }
@@ -182,8 +182,8 @@ export const createApprovalTransaction = (escrowAddress: string) => ({
   messages: [
     {
       address: escrowAddress,
-      amount: '0',
-      payload: 'approve', // Approval command
+      amount: "0",
+      payload: "approve", // Approval command
     },
   ],
 });
@@ -193,8 +193,8 @@ export const createDisputeTransaction = (escrowAddress: string) => ({
   messages: [
     {
       address: escrowAddress,
-      amount: '0',
-      payload: 'dispute', // Dispute command
+      amount: "0",
+      payload: "dispute", // Dispute command
     },
   ],
 });

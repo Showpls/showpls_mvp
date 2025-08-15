@@ -3,12 +3,14 @@ import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { Wallet, CheckCircle } from "lucide-react";
 import { tonConnectService } from "@/lib/ton-connect";
+import { useTonConnectUI } from '@tonconnect/ui-react';
 
 export function WalletConnect() {
   const { t } = useTranslation();
   const [isConnected, setIsConnected] = useState(false);
   const [address, setAddress] = useState<string>("");
   const [isConnecting, setIsConnecting] = useState(false);
+  const [tonConnectUI, setOptions] = useTonConnectUI();
 
   useEffect(() => {
     let isMounted = true;
@@ -68,8 +70,7 @@ export function WalletConnect() {
 
   return (
     <Button
-      onClick={connectWallet}
-      disabled={isConnecting}
+      onClick={() => tonConnectUI.openModal()}
       size="sm"
       className="bg-brand-primary hover:bg-brand-primary/80 text-white"
     >

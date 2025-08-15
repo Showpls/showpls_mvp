@@ -1,10 +1,12 @@
 import {
   users,
   orders,
+  notifications,
   type User,
   type InsertUser,
   type Order,
   type InsertOrder,
+  type InsertNotification,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq } from "drizzle-orm";
@@ -26,6 +28,9 @@ export interface IStorage {
   // Optional chat persistence for MVP
   getChatMessages?(orderId: string): Promise<any[]>;
   createChatMessage?(message: { orderId: string; senderId: string; message: string; messageType?: string; metadata?: any }): Promise<any>;
+  
+  // Notification management
+  createNotification(notification: InsertNotification): Promise<any>;
 }
 
 // In-memory storage for development (replace with DatabaseStorage for production)
@@ -190,6 +195,19 @@ class DatabaseStorage implements IStorage {
       })
       .returning();
     return row;
+  }
+
+  async createNotification(notification: InsertNotification): Promise<any> {
+    const [newNotification] = await db
+      .insert(notifications)
+      .values({
+        ...notification,
+        isRead: false,
+        createdAt: new Date(),
+      })
+      .returning();
+
+    return newNotification;
   }
 }
 

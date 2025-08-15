@@ -140,52 +140,73 @@ export function setupOrderRoutes(app: Express) {
     }
   });
 
-  // Accept order (for providers)
-  app.post('/api/orders/:orderId/accept', async (req, res) => {
+  // Accept order (for providers) - JWT protected
+  app.post('/api/orders/:orderId/accept', authenticateTelegramUser, async (req, res) => {
     try {
-      const telegramId = req.headers['x-telegram-user-id'] as string;
-      const { orderId } = req.params;
-      
-      if (!telegramId) {
+      const authUser = (req as any).user as { id: string } | undefined;
+      if (!authUser?.id) {
         return res.status(401).json({ error: 'Not authenticated' });
       }
 
-      const user = await storage.getUserByTelegramId(telegramId);
+      const { orderId } = req.params;
+
+      // Get user details
+      const user = await storage.getUser(authUser.id);
       if (!user) {
         return res.status(404).json({ error: 'User not found' });
       }
 
+      // Check if user is a provider
       if (!user.isProvider) {
         return res.status(403).json({ error: 'Only providers can accept orders' });
       }
 
+      // Get order details
       const order = await storage.getOrder(orderId);
       if (!order) {
         return res.status(404).json({ error: 'Order not found' });
       }
 
+      // Check order status
       if (order.status !== 'CREATED') {
-        return res.status(400).json({ error: 'Order cannot be accepted' });
+        return res.status(400).json({ error: 'Order cannot be accepted. Current status: ' + order.status });
       }
 
+      // Check if user is trying to accept their own order
       if (order.requesterId === user.id) {
         return res.status(400).json({ error: 'Cannot accept your own order' });
       }
 
-      // Accept the order - only update allowed fields
+      // Check if order already has a provider
+      if (order.providerId) {
+        return res.status(400).json({ error: 'Order already has a provider' });
+      }
+
+      // Accept the order - set status to IN_PROGRESS and assign provider
       const updatedOrder = await storage.updateOrder(orderId, {
-        status: 'FUNDED', // In real app, this would be after payment confirmation
+        status: 'IN_PROGRESS',
+        providerId: user.id,
         acceptedAt: new Date(),
         estimatedCompletionAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
       } as any);
 
       console.log('[ORDERS] Order accepted:', orderId, 'by provider:', user.id);
 
+      // Create notification for requester
+      await storage.createNotification({
+        userId: order.requesterId,
+        orderId: orderId,
+        type: 'ORDER_ACCEPTED',
+        title: 'Order Accepted',
+        message: `Your order "${order.title}" has been accepted by a provider.`,
+      } as any);
+
       res.json({
         success: true,
         order: {
           id: updatedOrder.id,
           status: updatedOrder.status,
+          providerId: updatedOrder.providerId,
           acceptedAt: updatedOrder.acceptedAt,
           estimatedCompletionAt: updatedOrder.estimatedCompletionAt,
         }
@@ -197,20 +218,15 @@ export function setupOrderRoutes(app: Express) {
     }
   });
 
-  // Get single order details
-  app.get('/api/orders/:orderId', async (req, res) => {
+  // Get single order details - JWT protected
+  app.get('/api/orders/:orderId', authenticateTelegramUser, async (req, res) => {
     try {
-      const telegramId = req.headers['x-telegram-user-id'] as string;
-      const { orderId } = req.params;
-      
-      if (!telegramId) {
+      const authUser = (req as any).user as { id: string } | undefined;
+      if (!authUser?.id) {
         return res.status(401).json({ error: 'Not authenticated' });
       }
 
-      const user = await storage.getUserByTelegramId(telegramId);
-      if (!user) {
-        return res.status(404).json({ error: 'User not found' });
-      }
+      const { orderId } = req.params;
 
       const order = await storage.getOrder(orderId);
       if (!order) {
@@ -218,7 +234,7 @@ export function setupOrderRoutes(app: Express) {
       }
 
       // Check if user has access to this order
-      if (order.requesterId !== user.id && order.providerId !== user.id) {
+      if (order.requesterId !== authUser.id && order.providerId !== authUser.id) {
         return res.status(403).json({ error: 'Access denied' });
       }
 
