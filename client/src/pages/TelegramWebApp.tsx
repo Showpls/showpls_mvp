@@ -79,7 +79,8 @@ export default function TelegramWebApp() {
       const response = await fetch('/api/orders?limit=2');
       if (!response.ok) throw new Error('Failed to fetch recent orders');
       const data = await response.json();
-      return data.orders;
+      // Ensure we only return the last 2 orders
+      return Array.isArray(data.orders) ? data.orders.slice(0, 2) : [];
     },
   });
 

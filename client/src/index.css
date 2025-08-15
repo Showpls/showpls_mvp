@@ -39,6 +39,34 @@
   --animation-duration: 0.3s;
 }
 
+.light {
+  /* Light theme overrides */
+  --bg-primary: hsl(0, 0%, 98%);
+  --panel: hsl(0, 0%, 100%);
+  --text-primary: hsl(217, 33%, 17%);
+  --text-muted: hsl(217, 15%, 46%);
+  
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+  --card: var(--panel);
+  --card-foreground: var(--text-primary);
+  --popover: var(--panel);
+  --popover-foreground: var(--text-primary);
+  --primary: var(--brand-primary);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(0, 0%, 96%);
+  --secondary-foreground: var(--text-primary);
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: var(--text-muted);
+  --accent: var(--brand-accent);
+  --accent-foreground: hsl(0, 0%, 100%);
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --border: hsl(0, 0%, 90%);
+  --input: var(--panel);
+  --ring: var(--brand-primary);
+}
+
 .dark {
   --background: var(--bg-primary);
   --foreground: var(--text-primary);

@@ -100,32 +100,32 @@ export function LocationPicker({
     };
 
     return (
-        <div className={`fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-2 sm:p-4 ${className}`}>
-            <div className="bg-background rounded-2xl shadow-2xl w-full max-w-2xl h-full max-h-[90vh] flex flex-col overflow-hidden border border-border">
+        <div className={`fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 ${className}`}>
+            <div className="bg-panel rounded-2xl shadow-2xl w-full max-w-2xl h-full max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden border border-brand-primary/30">
             {/* Header */}
-            <div className="bg-background flex items-center justify-between p-4 border-b border-border">
-                <h2 className="text-lg font-semibold text-text-primary flex items-center gap-2">
-                    <MapPin className="w-5 h-5 text-brand-primary" />
+            <div className="bg-panel flex items-center justify-between p-3 sm:p-4 border-b border-brand-primary/20">
+                <h2 className="text-base sm:text-lg font-semibold text-text-primary flex items-center gap-2">
+                    <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-brand-primary" />
                     {t('location.pickLocation')}
                 </h2>
-                <Button size="icon" variant="ghost" onClick={onClose}>
-                    <X className="w-5 h-5" />
+                <Button size="icon" variant="ghost" onClick={onClose} className="h-8 w-8 sm:h-9 sm:w-9">
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
                 </Button>
             </div>
 
             {/* Instructions */}
-            <div className="px-4 py-2 bg-background-secondary border-b border-border">
-                <p className="text-sm text-text-secondary text-center">{t('location.clickMap')}</p>
+            <div className="px-3 py-2 sm:px-4 bg-panel/50 border-b border-brand-primary/10">
+                <p className="text-xs sm:text-sm text-text-muted text-center">{t('location.clickMap')}</p>
             </div>
 
             {/* Map Container */}
             <div className="flex-1 relative">
                 <div ref={mapContainerRef} className="w-full h-full" />
                 {(isLoading || isGeocoding) && (
-                    <div className="absolute inset-0 bg-background/80 flex items-center justify-center">
-                        <div className="flex flex-col items-center gap-2 bg-background p-4 rounded-lg shadow-lg">
-                            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-primary"></div>
-                            <p className="text-sm text-text-secondary">
+                    <div className="absolute inset-0 bg-panel/90 flex items-center justify-center">
+                        <div className="flex flex-col items-center gap-2 bg-panel p-3 sm:p-4 rounded-lg shadow-lg border border-brand-primary/20">
+                            <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-brand-primary"></div>
+                            <p className="text-xs sm:text-sm text-text-primary">
                                 {isLoading ? t('location.gettingLocation') : t('location.loadingAddress')}
                             </p>
                         </div>
@@ -134,21 +134,21 @@ export function LocationPicker({
             </div>
 
             {/* Bottom Controls Panel */}
-            <div className="bg-background border-t border-border p-4 space-y-4">
+            <div className="bg-panel border-t border-brand-primary/20 p-3 sm:p-4 space-y-3 sm:space-y-4">
                 <Button
                     onClick={getCurrentLocation}
                     disabled={isLoading}
                     variant="outline"
-                    className="w-full"
+                    className="w-full h-10 sm:h-11 text-sm border-brand-primary/30 hover:bg-brand-primary/10"
                 >
                     <Crosshair className="w-4 h-4 mr-2" />
                     {t('location.useCurrentLocation')}
                 </Button>
 
                 {selectedLocation && (
-                    <div className="p-3 bg-background-secondary rounded-lg border border-border text-left">
+                    <div className="p-3 bg-panel/70 rounded-lg border border-brand-primary/20 text-left">
                         <p className="text-sm font-medium text-text-primary mb-1">{t('location.selectedAddress')}</p>
-                        <p className="text-sm text-text-secondary min-h-[20px]">{selectedLocation.address}</p>
+                        <p className="text-sm text-text-muted min-h-[20px] break-words">{selectedLocation.address}</p>
                         <p className="text-xs text-text-muted mt-1">
                             {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
                         </p>
@@ -158,7 +158,7 @@ export function LocationPicker({
                 <Button
                     onClick={handleConfirm}
                     disabled={!selectedLocation || isGeocoding}
-                    className="w-full bg-green-600 hover:bg-green-700 text-white"
+                    className="w-full h-10 sm:h-11 bg-brand-primary hover:bg-brand-primary/90 text-white text-sm font-medium"
                 >
                     <Check className="w-4 h-4 mr-2" />
                     {t('location.confirm')}
