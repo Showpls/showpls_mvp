@@ -24,6 +24,12 @@ if (!process.env.TELEGRAM_BOT_TOKEN) {
   console.log('TELEGRAM_BOT_TOKEN configured');
 }
 
+if (!process.env.VITE_MAPBOX_ACCESS_TOKEN) {
+  console.warn('VITE_MAPBOX_ACCESS_TOKEN not set - Map functionality will be limited');
+} else {
+  console.log('VITE_MAPBOX_ACCESS_TOKEN configured');
+}
+
 // Use development mode when running with tsx
 if (!process.env.NODE_ENV) {
   process.env.NODE_ENV = "development";
