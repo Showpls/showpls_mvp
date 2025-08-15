@@ -1,26 +1,16 @@
-# Single-stage production build
+# runtime-only image (expects host ./dist present)
 FROM node:20-alpine
-
 WORKDIR /app
 
-# Install dependencies first for better caching
+# only install prod deps for the server runtime
 COPY package*.json ./
-RUN npm ci --no-audit --no-fund
+RUN npm ci --production --no-audit --no-fund
 
-# Copy source code
-COPY . .
+# copy only built artifacts (host build)
+COPY dist /app/dist
+COPY attached_assets /app/attached_assets
 
-# Build the application
-RUN npm run build
-
-# Verify build output exists
-RUN ls -la dist/
-RUN ls -la dist/public/ || echo "dist/public not found"
-
-# Runtime setup
 EXPOSE 5000
-
-# Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD curl -f http://localhost:5000/api/health || exit 1
 
