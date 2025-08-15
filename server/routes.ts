@@ -10,6 +10,7 @@ import { setupOrderRoutes } from "./routes/orders";
 import { setupAuthRoutes } from "./routes/auth";
 import { setupEscrowRoutes } from "./routes/escrow";
 import { setupDevRoutes } from "./routes/dev";
+import chatRoutes from './routes/chat';
 
 // Telegram webhook processor
 async function processTelegramUpdate(update: any) {
@@ -319,43 +320,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get chat messages for order
-  app.get('/api/orders/:orderId/messages', authenticateTelegramUser, async (req, res) => {
-    try {
-      const { orderId } = req.params;
-      const messages = [] as any[]; // TODO: implement chat persistence
-      res.json({ success: true, messages });
-    } catch (error) {
-      console.error('Get messages error:', error);
-      res.status(500).json({ error: 'Failed to get messages' });
-    }
-  });
-
-  // Send chat message
-  app.post('/api/orders/:orderId/messages', authenticateTelegramUser, async (req, res) => {
-    try {
-      const { orderId } = req.params;
-      const userId = (req as any).user?.id;
-      
-      if (!userId) {
-        return res.status(401).json({ error: 'User not authenticated' });
-      }
-
-      const messageData = {
-        orderId,
-        senderId: userId,
-        message: req.body.message,
-        messageType: req.body.messageType || 'text',
-        metadata: req.body.metadata
-      };
-
-      const message = messageData; // TODO: implement chat persistence
-      res.json({ success: true, message });
-    } catch (error) {
-      console.error('Send message error:', error);
-      res.status(500).json({ error: 'Failed to send message' });
-    }
-  });
+  // Use the dedicated chat router
+  app.use('/api', chatRoutes);
 
   // Accept order (JWT protected) - MVP inline logic
   app.post('/api/orders/:orderId/accept', authenticateTelegramUser, async (req, res) => {

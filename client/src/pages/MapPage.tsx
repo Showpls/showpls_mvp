@@ -6,29 +6,18 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, Filter, X, Crosshair, Eye, MapPin } from "lucide-react";
 import { Link } from "wouter";
 import { InteractiveMap } from "@/components/InteractiveMap";
-import { OrderAcceptButton } from "@/components/OrderAcceptButton";
+import { OrderDetailsSheet } from '@/components/OrderDetailsSheet';
 import { bootstrapTelegramAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { getAuthToken } from "@/lib/auth";
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 export default function MapPage() {
     const { t } = useTranslation();
     const [showFilterPanel, setShowFilterPanel] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
-    // Fetch current user
-    const { data: currentUser } = useQuery({
-        queryKey: ['/api/me'],
-        enabled: true,
-        queryFn: async () => {
-            const token = getAuthToken();
-            const response = await fetch('/api/me', {
-                headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
-            if (!response.ok) throw new Error('Failed to fetch user');
-            return response.json();
-        },
-    });
+    const { currentUser } = useCurrentUser();
 
     useEffect(() => {
         // Ensure we have a token if user navigates directly here
@@ -125,75 +114,16 @@ export default function MapPage() {
                         </div>
                     )}
 
-                    {/* Mobile Order Details Modal */}
-                    {selectedOrder && (
-                        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-end">
-                            <div className="w-full bg-white rounded-t-2xl max-h-[80vh] overflow-y-auto">
-                                <div className="sticky top-0 bg-white border-b border-gray-200 p-4">
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-lg font-semibold text-gray-900">{selectedOrder.title}</h3>
-                                        <Button
-                                            size="sm"
-                                            variant="ghost"
-                                            onClick={closeOrderDetails}
-                                            className="text-gray-600 hover:text-gray-900 hover:bg-gray-100"
-                                        >
-                                            <X className="w-5 h-5" />
-                                        </Button>
-                                    </div>
-                                </div>
-                                
-                                <div className="p-4 space-y-4">
-                                    <p className="text-sm text-gray-700 leading-relaxed">{selectedOrder.description}</p>
-
-                                    <div className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
-                                        <Badge
-                                            variant="secondary"
-                                            className={`${selectedOrder.mediaType === 'photo' ? 'bg-blue-500 text-white' :
-                                                selectedOrder.mediaType === 'video' ? 'bg-red-500 text-white' :
-                                                    'bg-green-500 text-white'
-                                                }`}
-                                        >
-                                            {selectedOrder.mediaType === 'photo' && '📷 Фото'}
-                                            {selectedOrder.mediaType === 'video' && '🎥 Видео'}
-                                            {selectedOrder.mediaType === 'live' && '📡 Прямая трансляция'}
-                                        </Badge>
-                                        <span className="font-bold text-green-600 text-lg">
-                                            {(parseInt(selectedOrder.budgetNanoTon) / 1e9).toFixed(1)} TON
-                                        </span>
-                                    </div>
-
-                                    {selectedOrder.location?.address && (
-                                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                            <div className="text-sm font-medium text-blue-900 mb-1">📍 Местоположение</div>
-                                            <div className="text-sm text-blue-800">{selectedOrder.location.address}</div>
-                                        </div>
-                                    )}
-
-                                    <div className="grid grid-cols-1 gap-3 pt-2">
-                                        <Button size="lg" variant="outline" className="w-full">
-                                            <Eye className="w-4 h-4 mr-2" />
-                                            Подробнее
-                                        </Button>
-                                        {currentUser && (
-                                            <OrderAcceptButton
-                                                orderId={selectedOrder.id}
-                                                orderStatus={selectedOrder.status}
-                                                requesterId={selectedOrder.requesterId}
-                                                currentUserId={currentUser.id}
-                                                onSuccess={() => {
-                                                    setSelectedOrder(null);
-                                                    // Refresh the map
-                                                    window.location.reload();
-                                                }}
-                                                className="w-full"
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    {/* Order Details Sheet */}
+                    <OrderDetailsSheet
+                        order={selectedOrder}
+                        isOpen={!!selectedOrder}
+                        onOpenChange={(isOpen) => {
+                            if (!isOpen) {
+                                setSelectedOrder(null);
+                            }
+                        }}
+                    />
 
                     {/* Map Legend */}
                     <Card className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm border-white/20 z-10">

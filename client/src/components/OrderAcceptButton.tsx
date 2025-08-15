@@ -5,27 +5,27 @@ import { useTranslation } from "react-i18next";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { getAuthToken } from "@/lib/auth";
 import { useToast } from "@/hooks/use-toast";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface OrderAcceptButtonProps {
     orderId: string;
     orderStatus: string;
     requesterId: string;
-    currentUserId: string;
     onSuccess?: () => void;
     className?: string;
 }
 
-export function OrderAcceptButton({
+export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
     orderId,
     orderStatus,
     requesterId,
-    currentUserId,
     onSuccess,
     className = ""
-}: OrderAcceptButtonProps) {
+}: OrderAcceptButtonProps) => {
     const { t } = useTranslation();
     const { toast } = useToast();
     const queryClient = useQueryClient();
+    const { currentUser } = useCurrentUser();
 
     const acceptOrderMutation = useMutation({
         mutationFn: async () => {
@@ -81,12 +81,12 @@ export function OrderAcceptButton({
     // Check if user can accept this order
     const canAccept = () => {
         // User cannot accept their own order
-        if (requesterId === currentUserId) {
+        if (requesterId === currentUser?.id) {
             return false;
         }
 
-        // Order must be in CREATED status
-        if (orderStatus !== 'CREATED') {
+        // Order must be in CREATED or FUNDED status
+        if (orderStatus !== 'CREATED' && orderStatus !== 'FUNDED') {
             return false;
         }
 
@@ -94,11 +94,11 @@ export function OrderAcceptButton({
     };
 
     const getButtonText = () => {
-        if (requesterId === currentUserId) {
+        if (requesterId === currentUser?.id) {
             return t('order.yourOrder') || 'Your Order';
         }
 
-        if (orderStatus !== 'CREATED') {
+        if (orderStatus !== 'CREATED' && orderStatus !== 'FUNDED') {
             return t('order.notAvailable') || 'Not Available';
         }
 

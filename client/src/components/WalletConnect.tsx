@@ -24,8 +24,8 @@ export function WalletConnect() {
         className="bg-green-500/20 border-green-500/30 text-green-400 hover:bg-green-500/30"
         onClick={handleDisconnect}
       >
-        <CheckCircle className="w-4 h-4 mr-1" />
-        {wallet.account.address.slice(0, 4)}...{wallet.account.address.slice(-4)}
+        <Wallet className="w-4 h-4 mr-1" />
+        {t("wallet.disconnect") || "Disconnect"}
       </Button>
     );
   }

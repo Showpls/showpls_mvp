@@ -27,7 +27,8 @@ export function LocationPicker({
     const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address: string } | null>(
         initialLocation ? { lat: initialLocation.lat, lng: initialLocation.lng, address: initialLocation.address || '' } : null
     );
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false); // For 'Use Current Location'
+    const [isGeocoding, setIsGeocoding] = useState(false); // For reverse geocoding on map click
 
     // Initialize map
     useEffect(() => {
@@ -43,28 +44,35 @@ export function LocationPicker({
                     console.log('[LOCATION_PICKER] Map initialized successfully');
 
                     // Add click handler to map
-                    map.on('click', async (e) => {
+                    const handleMapClick = async (e: mapboxgl.MapMouseEvent & {
+                        lngLat: mapboxgl.LngLat;
+                    }) => {
                         const { lng, lat } = e.lngLat;
-                        setIsLoading(true);
 
+                        // --- Immediate UI Update ---
+                        // 1. Set location with placeholder text for address
+                        setSelectedLocation({ lat, lng, address: 'Загрузка адреса...' });
+
+                        // 2. Immediately place marker on the map
+                        mapService.clearMarkers();
+                        mapService.addLocationMarker(lat, lng);
+                        // --- End Immediate UI Update ---
+
+                        // Fetch address asynchronously
+                        setIsGeocoding(true);
                         try {
                             const address = await locationService.getAddressFromCoordinates(lat, lng);
-                            const newLocation = { lat, lng, address };
-                            setSelectedLocation(newLocation);
-
-                            // Add marker for selected location
-                            mapService.clearMarkers();
-                            mapService.addLocationMarker(lat, lng);
-
-                            console.log('[LOCATION_PICKER] Location selected:', newLocation);
+                            setSelectedLocation({ lat, lng, address }); // Update with real address
+                            console.log('[LOCATION_PICKER] Location selected from map:', { lat, lng, address });
                         } catch (error) {
-                            console.error('[LOCATION_PICKER] Error getting address:', error);
-                            const newLocation = { lat, lng, address: `${lat.toFixed(4)}, ${lng.toFixed(4)}` };
-                            setSelectedLocation(newLocation);
+                            console.error('[LOCATION_PICKER] Error getting address from coords:', error);
+                            setSelectedLocation({ lat, lng, address: 'Не удалось определить адрес' });
                         } finally {
-                            setIsLoading(false);
+                            setIsGeocoding(false);
                         }
-                    });
+                    };
+
+                    map.on('click', handleMapClick);
 
                     // Add initial marker if location exists
                     if (selectedLocation) {
@@ -176,10 +184,13 @@ export function LocationPicker({
                     {/* Selected Location Info */}
                     {selectedLocation && (
                         <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
-                            <div className="text-sm font-medium text-gray-900 mb-1">
+                            <div className="text-sm font-medium text-gray-900 mb-1 flex items-center">
                                 Выбранный адрес:
+                                {isGeocoding && (
+                                    <div className="ml-2 animate-spin rounded-full h-4 w-4 border-b-2 border-blue-500"></div>
+                                )}
                             </div>
-                            <div className="text-sm text-gray-700 mb-2">
+                            <div className="text-sm text-gray-700 mb-2 min-h-[20px]">
                                 {selectedLocation.address}
                             </div>
                             <div className="flex items-center justify-between">

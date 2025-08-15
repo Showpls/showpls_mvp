@@ -1,4 +1,105 @@
 {
+  "onboarding": {
+    "step": "Step",
+    "welcome": {
+      "title": "Welcome to Showpls",
+      "description": "Get real-time photos, videos, and live streams from anywhere in the world. Let's get you started!"
+    },
+    "wallet": {
+      "title": "Connect Your Wallet",
+      "description": "Secure TON wallet connection enables safe escrow payments and instant transfers.",
+      "why": "Why connect a wallet?",
+      "security": "All payments are secured through TON blockchain escrow system"
+    },
+    "order": {
+      "title": "Try Your First Order",
+      "description": "Experience the full flow with a sample request. No payment required!"
+    },
+    "chat": {
+      "title": "Real-time Communication",
+      "description": "Chat directly with providers, track progress, and receive instant updates."
+    },
+    "sampleOrder": {
+      "benefits": "Sample Order Benefits:",
+      "benefit1": "Experience the complete workflow",
+      "benefit2": "Learn the chat system",
+      "benefit3": "No payment required"
+    },
+    "tryDemo": "Try Demo Order",
+    "getStarted": "Get Started"
+  },
+  "quickReplies": {
+    "heading_to_location": "Heading to location now",
+    "at_location": "I'm at the location",
+    "taking_photos": "Taking photos now",
+    "almost_done": "Almost finished",
+    "completed": "Task completed",
+    "eta_5_min": "ETA 5 minutes",
+    "eta_10_min": "ETA 10 minutes",
+    "eta_20_min": "ETA 20 minutes",
+    "running_late": "Running late, sorry",
+    "show_price_tag": "Please show the price tag clearly",
+    "specific_angle": "Can you get a specific angle?",
+    "better_lighting": "Need better lighting",
+    "confirm_location": "Can you confirm the exact location?"
+  },
+  "payment": {
+    "calculator": "Payment Calculator",
+    "budget": "Budget",
+    "tip": "Tip",
+    "optional": "optional",
+    "milestonePayments": "Milestone Payments",
+    "breakdown": "Payment Breakdown",
+    "youPay": "You Pay",
+    "platformFee": "Platform Fee",
+    "providerReceives": "Provider Receives",
+    "total": "Total",
+    "milestoneBreakdown": "Milestone Breakdown",
+    "atLocation": "At Location (33%)",
+    "draftContent": "Draft Content (33%)",
+    "finalDelivery": "Final Delivery (34%)"
+  },
+  "tip": {
+    "sendTip": "Send Tip",
+    "forExcellentService": "For excellent service",
+    "quickAmounts": "Quick Amounts",
+    "customAmount": "Custom Amount",
+    "message": "Message",
+    "messagePlaceholder": "Great work, thank you!",
+    "total": "Total",
+    "send": "Send Tip",
+    "sending": "Sending...",
+    "cancel": "Cancel"
+  },
+  "orderTemplates": {
+    "title": "Order Templates",
+    "subtitle": "Quick start with popular request types",
+    "search": "Search templates...",
+    "uses": "uses",
+    "noResults": "No templates found",
+    "noTemplates": "No templates available"
+  },
+  "categories": {
+    "product": "Product",
+    "property": "Property",
+    "event": "Event",
+    "nostalgia": "Nostalgia"
+  },
+  "mediaTypes": {
+    "photo": "Photo",
+    "video": "Video",
+    "live": "Live"
+  },
+  "common": {
+    "all": "All",
+    "skip": "Skip",
+    "next": "Next",
+    "enable": "Enable",
+    "disable": "Disable",
+    "cancel": "Cancel",
+    "optional": "optional",
+    "close": "Close"
+  },
   "nav": {
     "landing": "Landing",
     "webapp": "Web App",
@@ -9,7 +110,9 @@
     "realtimeTagline": "Reality in real-time.",
     "subtitle": "Connect with local providers to get live photos, videos, and streams from any location worldwide with secure TON blockchain payments.",
     "openTelegram": "Open in Telegram",
-    "watchDemo": "Watch Demo"
+    "watchDemo": "Watch Demo",
+    "tryOnboarding": "Try Onboarding",
+    "browseTemplates": "Browse Templates"
   },
   "stats": {
     "coverage": "Global Coverage",
@@ -108,8 +211,17 @@
   },
   "map": {
     "interactive": "Interactive Map",
-    "mapboxIntegration": "Mapbox GL integration",
-    "nearMe": "Near me"
+    "mapboxIntegration": "Mapbox GL Integration",
+    "nearMe": "Near Me",
+    "searching": "Searching...",
+    "found": "Found",
+    "geoNotSupported": "Geolocation is not supported",
+    "telegramLocationDenied": "Please allow location access in Telegram to find orders nearby",
+    "telegramLocationError": "Failed to get location through Telegram",
+    "locationDenied": "Location access denied. Please allow access in browser settings.",
+    "locationUnavailable": "Location information is unavailable",
+    "locationTimeout": "Location request timed out",
+    "locationError": "Failed to get your location"
   },
   "order": {
     "status": {
@@ -139,7 +251,16 @@
     "approving": "Approving...",
     "approvePayment": "Approve & Release Payment",
     "typeMessage": "Type a message...",
-    "openDispute": "Open Dispute"
+    "openDispute": "Open Dispute",
+    "quickReplies": "Quick Replies",
+    "customMessage": "Custom message",
+    "categories": {
+      "status_update": "Status",
+      "eta": "ETA",
+      "clarification": "Ask"
+    },
+    "connected": "Connected",
+    "connecting": "Connecting..."
   },
   "error": "Error",
   "cancel": "Cancel",
