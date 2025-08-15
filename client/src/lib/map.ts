@@ -4,8 +4,16 @@ import mapboxgl from 'mapbox-gl';
 export const MAPBOX_CONFIG = {
   accessToken: (() => {
     const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+    console.log('[MAPBOX] Environment check:', {
+      hasToken: !!token,
+      tokenLength: token?.length || 0,
+      tokenPrefix: token?.substring(0, 8) || 'none',
+      isPlaceholder: token === 'your_mapbox_access_token_here'
+    });
+    
     if (!token || token === 'your_mapbox_access_token_here') {
       console.error('[MAPBOX] No valid access token found. Please set VITE_MAPBOX_ACCESS_TOKEN in your environment variables.');
+      console.error('[MAPBOX] Current token value:', token);
       return null;
     }
     return token;
