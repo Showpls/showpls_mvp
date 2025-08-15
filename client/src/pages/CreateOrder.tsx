@@ -11,6 +11,7 @@ import { Link } from "wouter";
 import { getAuthToken, bootstrapTelegramAuth } from "@/lib/auth";
 import { locationService } from "@/lib/location";
 import { InteractiveMap } from "@/components/InteractiveMap";
+import { LocationPicker } from "@/components/LocationPicker";
 import TelegramWebApp from "./TelegramWebApp";
 
 interface OrderData {
@@ -37,6 +38,7 @@ export default function CreateOrder() {
   });
 
   const [showMap, setShowMap] = useState(false);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
 
 
 
@@ -264,7 +266,7 @@ export default function CreateOrder() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setShowMap(!showMap)}
+                    onClick={() => setShowLocationPicker(true)}
                     className="shrink-0"
                   >
                     <Map size={16} />
@@ -275,7 +277,24 @@ export default function CreateOrder() {
                 </div>
               </div>
 
-              {/* Interactive Map */}
+              {/* Location Picker Modal */}
+              {showLocationPicker && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                  <LocationPicker
+                    initialLocation={orderData.location}
+                    onLocationSelect={(location) => {
+                      setOrderData({
+                        ...orderData,
+                        location: location
+                      });
+                      setShowLocationPicker(false);
+                    }}
+                    onClose={() => setShowLocationPicker(false)}
+                  />
+                </div>
+              )}
+
+              {/* Interactive Map for nearby orders */}
               {showMap && (
                 <div className="space-y-2">
                   <Label className="text-white">Карта с заказами поблизости</Label>

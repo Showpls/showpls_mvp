@@ -9,6 +9,7 @@ import { createWSServer } from "./ws";
 import { setupOrderRoutes } from "./routes/orders";
 import { setupAuthRoutes } from "./routes/auth";
 import { setupEscrowRoutes } from "./routes/escrow";
+import { setupDevRoutes } from "./routes/dev";
 
 // Telegram webhook processor
 async function processTelegramUpdate(update: any) {
@@ -66,8 +67,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Setup order routes
   setupOrderRoutes(app);
+  
   // Setup escrow routes
   setupEscrowRoutes(app);
+
+  // Setup dev routes (development only)
+  if (process.env.NODE_ENV === 'development') {
+    setupDevRoutes(app);
+  }
 
   // Telegram webhook endpoint
   app.post('/telegram/webhook', async (req, res) => {

@@ -54,15 +54,29 @@ export function InteractiveMap({
     },
   });
 
-  // Fetch all orders
+  // Fetch orders based on user location
   const { data: allOrders = [], isLoading } = useQuery({
-    queryKey: ['/api/orders'],
+    queryKey: ['/api/orders', userLocation],
     enabled: true,
     queryFn: async () => {
       const token = getAuthToken();
-      const response = await fetch('/api/orders', {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
+
+      // If user location is available, fetch nearby orders
+      if (userLocation) {
+        try {
+          const response = await fetch(`/api/orders/nearby?lat=${userLocation[1]}&lng=${userLocation[0]}&radius=15`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
+          if (!response.ok) throw new Error('Failed to fetch nearby orders');
+          const data = await response.json();
+          return Array.isArray(data.orders) ? data.orders : [];
+        } catch (error) {
+          console.warn('[INTERACTIVE_MAP] Failed to fetch nearby orders, falling back to all orders:', error);
+        }
+      }
+
+      // Otherwise fetch all orders (public endpoint)
+      const response = await fetch('/api/orders');
       if (!response.ok) throw new Error('Failed to fetch orders');
       const data = await response.json();
       return Array.isArray(data.orders) ? data.orders : [];

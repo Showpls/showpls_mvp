@@ -101,6 +101,31 @@ export function setupOrderRoutes(app: Express) {
     }
   });
 
+  // Get all orders (public, for map display)
+  app.get('/api/orders', async (req, res) => {
+    try {
+      const orders = await storage.getAllOrders();
+
+      res.json({
+        orders: orders.map(order => ({
+          id: order.id,
+          title: order.title,
+          description: order.description,
+          mediaType: order.mediaType,
+          location: order.location,
+          budgetNanoTon: order.budgetNanoTon,
+          status: order.status,
+          createdAt: order.createdAt,
+          estimatedCompletionAt: order.estimatedCompletionAt,
+        }))
+      });
+
+    } catch (error) {
+      console.error('[ORDERS] Error getting all orders:', error);
+      res.status(500).json({ error: 'Failed to get orders' });
+    }
+  });
+
   // Get nearby orders for providers (JWT protected)
   app.get('/api/orders/nearby', authenticateTelegramUser, async (req, res) => {
     try {

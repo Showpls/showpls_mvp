@@ -2,7 +2,14 @@ import mapboxgl from 'mapbox-gl';
 
 // Mapbox configuration
 export const MAPBOX_CONFIG = {
-  accessToken: import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || 'pk.eyJ1IjoiZXhhbXBsZSIsImEiOiJjbGV4YW1wbGUifQ.example',
+  accessToken: (() => {
+    const token = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
+    if (!token || token === 'your_mapbox_access_token_here') {
+      console.error('[MAPBOX] No valid access token found. Please set VITE_MAPBOX_ACCESS_TOKEN in your environment variables.');
+      return null;
+    }
+    return token;
+  })(),
   style: 'mapbox://styles/mapbox/dark-v11',
   clusterRadius: 50,
   maxZoom: 16,
@@ -15,23 +22,37 @@ export class MapService {
   private clusters: any = null;
 
   constructor() {
+    if (!MAPBOX_CONFIG.accessToken) {
+      console.error('[MAPBOX] Cannot initialize map without access token');
+      return;
+    }
     mapboxgl.accessToken = MAPBOX_CONFIG.accessToken;
   }
 
   // Initialize map
   initializeMap(container: string | HTMLElement, center: [number, number] = [37.6176, 55.7558], zoom: number = 10) {
+    if (!MAPBOX_CONFIG.accessToken) {
+      console.error('[MAPBOX] Cannot initialize map without access token');
+      return null;
+    }
+
     if (this.map) {
       this.map.remove();
     }
 
-    this.map = new mapboxgl.Map({
-      container: container,
-      style: MAPBOX_CONFIG.style,
-      center: center,
-      zoom: zoom,
-      maxZoom: MAPBOX_CONFIG.maxZoom,
-      attributionControl: false,
-    });
+    try {
+      this.map = new mapboxgl.Map({
+        container: container,
+        style: MAPBOX_CONFIG.style,
+        center: center,
+        zoom: zoom,
+        maxZoom: MAPBOX_CONFIG.maxZoom,
+        attributionControl: false,
+      });
+    } catch (error) {
+      console.error('[MAPBOX] Failed to initialize map:', error);
+      return null;
+    }
 
     // Add navigation controls
     this.map.addControl(new mapboxgl.NavigationControl(), 'top-right');
@@ -184,6 +205,37 @@ export class MapService {
   clearMarkers() {
     this.markers.forEach(marker => marker.remove());
     this.markers = [];
+  }
+
+  // Add a single location marker (for location picker)
+  addLocationMarker(lat: number, lng: number) {
+    if (!this.map) return;
+
+    // Create marker element
+    const el = document.createElement('div');
+    el.className = 'location-marker';
+    el.style.width = '24px';
+    el.style.height = '24px';
+    el.style.borderRadius = '50%';
+    el.style.background = '#ef4444'; // Red color for location picker
+    el.style.border = '3px solid white';
+    el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)';
+    el.style.display = 'flex';
+    el.style.alignItems = 'center';
+    el.style.justifyContent = 'center';
+
+    // Add pin icon
+    const icon = document.createElement('div');
+    icon.innerHTML = '📍';
+    icon.style.fontSize = '12px';
+    el.appendChild(icon);
+
+    // Create marker
+    const marker = new mapboxgl.Marker(el)
+      .setLngLat([lng, lat])
+      .addTo(this.map!);
+
+    this.markers.push(marker);
   }
 
   // Set map center

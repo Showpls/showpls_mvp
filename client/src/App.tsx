@@ -13,6 +13,7 @@ import DaoWhitepaper from "./pages/DaoWhitepaper";
 import MapPage from "./pages/MapPage";
 import NotFound from "@/pages/not-found";
 import { TonConnectUIProvider } from '@tonconnect/ui-react';
+import { tonConnectUI } from './lib/ton-connect-react';
 
 function Router() {
   return (

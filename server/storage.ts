@@ -24,6 +24,7 @@ export interface IStorage {
   getOrder(id: string): Promise<Order | undefined>;
   updateOrder(id: string, updates: Partial<InsertOrder>): Promise<Order>;
   getUserOrders(userId: string): Promise<Order[]>;
+  getAllOrders(): Promise<Order[]>;
   getNearbyOrders(lat: number, lng: number, radiusKm: number): Promise<Order[]>;
   // Optional chat persistence for MVP
   getChatMessages?(orderId: string): Promise<any[]>;
@@ -131,6 +132,14 @@ class DatabaseStorage implements IStorage {
     });
 
     return userOrders;
+  }
+
+  async getAllOrders(): Promise<Order[]> {
+    const allOrders = await db.query.orders.findMany({
+      where: eq(orders.status, 'CREATED'), // Only show available orders
+    });
+
+    return allOrders;
   }
 
   async getNearbyOrders(
