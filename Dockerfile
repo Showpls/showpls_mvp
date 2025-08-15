@@ -38,6 +38,7 @@ RUN npm ci --production --no-audit --no-fund
 
 # Copy built artifacts
 COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist/public ./public
 COPY attached_assets ./attached_assets
 
 EXPOSE 5000
