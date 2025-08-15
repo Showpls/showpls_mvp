@@ -516,7 +516,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       return next();
     }
     // For production, serve the SPA
-    res.sendFile(path.resolve('./client/index.html'));
+    res.sendFile(path.resolve('./public/index.html'));
   });
 
   const httpServer = createServer(app);
