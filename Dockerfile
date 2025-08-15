@@ -36,7 +36,7 @@ RUN apk add --no-cache curl
 COPY package*.json ./
 RUN npm ci --production --no-audit --no-fund
 
-# Copy built artifacts from builder stage
+# Copy built artifacts
 COPY --from=builder /app/dist ./dist
 COPY attached_assets ./attached_assets
 
