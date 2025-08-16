@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useTonWallet } from "@tonconnect/ui-react";
-import { tonConnectUI } from "@/lib/ton-connect-react";
+import { useTonWallet, useTonConnectUI } from "@tonconnect/ui-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +43,7 @@ export default function CreateOrder() {
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isCreatingEscrow, setIsCreatingEscrow] = useState(false);
   const wallet = useTonWallet();
+  const [tonConnectUI] = useTonConnectUI();
   const { t } = useTranslation();
 
 

@@ -12,8 +12,6 @@ import Chat from "./pages/Chat";
 import DaoWhitepaper from "./pages/DaoWhitepaper";
 import MapPage from "./pages/MapPage";
 import NotFound from "@/pages/not-found";
-import { TonConnectUIProvider } from '@tonconnect/ui-react';
-import { tonConnectUI } from './lib/ton-connect-react';
 
 function Router() {
   return (
@@ -33,14 +31,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-        <TonConnectUIProvider manifestUrl={`${window.location.origin}/tonconnect-manifest.json`}>
           <TooltipProvider>
             <div className="min-h-screen bg-bg-primary text-text-primary">
               <Toaster />
               <Router />
             </div>
           </TooltipProvider>
-        </TonConnectUIProvider>
       </I18nextProvider>
     </QueryClientProvider>
   );
