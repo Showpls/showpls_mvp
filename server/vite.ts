@@ -57,8 +57,8 @@ export async function setupVite(app: Express, server: Server) {
     try {
       // In production, use the built index.html, in development use client source
       const isProduction = process.env.NODE_ENV === "production";
-      const clientTemplate = isProduction 
-        ? path.resolve(import.meta.dirname, "..", "public", "index.html")
+      const clientTemplate = isProduction
+        ? path.resolve(import.meta.dirname, "public", "index.html")
         : path.resolve(import.meta.dirname, "..", "client", "index.html");
 
       // always reload the index.html file from disk incase it changes
@@ -77,7 +77,7 @@ export async function setupVite(app: Express, server: Server) {
 }
 
 export function serveStatic(app: Express) {
-  const distPath = path.resolve(import.meta.dirname, "..", "public");
+  const distPath = path.resolve(import.meta.dirname, "public");
 
   if (!fs.existsSync(distPath)) {
     throw new Error(
