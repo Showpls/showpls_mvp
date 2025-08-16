@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { useTonWallet } from "@tonconnect/ui-react";
+import { tonConnectUI } from "@/lib/ton-connect-react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -40,6 +42,8 @@ export default function CreateOrder() {
 
   const [showMap, setShowMap] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
+  const [isCreatingEscrow, setIsCreatingEscrow] = useState(false);
+  const wallet = useTonWallet();
   const { t } = useTranslation();
 
 
@@ -74,7 +78,12 @@ export default function CreateOrder() {
 
   const createOrderMutation = useMutation({
     mutationFn: async (data: OrderData) => {
+      if (!wallet) {
+        throw new Error(t('createOrder.walletNotConnected'));
+      }
+
       const token = getAuthToken();
+      // Step 1: Create Order in our backend
       const response = await fetch('/api/orders', {
         method: 'POST',
         headers: {
@@ -89,12 +98,47 @@ export default function CreateOrder() {
         throw new Error(error.error || t('createOrder.failedToCreate'));
       }
 
-      return response.json();
+      const order = await response.json();
+
+      // Step 2: Create Escrow Contract
+      setIsCreatingEscrow(true);
+      const escrowResponse = await fetch('/api/escrow/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+
+      if (!escrowResponse.ok) {
+        const error = await escrowResponse.json().catch(() => ({} as any));
+        throw new Error(error.error || 'Failed to create escrow contract');
+      }
+
+      const { escrowAddress } = await escrowResponse.json();
+
+      // Step 3: Send funding transaction
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 300, // 5 minutes
+        messages: [{
+          address: escrowAddress,
+          amount: data.budgetNanoTon,
+        }],
+      });
+      
+      // Note: Verification of funding is not handled here to keep the UI flow simple.
+      // A more robust solution would poll the backend or use WebSockets.
+
+      return order;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/orders/user'] });
       // Redirect to orders page or show success
       window.location.href = '/twa';
+    },
+    onError: () => {
+      setIsCreatingEscrow(false);
     },
   });
 
@@ -334,9 +378,13 @@ export default function CreateOrder() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                disabled={createOrderMutation.isPending}
+                disabled={createOrderMutation.isPending || isCreatingEscrow}
               >
-                {createOrderMutation.isPending ? t('createOrder.creating') : t('createOrder.createOrder')}
+                {isCreatingEscrow
+                  ? 'Creating Escrow...'
+                  : createOrderMutation.isPending
+                  ? t('createOrder.creating')
+                  : t('createOrder.createOrder')}
               </Button>
 
               {createOrderMutation.error && (
