@@ -46,7 +46,7 @@ const fetchOrder = async (orderId: string, token: string | null): Promise<OrderW
 
 const fetchMessages = async (orderId: string, token: string | null): Promise<Message[]> => {
   if (!token) throw new Error('Not authenticated');
-  const response = await fetch(`/api/chat/${orderId}/messages`, {
+  const response = await fetch(`/api/orders/${orderId}/messages`, {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
@@ -59,7 +59,7 @@ const fetchMessages = async (orderId: string, token: string | null): Promise<Mes
 
 const sendMessage = async (orderId: string, content: string, token: string | null): Promise<Message> => {
   if (!token) throw new Error('Not authenticated');
-  const response = await fetch(`/api/chat/${orderId}/messages`, {
+  const response = await fetch(`/api/orders/${orderId}/messages`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

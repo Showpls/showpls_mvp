@@ -37,7 +37,7 @@ export default function Chat() {
   const [showQuickReplies, setShowQuickReplies] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { data: order } = useQuery<Order>({
+  const { data: order, isLoading: isOrderLoading, isError: isOrderError, error: orderError } = useQuery<Order>({
     queryKey: ['/api/orders', orderId],
     enabled: !!orderId,
     queryFn: async () => {
@@ -52,7 +52,7 @@ export default function Chat() {
     },
   });
 
-  const { data: messages, refetch: refetchMessages } = useQuery<ChatMessageType[]>({
+  const { data: messages, isLoading: areMessagesLoading, isError: areMessagesError, error: messagesError, refetch: refetchMessages } = useQuery<ChatMessageType[]>({
     queryKey: ['/api/orders', orderId, 'messages'],
     enabled: !!orderId,
     queryFn: async () => {
@@ -127,12 +127,28 @@ export default function Chat() {
     scrollToBottom();
   }, [messages]);
 
-  if (!order) {
+  if (isOrderLoading) {
     return (
       <div className="min-h-screen bg-bg-primary flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full mx-auto mb-4"></div>
           <p className="text-text-muted">{t('chat.loading')}</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isOrderError || !order) {
+    return (
+      <div className="min-h-screen bg-bg-primary flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 rounded-full mx-auto mb-4 bg-red-500/20"></div>
+          <p className="text-text-muted">
+            {t('chat.failedToLoadOrder') || 'Failed to load order.'}
+          </p>
+          <div className="text-xs text-text-muted mt-2">
+            {(orderError as any)?.message || ''}
+          </div>
         </div>
       </div>
     );
@@ -220,6 +236,17 @@ export default function Chat() {
 
           {/* Messages */}
           <div className="space-y-3">
+            {areMessagesLoading && (
+              <div className="text-center text-text-muted text-sm py-4">
+                {t('chat.loadingMessages') || 'Loading messages...'}
+              </div>
+            )}
+            {areMessagesError && (
+              <div className="text-center text-red-400 text-sm py-4">
+                {t('chat.failedToLoadMessages') || 'Failed to load messages.'}
+                <div className="text-xs opacity-70 mt-1">{(messagesError as any)?.message || ''}</div>
+              </div>
+            )}
             {messages?.map((msg: ChatMessageType) => (
               <ChatMessage
                 key={msg.id}
