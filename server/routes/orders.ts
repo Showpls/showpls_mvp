@@ -93,6 +93,8 @@ export function setupOrderRoutes(app: Express) {
           createdAt: order.createdAt,
           acceptedAt: order.acceptedAt,
           deliveredAt: order.deliveredAt,
+          requesterId: order.requesterId,
+          providerId: order.providerId,
         }))
       });
 

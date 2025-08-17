@@ -24,7 +24,7 @@ import {
   Moon,
   MessageSquare
 } from "lucide-react";
-import { bootstrapTelegramAuth } from "@/lib/auth";
+import { bootstrapTelegramAuth, getAuthToken } from "@/lib/auth";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -74,8 +74,18 @@ export default function TelegramWebApp() {
     initTelegramWebApp();
   }, []);
 
-  const { data: user } = useQuery({ queryKey: ['/api/me'], enabled: true });
-  const { data: userOrders } = useQuery({ queryKey: ['/api/orders/user'], enabled: !!user });
+  const { data: userOrders } = useQuery({
+    queryKey: ['/api/orders/user'],
+    enabled: !!currentUser,
+    queryFn: async () => {
+      const token = getAuthToken();
+      const response = await fetch('/api/orders/user', {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!response.ok) throw new Error('Failed to fetch user orders');
+      return response.json();
+    },
+  });
 
   const { data: recentOrders, isLoading: isLoadingRecent } = useQuery<any[]>({
     queryKey: ['/api/orders', { limit: 2, sort: 'desc' }],
@@ -241,9 +251,10 @@ export default function TelegramWebApp() {
           {userOrders && (userOrders as any).orders.length > 0 ? (
             (() => {
               const allOrders = (userOrders as any).orders;
-              const activeOrders = allOrders.filter((order: any) => 
-                order.providerId !== null && 
-                (order.requesterId === currentUser?.id || order.providerId === currentUser?.id)
+              const activeStatuses = ['CREATED', 'PENDING_FUNDING', 'FUNDED', 'IN_PROGRESS', 'AT_LOCATION', 'DRAFT_CONTENT'];
+              const activeOrders = allOrders.filter((order: any) =>
+                (order.requesterId === currentUser?.id || order.providerId === currentUser?.id) &&
+                activeStatuses.includes(order.status)
               );
               const ordersToShow = showAllMyOrders ? allOrders : activeOrders;
 
