@@ -7,6 +7,35 @@ import { tonService } from "../services/ton";
 const processedOps = new Set<string>();
 
 export function setupEscrowRoutes(app: Express) {
+  // Fund escrow after creation
+  app.post('/api/escrow/fund', authenticateTelegramUser, async (req, res) => {
+    try {
+      const { orderId } = req.body as { orderId?: string };
+      const authUser = (req as any).user as { id: string } | undefined;
+      if (!authUser?.id) return res.status(401).json({ error: 'Not authenticated' });
+      if (!orderId) return res.status(400).json({ error: 'orderId required' });
+
+      const order = await storage.getOrder(orderId);
+      if (!order) return res.status(404).json({ error: 'Order not found' });
+      if (order.requesterId !== authUser.id) return res.status(403).json({ error: 'Only requester can fund escrow' });
+      if (!order.escrowAddress) return res.status(400).json({ error: 'Escrow not created yet' });
+
+      const amount = BigInt(order.budgetNanoTon);
+      const success = await tonService.fundEscrow(order.escrowAddress, amount);
+      if (!success) return res.status(500).json({ error: 'Failed to fund escrow' });
+
+      const updated = await storage.updateOrder(order.id, {
+        status: 'FUNDED',
+        updatedAt: new Date(),
+      } as any);
+
+      return res.json({ success: true, status: updated.status });
+    } catch (e) {
+      console.error('[ESCROW] fund error:', e);
+      return res.status(500).json({ error: 'Failed to fund escrow' });
+    }
+  });
+
   // Create escrow for an order (uses provider wallet from DB)
   app.post('/api/escrow/create', authenticateTelegramUser, async (req, res) => {
     try {
@@ -103,6 +132,19 @@ export function setupEscrowRoutes(app: Express) {
         updatedAt: new Date(),
       } as any);
 
+      // Send notification to provider
+      const provider = await storage.getUser(order.providerId!);
+      if (provider?.telegramId) {
+        const { notificationService } = await import('../services/notifications');
+        await notificationService.sendNotification({
+          userId: provider.telegramId,
+          title: 'Payment Released!',
+          message: `Payment for order "${order.title}" has been released. The funds are now in your wallet.`,
+          type: 'payment',
+          metadata: { orderId: order.id }
+        });
+      }
+
       if (opId) processedOps.add(opId);
       return res.json({ success: true, status: updated.status });
     } catch (e) {
@@ -134,6 +176,19 @@ export function setupEscrowRoutes(app: Express) {
         status: 'REFUNDED',
         updatedAt: new Date(),
       } as any);
+
+      // Send notification to requester
+      const requester = await storage.getUser(order.requesterId);
+      if (requester?.telegramId) {
+        const { notificationService } = await import('../services/notifications');
+        await notificationService.sendNotification({
+          userId: requester.telegramId,
+          title: 'Refund Processed',
+          message: `Your refund for order "${order.title}" has been processed. The funds have been returned to your wallet.`,
+          type: 'payment',
+          metadata: { orderId: order.id }
+        });
+      }
 
       if (opId) processedOps.add(opId);
       return res.json({ success: true, status: updated.status });

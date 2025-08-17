@@ -350,6 +350,38 @@ export class TonService {
     }
   }
 
+  async getWalletBalance(address: string): Promise<bigint> {
+    try {
+      const addr = Address.parse(address);
+      const balance = await this.client.getBalance(addr);
+      return balance;
+    } catch (error) {
+      console.error('Failed to get wallet balance:', error);
+      return BigInt(0);
+    }
+  }
+
+  async checkSufficientBalance(address: string, requiredAmount: bigint): Promise<{ sufficient: boolean; balance: bigint; required: bigint }> {
+    try {
+      const balance = await this.getWalletBalance(address);
+      const gasReserve = toNano('0.1'); // Reserve 0.1 TON for gas fees
+      const totalRequired = requiredAmount + gasReserve;
+      
+      return {
+        sufficient: balance >= totalRequired,
+        balance,
+        required: totalRequired
+      };
+    } catch (error) {
+      console.error('Failed to check wallet balance:', error);
+      return {
+        sufficient: false,
+        balance: BigInt(0),
+        required: requiredAmount
+      };
+    }
+  }
+
   // Convert nanoTON to TON
   nanoToTon(nano: bigint): string {
     return fromNano(nano);

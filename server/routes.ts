@@ -11,6 +11,8 @@ import { setupAuthRoutes } from "./routes/auth";
 import { setupEscrowRoutes } from "./routes/escrow";
 import { setupDevRoutes } from "./routes/dev";
 import chatRoutes from './routes/chat';
+import uploadRoutes from './routes/upload';
+import { notificationService } from './services/notifications';
 
 // Telegram webhook processor
 async function processTelegramUpdate(update: any) {
@@ -268,6 +270,30 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ error: 'User not authenticated' });
       }
 
+      const user = await storage.getUser(userId);
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Check wallet balance if user has connected wallet
+      if (user.walletAddress && !req.body.isSampleOrder) {
+        const { tonService } = await import('./services/ton');
+        const requiredAmount = BigInt(req.body.budgetNanoTon);
+        
+        const balanceCheck = await tonService.checkSufficientBalance(user.walletAddress, requiredAmount);
+        
+        if (!balanceCheck.sufficient) {
+          return res.status(400).json({ 
+            error: 'Insufficient wallet balance',
+            details: {
+              required: tonService.nanoToTon(balanceCheck.required),
+              balance: tonService.nanoToTon(balanceCheck.balance),
+              shortfall: tonService.nanoToTon(balanceCheck.required - balanceCheck.balance)
+            }
+          });
+        }
+      }
+
       const orderData = {
         ...req.body,
         requesterId: userId
@@ -321,6 +347,50 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // Use the dedicated chat router
   app.use('/api', chatRoutes);
+  
+  // Use the upload router
+  app.use('/api/upload', uploadRoutes);
+
+  // Deliver order route
+  app.post('/api/orders/:orderId/deliver', authenticateTelegramUser, async (req, res) => {
+    try {
+      const { orderId } = req.params;
+      const { proofUri } = req.body;
+      const userId = (req as any).user?.id;
+      
+      if (!userId) return res.status(401).json({ error: 'User not authenticated' });
+      if (!proofUri) return res.status(400).json({ error: 'Proof URI required' });
+
+      const order = await storage.getOrder(orderId);
+      if (!order) return res.status(404).json({ error: 'Order not found' });
+      if (order.providerId !== userId) return res.status(403).json({ error: 'Only provider can deliver order' });
+      if (order.status !== 'FUNDED') return res.status(400).json({ error: 'Order must be funded before delivery' });
+
+      const updated = await storage.updateOrder(orderId, {
+        status: 'DELIVERED',
+        proofUri,
+        deliveredAt: new Date(),
+        updatedAt: new Date(),
+      } as any);
+
+      // Send notification to requester
+      const requester = await storage.getUser(order.requesterId);
+      if (requester?.telegramId) {
+        await notificationService.sendNotification({
+          userId: requester.telegramId,
+          title: 'Order Delivered!',
+          message: `Your order "${order.title}" has been delivered. Please review and approve the work.`,
+          type: 'order',
+          metadata: { orderId: order.id }
+        });
+      }
+
+      return res.json({ success: true, order: updated });
+    } catch (error) {
+      console.error('Deliver order error:', error);
+      res.status(500).json({ error: 'Failed to deliver order' });
+    }
+  });
 
   // Accept order (JWT protected) - MVP inline logic
   app.post('/api/orders/:orderId/accept', authenticateTelegramUser, async (req, res) => {
@@ -347,6 +417,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
         acceptedAt: new Date(),
         updatedAt: new Date(),
       } as any);
+
+      // Send notification to requester
+      const requester = await storage.getUser(order.requesterId);
+      if (requester?.telegramId) {
+        await notificationService.sendNotification({
+          userId: requester.telegramId,
+          title: 'Order Accepted!',
+          message: `Your order "${order.title}" has been accepted by ${user.username}. The provider will start working on it soon.`,
+          type: 'order',
+          metadata: { orderId: order.id }
+        });
+      }
 
       return res.json({ success: true, order: updated });
     } catch (error) {
