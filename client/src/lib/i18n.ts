@@ -74,17 +74,3 @@ document.documentElement.setAttribute('lang', i18n.language);
 
 export default i18n;
 
-// Extend Window interface for Telegram WebApp
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp?: {
-        initDataUnsafe?: {
-          user?: {
-            language_code?: string;
-          };
-        };
-      };
-    };
-  }
-}

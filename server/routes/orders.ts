@@ -242,7 +242,7 @@ export function setupOrderRoutes(app: Express) {
         acceptedAt: new Date(),
         estimatedCompletionAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
         escrowAddress: contract.address.toString(),
-        escrowInitData: contract.initData,
+        escrowInitData: contract.stateInit,
       } as any);
 
       console.log('[ORDERS] Order accepted and escrow created:', orderId, 'by provider:', user.id);
