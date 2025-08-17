@@ -346,9 +346,6 @@ export default function Chat() {
         isOpen={showDispute}
         onClose={() => setShowDispute(false)}
       />
-
-      {/* Demo Button */}
-      <DemoButton />
     </div>
   );
 }
