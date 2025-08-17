@@ -8,6 +8,7 @@ import { OrderCard } from "@/components/OrderCard";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "wouter";
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
@@ -219,7 +220,7 @@ export default function TelegramWebApp() {
           />
         ) : null}
 
-        {/* Sample Request Button */}
+        {/* Sample Request Button - Commented out as per request
         <Card
           className="glass-panel border-brand-primary/20 hover:bg-brand-primary/10 transition-all cursor-pointer"
           onClick={fillSampleRequest}
@@ -229,16 +230,26 @@ export default function TelegramWebApp() {
             <span className="font-medium">{String(t('twa.trySample'))}</span>
           </CardContent>
         </Card>
+        */}
 
-        {/* User Orders */}
-        {userOrders && (userOrders as any).length > 0 ? (
-          <div className="space-y-4">
-            <h3 className="font-semibold">{String(t('twa.yourOrders'))}</h3>
-            {(userOrders as any).map((order: any) => (
-              <OrderCard key={order.id} order={order} />
-            ))}
-          </div>
-        ) : null}
+        {/* My Orders Section */}
+        <div className="space-y-4">
+          <h3 className="font-semibold">{String(t('twa.myOrders'))}</h3>
+          {userOrders && (userOrders as any).orders.length > 0 ? (
+            (userOrders as any).orders.map((order: any) => (
+              <div key={order.id} className="relative">
+                <OrderCard order={order} />
+                <Link href={`/chat/${order.id}`}>
+                  <Button size="sm" variant="outline" className="absolute top-2 right-2 border-brand-primary/30">
+                    <MessageSquare className="w-4 h-4" />
+                  </Button>
+                </Link>
+              </div>
+            ))
+          ) : (
+            <p className="text-text-muted text-sm">{t('twa.noOrders')}</p>
+          )}
+        </div>
       </div>
     </div>
   );

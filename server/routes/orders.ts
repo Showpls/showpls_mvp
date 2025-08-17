@@ -3,6 +3,7 @@ import { z } from "zod";
 import { storage } from "../storage";
 import { nanoid } from "nanoid";
 import { authenticateTelegramUser } from "../middleware/telegramAuth";
+import { tonService } from "../services/ton";
 
 // Order creation schema
 const createOrderSchema = z.object({
@@ -77,7 +78,7 @@ export function setupOrderRoutes(app: Express) {
         return res.status(401).json({ error: 'Not authenticated' });
       }
 
-      const orders = await storage.getUserOrders(authUser.id);
+      const orders = await storage.getUserRelatedOrders(authUser.id);
 
       res.json({
         orders: orders.map(order => ({
@@ -186,6 +187,11 @@ export function setupOrderRoutes(app: Express) {
         return res.status(403).json({ error: 'Only providers can accept orders' });
       }
 
+      // Check if provider has a wallet connected
+      if (!user.walletAddress) {
+        return res.status(400).json({ error: 'Provider must connect wallet before accepting orders' });
+      }
+
       // Get order details
       const order = await storage.getOrder(orderId);
       if (!order) {
@@ -207,23 +213,47 @@ export function setupOrderRoutes(app: Express) {
         return res.status(400).json({ error: 'Order already has a provider' });
       }
 
-      // Accept the order - set status to IN_PROGRESS and assign provider
+      // --- Escrow Creation --- 
+
+      const requester = await storage.getUser(order.requesterId);
+      if (!requester?.walletAddress) {
+        return res.status(400).json({ error: 'Requester wallet not set. Cannot create escrow.' });
+      }
+
+      const providerAddress = user.walletAddress;
+      const requesterAddress = requester.walletAddress;
+
+      // Validate addresses
+      const validProv = await tonService.validateWalletAddress(providerAddress);
+      const validReq = await tonService.validateWalletAddress(requesterAddress);
+      if (!validProv || !validReq) {
+        return res.status(400).json({ error: 'Invalid wallet address for escrow creation' });
+      }
+
+      // Create escrow contract
+      const amount = BigInt(order.budgetNanoTon);
+      const contract = await tonService.createEscrowContract(order.id, amount, requesterAddress, providerAddress);
+      console.log('[ESCROW] Created new escrow contract for order:', order.id, 'at address:', contract.address.toString());
+
+      // Accept the order and create escrow - set status to PENDING_FUNDING
       const updatedOrder = await storage.updateOrder(orderId, {
-        status: 'IN_PROGRESS',
+        status: 'PENDING_FUNDING',
         providerId: user.id,
         acceptedAt: new Date(),
         estimatedCompletionAt: new Date(Date.now() + 2 * 60 * 60 * 1000), // 2 hours from now
+        escrowAddress: contract.address.toString(),
+        escrowInitData: contract.initData,
       } as any);
 
-      console.log('[ORDERS] Order accepted:', orderId, 'by provider:', user.id);
+      console.log('[ORDERS] Order accepted and escrow created:', orderId, 'by provider:', user.id);
 
       // Create notification for requester
       await storage.createNotification({
         userId: order.requesterId,
         orderId: orderId,
         type: 'ORDER_ACCEPTED',
-        title: 'Order Accepted',
-        message: `Your order "${order.title}" has been accepted by a provider.`,
+        title: 'Order Accepted & Ready for Funding',
+        message: `Your order "${order.title}" has been accepted. Please fund the escrow contract.`,
       } as any);
 
       res.json({
@@ -234,6 +264,7 @@ export function setupOrderRoutes(app: Express) {
           providerId: updatedOrder.providerId,
           acceptedAt: updatedOrder.acceptedAt,
           estimatedCompletionAt: updatedOrder.estimatedCompletionAt,
+          escrowAddress: updatedOrder.escrowAddress,
         }
       });
 

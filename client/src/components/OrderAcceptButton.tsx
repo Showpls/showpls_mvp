@@ -90,8 +90,8 @@ export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
             return false;
         }
 
-        // Order must be in CREATED or FUNDED status
-        if (orderStatus !== 'CREATED' && orderStatus !== 'FUNDED') {
+        // Order must be in CREATED status
+        if (orderStatus !== 'CREATED') {
             return false;
         }
 
@@ -107,7 +107,7 @@ export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
             return t('order.mustBeProvider') || 'Only providers can accept';
         }
 
-        if (orderStatus !== 'CREATED' && orderStatus !== 'FUNDED') {
+        if (orderStatus !== 'CREATED') {
             return t('order.notAvailable') || 'Not Available';
         }
 

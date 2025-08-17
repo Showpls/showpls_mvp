@@ -2,6 +2,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
+import { useTonConnectUI } from "@tonconnect/ui-react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Camera, Video, Radio, MapPin, Clock, MessageSquare } from "lucide-react";
 import type { OrderWithRelations } from "@shared/schema";
@@ -12,6 +14,8 @@ interface OrderCardProps {
 }
 
 export function OrderCard({ order, showActions = false }: OrderCardProps) {
+  const [tonConnectUI] = useTonConnectUI();
+  const { data: user } = useQuery<{ id: string } | undefined>({ queryKey: ['/api/me'] });
   const { t } = useTranslation();
 
   const getMediaIcon = (mediaType: string) => {
@@ -26,6 +30,7 @@ export function OrderCard({ order, showActions = false }: OrderCardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'CREATED': return 'bg-blue-500/20 text-blue-400';
+      case 'PENDING_FUNDING': return 'bg-orange-500/20 text-orange-400';
       case 'FUNDED': return 'bg-green-500/20 text-green-400';
       case 'IN_PROGRESS': return 'bg-yellow-500/20 text-yellow-400';
       case 'DELIVERED': return 'bg-purple-500/20 text-purple-400';
@@ -77,9 +82,21 @@ export function OrderCard({ order, showActions = false }: OrderCardProps) {
                 </Button>
               </Link>
             )}
-            {showActions && order.status === 'CREATED' && (
-              <Button size="sm" className="bg-brand-primary hover:bg-brand-primary/80 text-white">
-                {t('order.accept')}
+            {user?.id === order.requesterId && order.status === 'PENDING_FUNDING' && (
+              <Button 
+                size="sm" 
+                className="bg-green-500 hover:bg-green-500/80 text-white"
+                onClick={async () => {
+                  await tonConnectUI.sendTransaction({
+                    validUntil: Math.floor(Date.now() / 1000) + 300, // 5 minutes
+                    messages: [{
+                      address: order.escrowAddress!,
+                      amount: order.budgetNanoTon,
+                    }],
+                  });
+                }}
+              >
+                {t('order.fund')}
               </Button>
             )}
           </div>

@@ -20,6 +20,7 @@ import { z } from "zod";
 // Enums for better type safety
 export const orderStatusEnum = pgEnum("order_status", [
   "CREATED",
+  "PENDING_FUNDING",
   "FUNDED",
   "IN_PROGRESS",
   "AT_LOCATION",

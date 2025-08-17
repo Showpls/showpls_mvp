@@ -9,7 +9,7 @@ import {
   type InsertNotification,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq } from "drizzle-orm";
+import { eq, or, desc } from "drizzle-orm";
 import { parseLocation, parseMilestones } from "./utils/orderHelpers";
 
 export interface IStorage {
@@ -24,6 +24,7 @@ export interface IStorage {
   getOrder(id: string): Promise<Order | undefined>;
   updateOrder(id: string, updates: Partial<InsertOrder>): Promise<Order>;
   getUserOrders(userId: string): Promise<Order[]>;
+  getUserRelatedOrders(userId: string): Promise<Order[]>;
   getAllOrders(): Promise<Order[]>;
   getNearbyOrders(lat: number, lng: number, radiusKm: number): Promise<Order[]>;
   // Optional chat persistence for MVP
@@ -129,6 +130,15 @@ class DatabaseStorage implements IStorage {
   async getUserOrders(userId: string): Promise<Order[]> {
     const userOrders = await db.query.orders.findMany({
       where: eq(orders.requesterId, userId),
+    });
+
+    return userOrders;
+  }
+
+  async getUserRelatedOrders(userId: string): Promise<Order[]> {
+    const userOrders = await db.query.orders.findMany({
+      where: or(eq(orders.requesterId, userId), eq(orders.providerId, userId)),
+      orderBy: [desc(orders.createdAt)],
     });
 
     return userOrders;

@@ -112,41 +112,7 @@ export default function CreateOrder() {
       const order = responseData.order;
       console.log('Order created response:', order); // DEBUG
 
-      // Step 2: Create Escrow Contract
-      setIsCreatingEscrow(true);
-      const escrowResponse = await fetch('/api/escrow/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ orderId: order.id }),
-      });
-
-      if (!escrowResponse.ok) {
-        const errorBody = await escrowResponse.text();
-        console.error('Failed to create escrow. Status:', escrowResponse.status, 'Body:', errorBody);
-        try {
-          const errorJson = JSON.parse(errorBody);
-          throw new Error(errorJson.error || 'Failed to create escrow contract');
-        } catch (e) {
-          throw new Error('Failed to create escrow contract');
-        }
-      }
-
-      const { escrowAddress } = await escrowResponse.json();
-
-      // Step 3: Send funding transaction
-      await tonConnectUI.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 300, // 5 minutes
-        messages: [{
-          address: escrowAddress,
-          amount: data.budgetNanoTon,
-        }],
-      });
-      
-      // Note: Verification of funding is not handled here to keep the UI flow simple.
-      // A more robust solution would poll the backend or use WebSockets.
+      // Escrow creation is now handled separately after a provider accepts the order.
 
       return order;
     },
