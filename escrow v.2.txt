@@ -1,0 +1,180 @@
+;; EscrowV2 — Showpls (FunC)
+;; Roles: buyer, seller, guarantor (arbiter), feeWallet
+;; States: funded, disputed, closed, deadline (unix)
+;; Commission: royalty in basis points (0..10000)
+
+global OP_FUND          = 10;
+global OP_APPROVE       = 20;
+global OP_REFUND        = 21;
+global OP_DISPUTE_OPEN  = 30;
+global OP_AWARD_SELLER  = 31;
+global OP_AWARD_BUYER   = 32;
+global OP_CLAIM_TIMEOUT = 33;
+global OP_WITHDRAW_EXCESS = 40;
+
+global BPS_DEN = 10000;
+
+;; Persistent data:
+;; (buyer, seller, guarantor, feeWallet, amount, royaltyBps, deadline,
+;;  gasReserveMin, funded, disputed, closed)
+
+_ store_state(slice buyer, slice seller, slice guarantor, slice feeWallet,
+              int amount, int royaltyBps, int deadline, int gasReserveMin,
+              int funded, int disputed, int closed) =
+    builder_store_slice(buyer)
+    .store_slice(seller)
+    .store_slice(guarantor)
+    .store_slice(feeWallet)
+    .store_int(amount, 64)
+    .store_int(royaltyBps, 16)
+    .store_int(deadline, 64)
+    .store_int(gasReserveMin, 32)
+    .store_int(funded, 1)
+    .store_int(disputed, 1)
+    .store_int(closed, 1);
+
+(tuple) load_state(slice cs) {
+  var buyer = cs~load_msg_addr();
+  var seller = cs~load_msg_addr();
+  var guarantor = cs~load_msg_addr();
+  var feeWallet = cs~load_msg_addr();
+  var amount = cs~load_int(64);
+  var royaltyBps = cs~load_int(16);
+  var deadline = cs~load_int(64);
+  var gasReserveMin = cs~load_int(32);
+  var funded = cs~load_int(1);
+  var disputed = cs~load_int(1);
+  var closed = cs~load_int(1);
+  return (buyer, seller, guarantor, feeWallet, amount, royaltyBps,
+          deadline, gasReserveMin, funded, disputed, closed);
+}
+
+int calc_fee(int amount, int bps) ~ (amount * bps) / BPS_DEN;
+
+send(to, amount) impure {
+  ;; mode = 1 (pay gas separately)
+  var msg = begin_cell()
+      .store_uint(0x10, 6) ;; int_msg, mode=1
+      .store_slice(to)
+      .store_grams(amount)
+      .end_cell();
+  send_raw_message(msg, 1);
+}
+
+() recv_internal(int msg_value, cell in_msg_full, slice in_msg_body) impure {
+  var cs = get_data().begin_parse();
+  var (buyer, seller, guarantor, feeWallet,
+       amount, royaltyBps, deadline, gasReserveMin,
+       funded, disputed, closed) = load_state(cs);
+
+  var sender = in_msg_full~load_msg_addr();
+
+  if (in_msg_body.slice_empty?()) {
+    return (); ;; just value transfer ignored
+  }
+
+  var op = in_msg_body~load_uint(32);
+
+  ;; FUND
+  if (op == OP_FUND) {
+    throw_if(closed, 401);
+    throw_if(funded, 402);
+    throw_unless(sender.addr_eq?(buyer), 403);
+    throw_unless(msg_value >= amount + gasReserveMin, 404);
+    funded = 1;
+  }
+
+  ;; require funded and open for others
+  else {
+    throw_unless(funded, 405);
+    throw_unless(!closed, 406);
+
+    ;; APPROVE (buyer)
+    if (op == OP_APPROVE) {
+      throw_unless(sender.addr_eq?(buyer), 407);
+      throw_if(disputed, 408);
+      var fee = calc_fee(amount, royaltyBps);
+      var seller_amt = amount - fee;
+      closed = 1;
+      send(seller, seller_amt);
+      if (fee > 0) send(feeWallet, fee);
+    }
+
+    ;; REFUND (guarantor)
+    if (op == OP_REFUND) {
+      throw_unless(sender.addr_eq?(guarantor), 409);
+      closed = 1;
+      send(buyer, amount);
+    }
+
+    ;; DISPUTE OPEN (buyer/seller)
+    if (op == OP_DISPUTE_OPEN) {
+      throw_unless(sender.addr_eq?(buyer) | sender.addr_eq?(seller), 410);
+      throw_if(disputed, 411);
+      disputed = 1;
+    }
+
+    ;; AWARD SELLER (guarantor)
+    if (op == OP_AWARD_SELLER) {
+      throw_unless(sender.addr_eq?(guarantor), 412);
+      var fee = calc_fee(amount, royaltyBps);
+      var seller_amt = amount - fee;
+      closed = 1;
+      send(seller, seller_amt);
+      if (fee > 0) send(feeWallet, fee);
+    }
+
+    ;; AWARD BUYER (guarantor)
+    if (op == OP_AWARD_BUYER) {
+      throw_unless(sender.addr_eq?(guarantor), 413);
+      closed = 1;
+      send(buyer, amount);
+    }
+
+    ;; CLAIM TIMEOUT (seller)
+    if (op == OP_CLAIM_TIMEOUT) {
+      throw_unless(sender.addr_eq?(seller), 414);
+      throw_if(disputed, 415);
+      throw_unless(now() >= deadline, 416);
+      var fee = calc_fee(amount, royaltyBps);
+      var seller_amt = amount - fee;
+      closed = 1;
+      send(seller, seller_amt);
+      if (fee > 0) send(feeWallet, fee);
+    }
+
+    ;; WITHDRAW EXCESS (guarantor)
+    if (op == OP_WITHDRAW_EXCESS) {
+      throw_unless(sender.addr_eq?(guarantor), 417);
+      throw_unless(closed, 418);
+      var bal = get_balance();
+      var keep = min(gasReserveMin, bal);
+      var withdraw = bal - keep;
+      if (withdraw > 0) send(guarantor, withdraw);
+    }
+  }
+
+  ;; Save state
+  set_data(_ store_state(buyer, seller, guarantor, feeWallet,
+                         amount, royaltyBps, deadline, gasReserveMin,
+                         funded, disputed, closed).end_cell());
+}
+
+;; --- Get methods ---
+
+(int, int, int, int, int, int, slice, slice, slice, slice, int, int) get_state() method_id {
+  var cs = get_data().begin_parse();
+  var (buyer, seller, guarantor, feeWallet,
+       amount, royaltyBps, deadline, gasReserveMin,
+       funded, disputed, closed) = load_state(cs);
+  return (amount, royaltyBps, get_balance(), funded, disputed, closed,
+          buyer, seller, guarantor, feeWallet, deadline, gasReserveMin);
+}
+
+(int, int) get_expected_payout() method_id {
+  var cs = get_data().begin_parse();
+  var (_, _, _, _, amount, royaltyBps, _, _, _, _, _) = load_state(cs);
+  var fee = calc_fee(amount, royaltyBps);
+  var seller_amt = amount - fee;
+  return (seller_amt, fee);
+}

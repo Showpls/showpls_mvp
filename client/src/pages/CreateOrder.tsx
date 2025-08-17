@@ -94,11 +94,18 @@ export default function CreateOrder() {
       });
 
       if (!response.ok) {
-        const error = await response.json().catch(() => ({} as any));
-        throw new Error(error.error || t('createOrder.failedToCreate'));
+        const errorBody = await response.text();
+        console.error('Failed to create order. Status:', response.status, 'Body:', errorBody);
+        try {
+          const errorJson = JSON.parse(errorBody);
+          throw new Error(errorJson.error || t('createOrder.failedToCreate'));
+        } catch (e) {
+          throw new Error(t('createOrder.failedToCreate'));
+        }
       }
 
       const order = await response.json();
+      console.log('Order created response:', order); // DEBUG
 
       // Step 2: Create Escrow Contract
       setIsCreatingEscrow(true);
@@ -112,8 +119,14 @@ export default function CreateOrder() {
       });
 
       if (!escrowResponse.ok) {
-        const error = await escrowResponse.json().catch(() => ({} as any));
-        throw new Error(error.error || 'Failed to create escrow contract');
+        const errorBody = await escrowResponse.text();
+        console.error('Failed to create escrow. Status:', escrowResponse.status, 'Body:', errorBody);
+        try {
+          const errorJson = JSON.parse(errorBody);
+          throw new Error(errorJson.error || 'Failed to create escrow contract');
+        } catch (e) {
+          throw new Error('Failed to create escrow contract');
+        }
       }
 
       const { escrowAddress } = await escrowResponse.json();
@@ -137,7 +150,8 @@ export default function CreateOrder() {
       // Redirect to orders page or show success
       window.location.href = '/twa';
     },
-    onError: () => {
+    onError: (error) => {
+      console.error('Order creation failed:', error);
       setIsCreatingEscrow(false);
     },
   });

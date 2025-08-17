@@ -77,13 +77,14 @@ export class TonService {
       const provider = Address.parse(providerAddress);
       const feeAddr = process.env.FEE_RECEIVER_WALLET ? Address.parse(process.env.FEE_RECEIVER_WALLET) : this.platformWallet!.address;
 
-      // data: requester_addr, provider_addr, fee_addr, amount, status(0-created)
+      // New contract data: amount, royalty_percentage, is_deal_ended, guarantor_address, seller_address, buyer_address
       const dataCell = beginCell()
-        .storeAddress(requester)
-        .storeAddress(provider)
-        .storeAddress(feeAddr)
-        .storeCoins(amount)
-        .storeUint(0, 32)
+        .storeCoins(amount) // amount
+        .storeUint(10, 32) // royalty_percentage: 10%
+        .storeUint(0, 1)   // is_deal_ended: false
+        .storeAddress(this.platformWallet!.address) // guarantor_address
+        .storeAddress(provider) // seller_address
+        .storeAddress(requester) // buyer_address
         .endCell();
 
       const workchain = 0;
@@ -145,8 +146,11 @@ export class TonService {
     try {
       if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
       const seqno: number = await this.walletContract.getSeqno();
-      // op 0xA1: approve/payout; contract will distribute to provider and fee
-      const body = beginCell().storeUint(0xA1, 32).endCell();
+      // op 0: transfer to seller
+      const body = beginCell()
+        .storeUint(0, 32) // op-code
+        .storeUint(0, 64) // query_id
+        .endCell();
       await this.walletContract.sendTransfer({
         secretKey: this.platformSecretKey,
         seqno,
@@ -170,8 +174,11 @@ export class TonService {
     try {
       if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
       const seqno: number = await this.walletContract.getSeqno();
-      // op 0xA2: refund to requester
-      const body = beginCell().storeUint(0xA2, 32).endCell();
+      // op 1: transfer back to buyer
+      const body = beginCell()
+        .storeUint(1, 32) // op-code
+        .storeUint(0, 64) // query_id
+        .endCell();
       await this.walletContract.sendTransfer({
         secretKey: this.platformSecretKey,
         seqno,
@@ -187,6 +194,34 @@ export class TonService {
       return true;
     } catch (error) {
       console.error('Failed to refund escrow:', error);
+      return false;
+    }
+  }
+
+  async claimRoyalties(contractAddress: string): Promise<boolean> {
+    try {
+      if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
+      const seqno: number = await this.walletContract.getSeqno();
+      // op 2: guarantor claims royalties and destroys contract
+      const body = beginCell()
+        .storeUint(2, 32) // op-code
+        .storeUint(0, 64) // query_id
+        .endCell();
+      await this.walletContract.sendTransfer({
+        secretKey: this.platformSecretKey,
+        seqno,
+        messages: [
+          internal({
+            to: Address.parse(contractAddress),
+            value: this.tonToNano(0.05),
+            bounce: true,
+            body,
+          })
+        ]
+      });
+      return true;
+    } catch (error) {
+      console.error('Failed to claim royalties:', error);
       return false;
     }
   }
