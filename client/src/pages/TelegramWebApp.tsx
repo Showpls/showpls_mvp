@@ -34,6 +34,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function TelegramWebApp() {
   const { t, i18n } = useTranslation();
@@ -41,6 +42,7 @@ export default function TelegramWebApp() {
   const [showAllMyOrders, setShowAllMyOrders] = useState(false);
   const [selectedMediaType, setSelectedMediaType] = useState<string>('');
   const { theme, setTheme } = useTheme();
+  const { currentUser } = useCurrentUser();
 
   const formatTON = (nanoTon: string | number): string => {
     const ton = Number(nanoTon) / 1e9;
@@ -239,7 +241,10 @@ export default function TelegramWebApp() {
           {userOrders && (userOrders as any).orders.length > 0 ? (
             (() => {
               const allOrders = (userOrders as any).orders;
-              const activeOrders = allOrders.filter((order: any) => order.providerId !== null);
+              const activeOrders = allOrders.filter((order: any) => 
+                order.providerId !== null && 
+                (order.requesterId === currentUser?.id || order.providerId === currentUser?.id)
+              );
               const ordersToShow = showAllMyOrders ? allOrders : activeOrders;
 
               if (ordersToShow.length === 0) {

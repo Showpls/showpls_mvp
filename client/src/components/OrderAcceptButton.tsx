@@ -4,7 +4,6 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { getAuthToken } from "@/lib/auth";
-import { useToast } from "@/hooks/use-toast";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface OrderAcceptButtonProps {
@@ -15,6 +14,11 @@ interface OrderAcceptButtonProps {
     className?: string;
 }
 
+interface AcceptButtonState {
+    error: string | null;
+    isLoading: boolean;
+}
+
 export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
     orderId,
     orderStatus,
@@ -23,9 +27,12 @@ export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
     className = ""
 }: OrderAcceptButtonProps) => {
     const { t } = useTranslation();
-    const { toast } = useToast();
     const queryClient = useQueryClient();
     const { currentUser } = useCurrentUser();
+    const [buttonState, setButtonState] = useState<AcceptButtonState>({
+        error: null,
+        isLoading: false
+    });
 
     const acceptOrderMutation = useMutation({
         mutationFn: async () => {
@@ -49,19 +56,17 @@ export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
 
             return response.json();
         },
+        onMutate: () => {
+            setButtonState({ error: null, isLoading: true });
+        },
         onSuccess: (data) => {
             console.log('[ORDER_ACCEPT] Order accepted successfully:', data);
+            setButtonState({ error: null, isLoading: false });
 
             // Invalidate relevant queries
             queryClient.invalidateQueries({ queryKey: ['/api/orders'] });
             queryClient.invalidateQueries({ queryKey: ['/api/orders/user'] });
             queryClient.invalidateQueries({ queryKey: [`/api/orders/${orderId}`] });
-
-            toast({
-                title: t('order.accepted') || 'Order Accepted',
-                description: t('order.acceptedDescription') || 'You have successfully accepted this order.',
-                variant: 'default',
-            });
 
             if (onSuccess) {
                 onSuccess();
@@ -69,11 +74,9 @@ export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
         },
         onError: (error: any) => {
             console.error('[ORDER_ACCEPT] Error accepting order:', error);
-
-            toast({
-                title: t('order.acceptError') || 'Error',
-                description: error.message || t('order.acceptErrorDescription') || 'Failed to accept order.',
-                variant: 'destructive',
+            setButtonState({ 
+                error: error.message || 'Failed to accept order', 
+                isLoading: false 
             });
         },
     });
@@ -127,27 +130,33 @@ export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
             return;
         }
 
+        setButtonState({ error: null, isLoading: true });
         acceptOrderMutation.mutate();
     };
 
     return (
-        <Button
-            onClick={handleAccept}
-            disabled={!canAccept() || acceptOrderMutation.isPending}
-            variant={getButtonVariant()}
-            className={className}
-        >
-            {acceptOrderMutation.isPending ? (
-                <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    {t('order.accepting') || 'Accepting...'}
-                </>
-            ) : (
-                <>
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    {getButtonText()}
-                </>
+        <div className="space-y-2">
+            <Button
+                onClick={handleAccept}
+                disabled={!canAccept() || buttonState.isLoading}
+                variant={getButtonVariant()}
+                className={className}
+            >
+                {buttonState.isLoading ? (
+                    <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        {t('order.accepting') || 'Accepting...'}
+                    </>
+                ) : (
+                    <>
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        {getButtonText()}
+                    </>
+                )}
+            </Button>
+            {buttonState.error && (
+                <p className="text-sm text-red-500">{buttonState.error}</p>
             )}
-        </Button>
+        </div>
     );
 }

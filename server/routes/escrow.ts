@@ -122,9 +122,19 @@ export function setupEscrowRoutes(app: Express) {
 
       const providerAddress = (await storage.getUser(order.providerId!))?.walletAddress;
       if (!providerAddress) return res.status(400).json({ error: 'Provider wallet not set' });
-      const amount = BigInt(order.budgetNanoTon) - ((BigInt(order.budgetNanoTon) * BigInt(order.platformFeeBps)) / BigInt(10000));
-      const ok = await tonService.releaseEscrow(order.escrowAddress, providerAddress, amount);
+
+      // Calculate provider amount (90% after platform fee)
+      const platformFee = (BigInt(order.budgetNanoTon) * BigInt(1000)) / BigInt(10000); // 10% fee
+      const providerAmount = BigInt(order.budgetNanoTon) - platformFee;
+
+      const ok = await tonService.releaseEscrow(order.escrowAddress, providerAddress, providerAmount);
       if (!ok) return res.status(500).json({ error: 'Escrow release failed' });
+
+      // Send platform fee to fee receiver wallet
+      const feeReceiverWallet = process.env.FEE_RECEIVER_WALLET;
+      if (feeReceiverWallet && platformFee > 0) {
+        await tonService.releaseEscrow(order.escrowAddress, feeReceiverWallet, platformFee);
+      }
 
       const updated = await storage.updateOrder(order.id, {
         status: 'APPROVED',

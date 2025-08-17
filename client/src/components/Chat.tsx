@@ -46,7 +46,7 @@ const fetchOrder = async (orderId: string, token: string | null): Promise<OrderW
 
 const fetchMessages = async (orderId: string, token: string | null): Promise<Message[]> => {
   if (!token) throw new Error('Not authenticated');
-  const response = await fetch(`/api/orders/${orderId}/messages`, {
+  const response = await fetch(`/api/chat/${orderId}/messages`, {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
@@ -59,7 +59,7 @@ const fetchMessages = async (orderId: string, token: string | null): Promise<Mes
 
 const sendMessage = async (orderId: string, content: string, token: string | null): Promise<Message> => {
   if (!token) throw new Error('Not authenticated');
-  const response = await fetch(`/api/orders/${orderId}/messages`, {
+  const response = await fetch(`/api/chat/${orderId}/messages`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -267,7 +267,7 @@ export const Chat: React.FC<ChatProps> = ({ orderId }) => {
       formData.append('file', file);
       formData.append('orderId', orderId);
 
-      const response = await fetch('/api/upload', {
+      const response = await fetch(`/api/upload/${orderId}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

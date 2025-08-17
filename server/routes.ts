@@ -275,8 +275,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ error: 'User not found' });
       }
 
-      // Check wallet balance if user has connected wallet
-      if (user.walletAddress && !req.body.isSampleOrder) {
+      // Require wallet connection and sufficient balance for all orders
+      if (!req.body.isSampleOrder) {
+        if (!user.walletAddress) {
+          return res.status(400).json({ 
+            error: 'Wallet connection required',
+            message: 'Please connect your TON wallet before creating an order'
+          });
+        }
+
         const { tonService } = await import('./services/ton');
         const requiredAmount = BigInt(req.body.budgetNanoTon);
         
@@ -300,6 +307,34 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const order = await storage.createOrder(orderData);
+      
+      // Auto-create and fund escrow for the order
+      if (!req.body.isSampleOrder && user.walletAddress) {
+        try {
+          const { tonService } = await import('./services/ton');
+          
+          // Create escrow contract
+          const escrowAddress = await tonService.createEscrow(
+            user.walletAddress,
+            BigInt(order.budgetNanoTon)
+          );
+          
+          if (escrowAddress) {
+            // Update order with escrow address
+            await storage.updateOrder(order.id, {
+              escrowAddress,
+              status: 'FUNDED',
+              updatedAt: new Date(),
+            } as any);
+            
+            console.log(`[ORDER] Created escrow ${escrowAddress} for order ${order.id}`);
+          }
+        } catch (escrowError) {
+          console.error('[ORDER] Failed to create escrow:', escrowError);
+          // Don't fail the order creation, but log the error
+        }
+      }
+
       res.json({ success: true, order });
     } catch (error) {
       console.error('Create order error:', error);

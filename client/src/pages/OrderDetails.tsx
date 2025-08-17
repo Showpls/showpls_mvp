@@ -101,7 +101,7 @@ export default function OrderDetails() {
 
                 <div className="flex items-center gap-2 text-gray-400">
                   <Clock className="w-4 h-4" />
-                  <span>Created {new Date(order.createdAt).toLocaleDateString()}</span>
+                  <span>Created {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : 'N/A'}</span>
                 </div>
 
                 <div className="flex items-center gap-2 text-gray-400">
@@ -119,21 +119,21 @@ export default function OrderDetails() {
                 {order.acceptedAt && (
                   <div className="flex items-center gap-2 text-gray-400">
                     <Clock className="w-4 h-4" />
-                    <span>Accepted {new Date(order.acceptedAt).toLocaleDateString()}</span>
+                    <span>Accepted {order.acceptedAt ? new Date(order.acceptedAt).toLocaleDateString() : 'N/A'}</span>
                   </div>
                 )}
 
                 {order.deliveredAt && (
                   <div className="flex items-center gap-2 text-gray-400">
                     <Clock className="w-4 h-4" />
-                    <span>Delivered {new Date(order.deliveredAt).toLocaleDateString()}</span>
+                    <span>Delivered {order.deliveredAt ? new Date(order.deliveredAt).toLocaleDateString() : 'N/A'}</span>
                   </div>
                 )}
 
                 {order.approvedAt && (
                   <div className="flex items-center gap-2 text-gray-400">
                     <Clock className="w-4 h-4" />
-                    <span>Approved {new Date(order.approvedAt).toLocaleDateString()}</span>
+                    <span>Approved {order.approvedAt ? new Date(order.approvedAt).toLocaleDateString() : 'N/A'}</span>
                   </div>
                 )}
 
