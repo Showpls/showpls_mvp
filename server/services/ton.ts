@@ -1,4 +1,5 @@
-import { Address, Cell, TonClient, WalletContractV4, internal, beginCell, contractAddress } from "@ton/ton";
+import { Address, Cell, internal, beginCell, contractAddress, toNano, fromNano } from "@ton/core";
+import { TonClient, WalletContractV4 } from "@ton/ton";
 import { mnemonicToPrivateKey } from "@ton/crypto";
 
 export interface EscrowContract {
@@ -60,31 +61,42 @@ export class TonService {
   }
 
   async createEscrowContract(
-    orderId: string, 
-    amount: bigint, 
-    requesterAddress: string, 
+    orderId: string,
+    amount: bigint,
+    requesterAddress: string,
     providerAddress: string
-  ): Promise<EscrowContract> {
+  ): Promise<{ address: string; stateInit: string }> {
     try {
       // Real escrow: deploy per-order contract from precompiled code (ESCROW_CODE_B64)
       if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
 
-      const codeB64 = process.env.ESCROW_CODE_B64;
-      if (!codeB64) throw new Error('ESCROW_CODE_B64 not set (base64 of compiled escrow .boc)');
-      const codeCell = Cell.fromBase64(codeB64);
+      if (!process.env.ESCROW_CODE_B64) {
+        throw new Error('ESCROW_CODE_B64 environment variable not set');
+      }
+      const codeCell = Cell.fromBase64(process.env.ESCROW_CODE_B64);
 
-      const requester = Address.parse(requesterAddress);
-      const provider = Address.parse(providerAddress);
-      const feeAddr = process.env.FEE_RECEIVER_WALLET ? Address.parse(process.env.FEE_RECEIVER_WALLET) : this.platformWallet!.address;
+      const guarantorAddress = this.platformWallet!.address;
+      const feeWalletAddress = Address.parse(process.env.FEE_RECEIVER_WALLET!);
+      const buyerAddress = Address.parse(requesterAddress);
+      const sellerAddress = Address.parse(providerAddress);
 
-      // New contract data: amount, royalty_percentage, is_deal_ended, guarantor_address, seller_address, buyer_address
+      const royaltyBps = 1000; // 10% in basis points
+      const deadline = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60); // 30 days from now
+      const gasReserveMin = toNano('0.1'); // 0.1 TON
+
+      // (buyer, seller, guarantor, feeWallet, amount, royaltyBps, deadline, gasReserveMin, funded, disputed, closed)
       const dataCell = beginCell()
+        .storeAddress(buyerAddress)
+        .storeAddress(sellerAddress)
+        .storeAddress(guarantorAddress)
+        .storeAddress(feeWalletAddress)
         .storeCoins(amount) // amount
-        .storeUint(10, 32) // royalty_percentage: 10%
-        .storeUint(0, 1)   // is_deal_ended: false
-        .storeAddress(this.platformWallet!.address) // guarantor_address
-        .storeAddress(provider) // seller_address
-        .storeAddress(requester) // buyer_address
+        .storeUint(royaltyBps, 16) // royaltyBps
+        .storeUint(deadline, 64) // deadline
+        .storeCoins(gasReserveMin) // gasReserveMin
+        .storeUint(0, 1) // funded
+        .storeUint(0, 1) // disputed
+        .storeUint(0, 1) // closed
         .endCell();
 
       const workchain = 0;
@@ -94,11 +106,11 @@ export class TonService {
       const seqno: number = await this.walletContract.getSeqno();
       await this.walletContract.sendTransfer({
         secretKey: this.platformSecretKey,
-        seqno,
+        seqno: seqno,
         messages: [
           internal({
             to: addr,
-            value: this.tonToNano(0.05),
+            value: toNano('0.05'),
             bounce: false,
             init: { code: codeCell, data: dataCell },
             body: beginCell().storeUint(0, 32).endCell(),
@@ -107,16 +119,12 @@ export class TonService {
       });
 
       return {
-        address: addr,
-        orderId,
-        amount,
-        requesterAddress: requester,
-        providerAddress: provider,
-        status: 'pending',
+        address: addr.toString({ urlSafe: true, bounceable: true }),
+        stateInit: beginCell().storeRef(codeCell).storeRef(dataCell).endCell().toBoc().toString('base64')
       };
     } catch (error) {
-      console.error('Failed to create escrow contract:', error);
-      throw new Error('Failed to create escrow contract');
+        console.error('Failed to create escrow contract:', error);
+        throw error;
     }
   }
 
@@ -142,13 +150,37 @@ export class TonService {
     }
   }
 
+  async approveEscrow(escrowAddress: string): Promise<void> {
+    if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
+    const seqno: number = await this.walletContract.getSeqno();
+
+    // op-code for APPROVE is 20
+    const body = beginCell()
+      .storeUint(20, 32) // op: OP_APPROVE
+      .endCell();
+
+    await this.walletContract.sendTransfer({
+      secretKey: this.platformSecretKey,
+      seqno: seqno,
+      messages: [
+        internal({
+          to: Address.parse(escrowAddress),
+          value: toNano('0.05'),
+          bounce: true,
+          body: body,
+        }),
+      ],
+    });
+    console.log(`[TON] Approve command sent to escrow: ${escrowAddress}`);
+  }
+
   async releaseEscrow(contractAddress: string, providerAddress: string, amount: bigint, comment?: string): Promise<boolean> {
     try {
       if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
       const seqno: number = await this.walletContract.getSeqno();
-      // op 0: transfer to seller
+      // op 1: transfer to seller
       const body = beginCell()
-        .storeUint(0, 32) // op-code
+        .storeUint(1, 32) // op-code
         .storeUint(0, 64) // query_id
         .endCell();
       await this.walletContract.sendTransfer({
@@ -157,7 +189,7 @@ export class TonService {
         messages: [
           internal({
             to: Address.parse(contractAddress),
-            value: this.tonToNano(0.05),
+            value: toNano('0.05'),
             bounce: true,
             body,
           })
@@ -174,9 +206,9 @@ export class TonService {
     try {
       if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
       const seqno: number = await this.walletContract.getSeqno();
-      // op 1: transfer back to buyer
+      // op 2: transfer back to buyer
       const body = beginCell()
-        .storeUint(1, 32) // op-code
+        .storeUint(2, 32) // op-code
         .storeUint(0, 64) // query_id
         .endCell();
       await this.walletContract.sendTransfer({
@@ -185,7 +217,7 @@ export class TonService {
         messages: [
           internal({
             to: Address.parse(contractAddress),
-            value: this.tonToNano(0.05),
+            value: toNano('0.05'),
             bounce: true,
             body,
           })
@@ -202,9 +234,9 @@ export class TonService {
     try {
       if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
       const seqno: number = await this.walletContract.getSeqno();
-      // op 2: guarantor claims royalties and destroys contract
+      // op 3: guarantor claims royalties and destroys contract
       const body = beginCell()
-        .storeUint(2, 32) // op-code
+        .storeUint(3, 32) // op-code
         .storeUint(0, 64) // query_id
         .endCell();
       await this.walletContract.sendTransfer({
@@ -213,7 +245,7 @@ export class TonService {
         messages: [
           internal({
             to: Address.parse(contractAddress),
-            value: this.tonToNano(0.05),
+            value: toNano('0.05'),
             bounce: true,
             body,
           })
@@ -237,7 +269,7 @@ export class TonService {
         messages: [
           internal({
             to: Address.parse(contractAddress),
-            value: this.tonToNano(0.05),
+            value: toNano('0.05'),
             bounce: true,
             body,
           })
@@ -318,14 +350,9 @@ export class TonService {
     }
   }
 
-  // Convert TON to nanoTON
-  tonToNano(ton: number): bigint {
-    return BigInt(Math.floor(ton * 1000000000));
-  }
-
   // Convert nanoTON to TON
-  nanoToTon(nano: bigint): number {
-    return Number(nano) / 1000000000;
+  nanoToTon(nano: bigint): string {
+    return fromNano(nano);
   }
 }
 

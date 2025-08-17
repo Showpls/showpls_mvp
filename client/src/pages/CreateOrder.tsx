@@ -104,7 +104,12 @@ export default function CreateOrder() {
         }
       }
 
-      const order = await response.json();
+      const responseData = await response.json();
+      if (!responseData.success || !responseData.order) {
+        console.error('API response missing order:', responseData);
+        throw new Error(t('createOrder.failedToCreate'));
+      }
+      const order = responseData.order;
       console.log('Order created response:', order); // DEBUG
 
       // Step 2: Create Escrow Contract
