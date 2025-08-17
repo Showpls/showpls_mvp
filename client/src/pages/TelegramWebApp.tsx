@@ -38,6 +38,7 @@ import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 export default function TelegramWebApp() {
   const { t, i18n } = useTranslation();
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showAllMyOrders, setShowAllMyOrders] = useState(false);
   const [selectedMediaType, setSelectedMediaType] = useState<string>('');
   const { theme, setTheme } = useTheme();
 
@@ -234,18 +235,30 @@ export default function TelegramWebApp() {
 
         {/* My Orders Section */}
         <div className="space-y-4">
-          <h3 className="font-semibold">{String(t('twa.myOrders'))}</h3>
+          <h3 className="font-semibold">{showAllMyOrders ? String(t('twa.myOrders')) : String(t('twa.myActiveOrders'))}</h3>
           {userOrders && (userOrders as any).orders.length > 0 ? (
-            (userOrders as any).orders.map((order: any) => (
-              <div key={order.id} className="relative">
-                <OrderCard order={order} />
-                <Link href={`/chat/${order.id}`}>
-                  <Button size="sm" variant="outline" className="absolute top-2 right-2 border-brand-primary/30">
-                    <MessageSquare className="w-4 h-4" />
+            (() => {
+              const allOrders = (userOrders as any).orders;
+              const activeOrders = allOrders.filter((order: any) => order.providerId !== null);
+              const ordersToShow = showAllMyOrders ? allOrders : activeOrders;
+
+              if (ordersToShow.length === 0) {
+                return <p className="text-text-muted text-sm">{showAllMyOrders ? t('twa.noOrders') : t('twa.noActiveOrders')}</p>;
+              }
+
+              return (
+                <>
+                  {ordersToShow.map((order: any) => (
+                    <div key={order.id} className="relative">
+                      <OrderCard order={order} />
+                    </div>
+                  ))}
+                  <Button variant="link" onClick={() => setShowAllMyOrders(!showAllMyOrders)} className="text-brand-primary">
+                    {showAllMyOrders ? t('twa.showActiveOrders') : t('twa.showAllOrders')}
                   </Button>
-                </Link>
-              </div>
-            ))
+                </>
+              );
+            })()
           ) : (
             <p className="text-text-muted text-sm">{t('twa.noOrders')}</p>
           )}

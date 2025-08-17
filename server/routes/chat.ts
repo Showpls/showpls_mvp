@@ -30,9 +30,14 @@ router.get('/orders/:orderId/messages', authenticate, async (req, res) => {
       return res.status(404).json({ error: 'Order not found' });
     }
 
-    // 2. Check if the current user is the requester or provider
+    // 2. Check if the order is active and the user has permission
     const isRequester = order.requesterId === currentUser.id;
     const isProvider = order.providerId === currentUser.id;
+    const isOrderActive = order.providerId !== null;
+
+    if (!isOrderActive) {
+      return res.status(403).json({ error: 'Chat is not available for this order yet.' });
+    }
 
     if (!isRequester && !isProvider) {
       return res.status(403).json({ error: 'You do not have access to this chat.' });
@@ -81,12 +86,13 @@ router.post('/orders/:orderId/messages', authenticate, async (req, res) => {
       return res.status(400).json({ error: 'Invalid message data', details: validationResult.error.errors });
     }
 
-    const { message, messageType, metadata } = validationResult.data;
+    const { message, mediaUrl } = req.body;
 
     // 2. Find the order and check permissions
     const order = await db.query.orders.findFirst({
       where: eq(orders.id, orderId),
       columns: {
+        id: true,
         requesterId: true,
         providerId: true,
       },
@@ -98,6 +104,11 @@ router.post('/orders/:orderId/messages', authenticate, async (req, res) => {
 
     const isRequester = order.requesterId === currentUser.id;
     const isProvider = order.providerId === currentUser.id;
+    const isOrderActive = order.providerId !== null;
+
+    if (!isOrderActive) {
+        return res.status(403).json({ error: 'Chat is not available for this order yet.' });
+    }
 
     if (!isRequester && !isProvider) {
       return res.status(403).json({ error: 'You do not have permission to send messages in this chat.' });
@@ -107,11 +118,11 @@ router.post('/orders/:orderId/messages', authenticate, async (req, res) => {
     const [newMessage] = await db
       .insert(chatMessages)
       .values({
-        orderId: orderId,
+        orderId: order.id,
         senderId: currentUser.id,
         message: message,
-        messageType: messageType || 'text',
-        metadata: metadata,
+        messageType: mediaUrl ? 'image' : 'text',
+        metadata: mediaUrl ? { mediaUrl } : undefined,
       })
       .returning();
 

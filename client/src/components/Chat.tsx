@@ -6,7 +6,8 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { ScrollArea } from './ui/scroll-area';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Paperclip, Send } from 'lucide-react';
+import { Paperclip, Send, ShieldAlert } from 'lucide-react';
+import type { OrderWithRelations } from '@shared/schema';
 
 interface ChatProps {
   orderId: string;
@@ -23,6 +24,19 @@ interface Message {
     photoUrl?: string;
   };
 }
+
+const fetchOrder = async (orderId: string, token: string | null): Promise<OrderWithRelations> => {
+  if (!token) throw new Error('Not authenticated');
+  const response = await fetch(`/api/orders/${orderId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch order details');
+  }
+  return response.json();
+};
 
 const fetchMessages = async (orderId: string, token: string | null): Promise<Message[]> => {
   if (!token) throw new Error('Not authenticated');
@@ -60,10 +74,18 @@ export const Chat: React.FC<ChatProps> = ({ orderId }) => {
   const [newMessage, setNewMessage] = useState('');
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  const { data: messages, isLoading, isError } = useQuery<Message[]>({
+  const { data: order, isLoading: isOrderLoading, isError: isOrderError } = useQuery<OrderWithRelations>({
+    queryKey: ['order', orderId],
+    queryFn: () => fetchOrder(orderId, token),
+    enabled: !!token && !!orderId,
+  });
+
+  const isChatActive = order?.providerId !== null;
+
+  const { data: messages, isLoading: areMessagesLoading, isError: areMessagesError } = useQuery<Message[]>({
     queryKey: ['messages', orderId],
     queryFn: () => fetchMessages(orderId, token),
-    enabled: !!token && !!orderId,
+    enabled: !!token && !!orderId && isChatActive,
     refetchInterval: 5000, // Refetch every 5 seconds
   });
 
@@ -89,8 +111,21 @@ export const Chat: React.FC<ChatProps> = ({ orderId }) => {
     }
   };
 
-  if (isLoading) return <div>Loading chat...</div>;
-  if (isError) return <div>Error loading messages.</div>;
+  if (isOrderLoading) return <div>Loading chat...</div>;
+  if (isOrderError) return <div>Error loading chat details.</div>;
+
+  if (!isChatActive) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[400px] bg-background rounded-lg border p-4 text-center">
+        <ShieldAlert className="w-12 h-12 text-orange-500 mb-4" />
+        <h3 className="text-lg font-semibold">Chat Not Available</h3>
+        <p className="text-text-muted text-sm">This chat will be available once a provider accepts the order.</p>
+      </div>
+    );
+  }
+
+  if (areMessagesLoading) return <div>Loading messages...</div>;
+  if (areMessagesError) return <div>Error loading messages.</div>;
 
   return (
     <div className="flex flex-col h-[400px] bg-background rounded-lg border p-4">
