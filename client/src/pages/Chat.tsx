@@ -13,6 +13,7 @@ import { DemoButton } from "@/components/DemoButton";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWebSocket } from "@/lib/websocket";
+import { getAuthToken } from "@/lib/auth";
 import {
   Phone,
   Info,
@@ -39,11 +40,30 @@ export default function Chat() {
   const { data: order } = useQuery<Order>({
     queryKey: ['/api/orders', orderId],
     enabled: !!orderId,
+    queryFn: async () => {
+      const token = getAuthToken();
+      if (!token) throw new Error('Not authenticated');
+      const res = await fetch(`/api/orders/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch order');
+      const json = await res.json();
+      return json.order as Order;
+    },
   });
 
   const { data: messages, refetch: refetchMessages } = useQuery<ChatMessageType[]>({
     queryKey: ['/api/orders', orderId, 'messages'],
     enabled: !!orderId,
+    queryFn: async () => {
+      const token = getAuthToken();
+      if (!token) throw new Error('Not authenticated');
+      const res = await fetch(`/api/orders/${orderId}/messages`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) throw new Error('Failed to fetch messages');
+      return res.json();
+    },
   });
 
   const { sendMessage, isConnected } = useWebSocket(orderId!, {
