@@ -12,6 +12,7 @@ import { setupEscrowRoutes } from "./routes/escrow";
 import { setupDevRoutes } from "./routes/dev";
 import chatRoutes from './routes/chat';
 import uploadRoutes from './routes/upload';
+import { setupDisputeRoutes } from './routes/disputes';
 import { notificationService } from './services/notifications';
 
 // Telegram webhook processor
@@ -73,6 +74,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   // Setup escrow routes
   setupEscrowRoutes(app);
+
+  // Setup dispute routes
+  setupDisputeRoutes(app);
 
   // Setup dev routes (development only)
   if (process.env.NODE_ENV === 'development') {

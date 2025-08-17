@@ -2,14 +2,17 @@ import {
   users,
   orders,
   notifications,
+  disputes,
   type User,
   type InsertUser,
   type Order,
   type InsertOrder,
   type InsertNotification,
+  type Dispute,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, or, desc } from "drizzle-orm";
+import { randomUUID } from "crypto";
 import { parseLocation, parseMilestones } from "./utils/orderHelpers";
 
 export interface IStorage {
@@ -33,6 +36,11 @@ export interface IStorage {
   
   // Notification management
   createNotification(notification: InsertNotification): Promise<any>;
+
+  // Dispute management
+  getOrderDisputes(orderId: string): Promise<Dispute[]>;
+  createDispute(params: { orderId: string; openedBy: string; reason: string; evidence?: string[] }): Promise<Dispute>;
+  addDisputeEvidence(disputeId: string, evidence: string[]): Promise<Dispute>;
 }
 
 // In-memory storage for development (replace with DatabaseStorage for production)
@@ -227,6 +235,49 @@ class DatabaseStorage implements IStorage {
       .returning();
 
     return newNotification;
+  }
+
+  async getOrderDisputes(orderId: string): Promise<Dispute[]> {
+    const rows = await (db as any).query.disputes.findMany({
+      where: eq((disputes as any).orderId, orderId),
+    });
+    return rows as Dispute[];
+  }
+
+  async createDispute(params: { orderId: string; openedBy: string; reason: string; evidence?: string[] }): Promise<Dispute> {
+    const disputeId = randomUUID();
+    const [row] = await (db as any)
+      .insert(disputes as any)
+      .values({
+        orderId: params.orderId,
+        openedBy: params.openedBy,
+        reason: params.reason,
+        evidence: params.evidence ?? [],
+        disputeId,
+        status: 'OPEN',
+      })
+      .returning();
+    return row as Dispute;
+  }
+
+  async addDisputeEvidence(disputeId: string, evidence: string[]): Promise<Dispute> {
+    // Fetch current evidence and append
+    const existing = await (db as any).query.disputes.findFirst({
+      where: eq((disputes as any).disputeId, disputeId),
+    });
+    if (!existing) throw new Error('Dispute not found');
+    const nextEvidence = [
+      ...((existing.evidence as string[] | null) ?? []),
+      ...evidence,
+    ];
+
+    const [updated] = await (db as any)
+      .update(disputes as any)
+      .set({ evidence: nextEvidence })
+      .where(eq((disputes as any).disputeId, disputeId))
+      .returning();
+
+    return updated as Dispute;
   }
 }
 

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useParams } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,11 +9,11 @@ import { RatingForm } from "@/components/RatingForm";
 import { DisputeModal } from "@/components/DisputeModal";
 import { QuickReplies } from "@/components/QuickReplies";
 import { TipModal } from "@/components/TipModal";
-import { DemoButton } from "@/components/DemoButton";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWebSocket } from "@/lib/websocket";
 import { getAuthToken } from "@/lib/auth";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   Phone,
   Info,
@@ -138,8 +138,30 @@ export default function Chat() {
     );
   }
 
-  // Get other user info (provider or requester based on current user role)
-  const otherUser = order?.providerId ? { username: 'Provider', firstName: 'Provider' } : { username: 'Requester', firstName: 'Requester' };
+  // Current user details
+  const { currentUser } = useCurrentUser();
+
+  // Determine the other participant's display info using messages (preferred) or fallback by role
+  const otherUser = useMemo(() => {
+    // Prefer deriving from messages that include sender info
+    const otherMsg = messages?.find(m => m.senderId !== currentUser?.id);
+    if (otherMsg && (otherMsg as any).sender) {
+      const sender = (otherMsg as any).sender as { username?: string; firstName?: string };
+      return {
+        username: sender.username || 'User',
+        firstName: sender.firstName || sender.username || 'User',
+      };
+    }
+
+    // Fallback to role-based placeholder if we don't yet have messages
+    if (currentUser?.id && order) {
+      const isRequester = order.requesterId === currentUser.id;
+      return isRequester
+        ? { username: 'Provider', firstName: 'Provider' }
+        : { username: 'Requester', firstName: 'Requester' };
+    }
+    return { username: 'User', firstName: 'User' };
+  }, [messages, currentUser?.id, order]);
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -202,7 +224,7 @@ export default function Chat() {
               <ChatMessage
                 key={msg.id}
                 message={msg}
-                isOwn={false}
+                isOwn={msg.senderId === currentUser?.id}
               />
             ))}
             <div ref={messagesEndRef} />
