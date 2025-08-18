@@ -39,6 +39,48 @@ export class TonService {
     this.initializePlatformWallet();
   }
 
+  // Build payload body for OP_FUND (10)
+  buildFundBody(): string {
+    const body = beginCell().storeUint(10, 32).endCell();
+    return body.toBoc().toString('base64');
+  }
+
+  // Build payload body for OP_APPROVE (20)
+  buildApproveBody(): string {
+    const body = beginCell().storeUint(20, 32).endCell();
+    return body.toBoc().toString('base64');
+  }
+
+  // Prepare funding transaction details for client (TonConnect)
+  prepareFundingTx(params: {
+    escrowAddress: string;
+    amountNano: bigint; // order amount
+    includeStateInit?: string; // base64
+    gasReserveNano?: bigint; // default 0.1 TON
+  }): { address: string; amountNano: string; bodyBase64: string; stateInit?: string } {
+    const gas = params.gasReserveNano ?? toNano('0.1');
+    const total = params.amountNano + gas;
+    return {
+      address: params.escrowAddress,
+      amountNano: total.toString(),
+      bodyBase64: this.buildFundBody(),
+      stateInit: params.includeStateInit,
+    };
+  }
+
+  // Prepare approval transaction details for client (TonConnect)
+  prepareApproveTx(params: {
+    escrowAddress: string;
+    gasFeeNano?: bigint; // forward small fee to cover gas
+  }): { address: string; amountNano: string; bodyBase64: string } {
+    const fee = params.gasFeeNano ?? toNano('0.05');
+    return {
+      address: params.escrowAddress,
+      amountNano: fee.toString(),
+      bodyBase64: this.buildApproveBody(),
+    };
+  }
+
   private async initializePlatformWallet() {
     if (!process.env.TON_PLATFORM_WALLET) {
       console.warn('TON_PLATFORM_WALLET not set - TON functionality will be limited');

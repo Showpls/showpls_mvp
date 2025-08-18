@@ -84,7 +84,7 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
     },
   });
 
-  // Fund escrow mutation
+  // Fund escrow mutation (TonConnect deploy+fund)
   const fundEscrowMutation = useMutation({
     mutationFn: async () => {
       if (!order.escrowAddress) throw new Error('Escrow address not set');
@@ -104,14 +104,30 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
         }
       }
 
-      // Build transaction in nanoTON; include stateInit to deploy if needed
+      // Ask backend to prepare funding tx (amount + payload + stateInit)
+      const prep = await fetch('/api/escrow/prepare-fund', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId: order.id }),
+      });
+      if (!prep.ok) {
+        const err = await prep.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to prepare funding');
+      }
+      const { address, amountNano, bodyBase64, stateInit } = await prep.json();
+
+      // Build transaction with payload and optional stateInit
       const tx = {
         validUntil: Math.floor(Date.now() / 1000) + 300,
         messages: [
           {
-            address: order.escrowAddress,
-            amount: String(order.budgetNanoTon),
-            ...(order as any).escrowInitData ? { stateInit: (order as any).escrowInitData } : {},
+            address,
+            amount: amountNano,
+            payload: bodyBase64,
+            ...(stateInit ? { stateInit } : {}),
           },
         ],
       } as const;
@@ -125,7 +141,7 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ orderId: order.id }),
+        body: JSON.stringify({ orderId: order.id, opId: `fund_${order.id}_${Date.now()}` }),
       });
       if (!verify.ok) {
         const err = await verify.json().catch(() => ({}));
@@ -162,23 +178,49 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
     },
   });
 
-  // Approve order mutation
+  // Approve order mutation (TonConnect approve -> mark-approved)
   const approveOrderMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/escrow/release', {
+      // Prepare approve tx
+      await tonConnectService.initialize();
+      const ui = tonConnectService.getUI();
+      if (!ui) throw new Error('Wallet UI not available');
+
+      const prep = await fetch('/api/escrow/prepare-approve', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ 
-          orderId: order.id,
-          opId: `approve_${order.id}_${Date.now()}` // Idempotency key
-        }),
+        body: JSON.stringify({ orderId: order.id }),
+      });
+      if (!prep.ok) {
+        const err = await prep.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to prepare approval');
+      }
+      const { address, amountNano, bodyBase64 } = await prep.json();
+
+      const tx = {
+        validUntil: Math.floor(Date.now() / 1000) + 300,
+        messages: [
+          { address, amount: amountNano, payload: bodyBase64 },
+        ],
+      } as const;
+
+      await ui.sendTransaction(tx as any);
+
+      // Mark approved in backend
+      const response = await fetch('/api/escrow/mark-approved', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ orderId: order.id, opId: `approve_${order.id}_${Date.now()}` }),
       });
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to approve order');
+        const error = await response.json().catch(() => ({}));
+        throw new Error(error.error || 'Failed to mark approved');
       }
       return response.json();
     },
@@ -312,7 +354,7 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
               </Button>
             )}
 
-            {order.status === 'IN_PROGRESS' && order.escrowAddress && (
+            {(order.status === 'PENDING_FUNDING' || (order.status === 'IN_PROGRESS' && order.escrowAddress)) && (
               <Button
                 onClick={() => handleConfirmedAction('fundEscrow', () => fundEscrowMutation.mutate())}
                 disabled={fundEscrowMutation.isPending}

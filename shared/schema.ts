@@ -109,6 +109,7 @@ export const orders = pgTable(
     platformFeeBps: integer("platform_fee_bps").notNull().default(250), // 2.5% in basis points
     status: orderStatusEnum("status").notNull().default("CREATED"),
     escrowAddress: text("escrow_address"),
+    escrowInitData: text("escrow_init_data"),
     proofUri: text("proof_uri"),
     milestones: jsonb("milestones").$type<{
       atLocation?: { paid: boolean; amount: string; paidAt?: string };
@@ -420,6 +421,7 @@ export const insertOrderSchema = createInsertSchema(orders, {
   status: true,
   providerId: true,
   escrowAddress: true,
+  escrowInitData: true,
   proofUri: true,
   deliveredAt: true,
   approvedAt: true,

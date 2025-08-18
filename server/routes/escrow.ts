@@ -27,6 +27,47 @@ export function setupEscrowRoutes(app: Express) {
     }
   });
 
+  // Mark approved after client-side approval transaction (MVP)
+  app.post('/api/escrow/mark-approved', authenticateTelegramUser, async (req, res) => {
+    try {
+      const { orderId, opId } = req.body as { orderId?: string; opId?: string };
+      const authUser = (req as any).user as { id: string } | undefined;
+      if (!authUser?.id) return res.status(401).json({ error: 'Not authenticated' });
+      if (!orderId) return res.status(400).json({ error: 'orderId required' });
+      if (opId && processedOps.has(opId)) return res.json({ success: true, idempotent: true });
+
+      const order = await storage.getOrder(orderId);
+      if (!order) return res.status(404).json({ error: 'Order not found' });
+      if (order.requesterId !== authUser.id) return res.status(403).json({ error: 'Only requester can mark approved' });
+      if (!order.escrowAddress) return res.status(400).json({ error: 'Escrow not created' });
+
+      const updated = await storage.updateOrder(order.id, {
+        status: 'APPROVED',
+        approvedAt: new Date(),
+        updatedAt: new Date(),
+      } as any);
+
+      // Notify provider
+      const provider = await storage.getUser(order.providerId!);
+      if (provider?.telegramId) {
+        const { notificationService } = await import('../services/notifications');
+        await notificationService.sendNotification({
+          userId: provider.telegramId,
+          title: 'Payment Released!',
+          message: `Payment for order "${order.title}" has been released. The funds are on the way to your wallet.`,
+          type: 'payment',
+          metadata: { orderId: order.id }
+        });
+      }
+
+      if (opId) processedOps.add(opId);
+      return res.json({ success: true, status: updated.status });
+    } catch (e) {
+      console.error('[ESCROW] mark-approved error:', e);
+      return res.status(500).json({ error: 'Failed to mark approved' });
+    }
+  });
+
   // Fund escrow after creation
   app.post('/api/escrow/fund', authenticateTelegramUser, async (req, res) => {
     try {
@@ -83,14 +124,92 @@ export function setupEscrowRoutes(app: Express) {
 
       const updated = await storage.updateOrder(order.id, {
         escrowAddress: contract.address.toString(),
+        // escrowInitData is stored but not in typed schema
+        escrowInitData: contract.stateInit as any,
         // Keep status CREATED until verify-funding confirms deposit
         updatedAt: new Date(),
       } as any);
 
-      return res.json({ success: true, escrowAddress: updated.escrowAddress, status: updated.status });
+      // Provide client-side funding payload details
+      const fund = tonService.prepareFundingTx({
+        escrowAddress: updated.escrowAddress!,
+        amountNano: amount,
+        includeStateInit: (updated as any).escrowInitData as string,
+      });
+
+      return res.json({ 
+        success: true, 
+        escrowAddress: updated.escrowAddress, 
+        escrowInitData: updated.escrowInitData,
+        fund: {
+          address: fund.address,
+          amountNano: fund.amountNano,
+          bodyBase64: fund.bodyBase64,
+          stateInit: fund.stateInit,
+        },
+        status: updated.status 
+      });
     } catch (e) {
       console.error('[ESCROW] create error:', e);
       return res.status(500).json({ error: 'Failed to create escrow' });
+    }
+  });
+
+  // Prepare funding transaction (idempotent helper)
+  app.post('/api/escrow/prepare-fund', authenticateTelegramUser, async (req, res) => {
+    try {
+      const { orderId } = req.body as { orderId?: string };
+      const authUser = (req as any).user as { id: string } | undefined;
+      if (!authUser?.id) return res.status(401).json({ error: 'Not authenticated' });
+      if (!orderId) return res.status(400).json({ error: 'orderId required' });
+
+      const order = await storage.getOrder(orderId);
+      if (!order) return res.status(404).json({ error: 'Order not found' });
+      if (order.requesterId !== authUser.id) return res.status(403).json({ error: 'Only requester can fund escrow' });
+      if (!order.escrowAddress || !order.escrowInitData) return res.status(400).json({ error: 'Escrow not ready' });
+
+      const fund = tonService.prepareFundingTx({
+        escrowAddress: order.escrowAddress,
+        amountNano: BigInt(order.budgetNanoTon),
+        includeStateInit: (order as any).escrowInitData,
+      });
+
+      return res.json({
+        address: fund.address,
+        amountNano: fund.amountNano,
+        bodyBase64: fund.bodyBase64,
+        stateInit: fund.stateInit,
+      });
+    } catch (e) {
+      console.error('[ESCROW] prepare-fund error:', e);
+      return res.status(500).json({ error: 'Failed to prepare funding transaction' });
+    }
+  });
+
+  // Prepare approval transaction (requester approves delivery)
+  app.post('/api/escrow/prepare-approve', authenticateTelegramUser, async (req, res) => {
+    try {
+      const { orderId } = req.body as { orderId?: string };
+      const authUser = (req as any).user as { id: string } | undefined;
+      if (!authUser?.id) return res.status(401).json({ error: 'Not authenticated' });
+      if (!orderId) return res.status(400).json({ error: 'orderId required' });
+
+      const order = await storage.getOrder(orderId);
+      if (!order) return res.status(404).json({ error: 'Order not found' });
+      if (order.requesterId !== authUser.id) return res.status(403).json({ error: 'Only requester can approve' });
+      if (!order.escrowAddress) return res.status(400).json({ error: 'Escrow not created' });
+      if (order.status !== 'DELIVERED' && order.status !== 'IN_PROGRESS') return res.status(400).json({ error: 'Order not ready for approval' });
+
+      const approve = tonService.prepareApproveTx({ escrowAddress: order.escrowAddress });
+
+      return res.json({
+        address: approve.address,
+        amountNano: approve.amountNano,
+        bodyBase64: approve.bodyBase64,
+      });
+    } catch (e) {
+      console.error('[ESCROW] prepare-approve error:', e);
+      return res.status(500).json({ error: 'Failed to prepare approve transaction' });
     }
   });
 
