@@ -7,6 +7,26 @@ import { tonService } from "../services/ton";
 const processedOps = new Set<string>();
 
 export function setupEscrowRoutes(app: Express) {
+  // Check wallet balance sufficiency for funding an amount (in nanoTON)
+  app.post('/api/ton/check-balance', authenticateTelegramUser, async (req, res) => {
+    try {
+      const { requiredNano } = req.body as { requiredNano?: string | number };
+      const authUser = (req as any).user as { id: string } | undefined;
+      if (!authUser?.id) return res.status(401).json({ error: 'Not authenticated' });
+      if (requiredNano === undefined || requiredNano === null) return res.status(400).json({ error: 'requiredNano is required' });
+
+      const user = await storage.getUser(authUser.id);
+      if (!user?.walletAddress) return res.status(400).json({ error: 'Wallet not connected' });
+
+      const required = BigInt(requiredNano);
+      const { sufficient, balance, required: totalRequired } = await tonService.checkSufficientBalance(user.walletAddress, required);
+      return res.json({ sufficient, balance: balance.toString(), required: totalRequired.toString(), walletAddress: user.walletAddress });
+    } catch (e) {
+      console.error('[TON] check-balance error:', e);
+      return res.status(500).json({ error: 'Failed to check balance' });
+    }
+  });
+
   // Fund escrow after creation
   app.post('/api/escrow/fund', authenticateTelegramUser, async (req, res) => {
     try {

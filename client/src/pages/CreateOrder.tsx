@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useTonWallet, useTonConnectUI } from "@tonconnect/ui-react";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -42,6 +43,8 @@ export default function CreateOrder() {
   const [showMap, setShowMap] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [isCreatingEscrow, setIsCreatingEscrow] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [balanceInfo, setBalanceInfo] = useState<{ sufficient: boolean; balance: string; required: string } | null>(null);
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
   const { t } = useTranslation();
@@ -127,7 +130,7 @@ export default function CreateOrder() {
     },
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!orderData.title.trim() || !orderData.description.trim()) {
@@ -140,7 +143,39 @@ export default function CreateOrder() {
       return;
     }
 
-    createOrderMutation.mutate(orderData);
+    // Require connected TON wallet
+    if (!wallet) {
+      try { tonConnectUI.openModal(); } catch {}
+      return;
+    }
+
+    // Check balance against budget using backend (adds gas reserve)
+    try {
+      const res = await fetch('/api/ton/check-balance', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(getAuthToken() ? { Authorization: `Bearer ${getAuthToken()}` } : {}),
+        },
+        body: JSON.stringify({ requiredNano: orderData.budgetNanoTon })
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error || 'Balance check failed');
+      setBalanceInfo(json);
+      if (!json.sufficient) {
+        alert(t('createOrder.insufficientBalance', {
+          balance: (Number(json.balance) / 1e9).toFixed(3),
+          required: (Number(json.required) / 1e9).toFixed(3)
+        }));
+        return;
+      }
+    } catch (err: any) {
+      alert(err.message || 'Failed to check balance');
+      return;
+    }
+
+    // Open confirmation dialog
+    setConfirmOpen(true);
   };
 
   const getLocationFromBrowser = async () => {
@@ -359,18 +394,51 @@ export default function CreateOrder() {
                 </Select>
               </div>
 
-              {/* Submit Button */}
-              <Button
-                type="submit"
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                disabled={createOrderMutation.isPending || isCreatingEscrow}
-              >
-                {isCreatingEscrow
-                  ? 'Creating Escrow...'
-                  : createOrderMutation.isPending
-                  ? t('createOrder.creating')
-                  : t('createOrder.createOrder')}
-              </Button>
+              {/* Submit Button with confirmation */}
+              <AlertDialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
+                <AlertDialog.Trigger asChild>
+                  <Button
+                    type="submit"
+                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                    disabled={createOrderMutation.isPending || isCreatingEscrow}
+                  >
+                    {isCreatingEscrow
+                      ? 'Creating Escrow...'
+                      : createOrderMutation.isPending
+                      ? t('createOrder.creating')
+                      : t('createOrder.createOrder')}
+                  </Button>
+                </AlertDialog.Trigger>
+                <AlertDialog.Portal>
+                  <AlertDialog.Overlay className="fixed inset-0 bg-black/40 z-[1000]" />
+                  <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm rounded-lg bg-card border border-white/20 p-4 shadow-xl z-[1001]">
+                    <AlertDialog.Title className="font-semibold mb-2 text-white">
+                      {t('createRequest.confirm.title') || 'Create and fund this order?'}
+                    </AlertDialog.Title>
+                    <AlertDialog.Description className="text-sm text-white/70 mb-4">
+                      {t('createRequest.confirm.body') || 'You will create the order and later fund escrow once a provider accepts.'}
+                      {balanceInfo?.sufficient && (
+                        <div className="mt-2 text-xs">
+                          {t('createOrder.balanceOk', {
+                            balance: (Number(balanceInfo.balance) / 1e9).toFixed(3),
+                            required: (Number(balanceInfo.required) / 1e9).toFixed(3)
+                          })}
+                        </div>
+                      )}
+                    </AlertDialog.Description>
+                    <div className="flex justify-end gap-2">
+                      <AlertDialog.Cancel asChild>
+                        <Button variant="outline">{t('common.cancel') || 'Cancel'}</Button>
+                      </AlertDialog.Cancel>
+                      <AlertDialog.Action asChild>
+                        <Button onClick={() => createOrderMutation.mutate(orderData)} className="gradient-bg text-white">
+                          {t('createRequest.confirm.confirm') || 'Create order'}
+                        </Button>
+                      </AlertDialog.Action>
+                    </div>
+                  </AlertDialog.Content>
+                </AlertDialog.Portal>
+              </AlertDialog.Root>
 
               {createOrderMutation.error && (
                 <div className="text-red-400 text-sm">

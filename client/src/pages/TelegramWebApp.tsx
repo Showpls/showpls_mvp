@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { WalletConnect } from "@/components/WalletConnect";
-import { CreateRequestForm } from "@/components/CreateRequestForm";
+// import { CreateRequestForm } from "@/components/CreateRequestForm";
 import { MapView } from "@/components/MapView";
 import { OrderCard } from "@/components/OrderCard";
 import { useTheme } from "next-themes";
@@ -223,7 +223,7 @@ export default function TelegramWebApp() {
           </Card>
         ) : null}
 
-        {/* Create Request Form */}
+        {/* Create Request Form
         {showCreateForm ? (
           <CreateRequestForm
             onClose={() => setShowCreateForm(false)}
@@ -231,7 +231,7 @@ export default function TelegramWebApp() {
               setShowCreateForm(false);
             }}
           />
-        ) : null}
+        ) : null} */}
 
         {/* Sample Request Button - Commented out as per request
         <Card
