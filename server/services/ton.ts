@@ -121,12 +121,16 @@ export class TonService {
       const deadline = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60); // 30 days from now
       const gasReserveMin = toNano('0.1'); // 0.1 TON
 
-      // (buyer, seller, guarantor, feeWallet, amount, royaltyBps, deadline, gasReserveMin, funded, disputed, closed)
+      // To avoid root cell overflow, store buyer & seller in root and pack guarantor & fee wallet into a ref
+      const addrRef = beginCell()
+        .storeAddress(guarantorAddress)
+        .storeAddress(feeWalletAddress)
+        .endCell();
+
+      // (buyer, seller, amount, royaltyBps, deadline, gasReserveMin, funded, disputed, closed, addrRef)
       const dataCell = beginCell()
         .storeAddress(buyerAddress)
         .storeAddress(sellerAddress)
-        .storeAddress(guarantorAddress)
-        .storeAddress(feeWalletAddress)
         .storeCoins(amount) // amount
         .storeUint(royaltyBps, 16) // royaltyBps
         .storeUint(deadline, 64) // deadline
@@ -134,6 +138,7 @@ export class TonService {
         .storeUint(0, 1) // funded
         .storeUint(0, 1) // disputed
         .storeUint(0, 1) // closed
+        .storeRef(addrRef)
         .endCell();
 
       // Log resultant cell sizes for debugging potential overflows
