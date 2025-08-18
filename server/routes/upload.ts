@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import { authenticateEither as authenticate } from '../middleware/telegramAuth';
 import { db } from '../db';
 import { orders } from '../../shared/schema';
@@ -8,10 +9,23 @@ import { eq } from 'drizzle-orm';
 
 const router = Router();
 
+// Ensure uploads directory exists
+const UPLOAD_DIR = 'uploads';
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+}
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    try {
+      if (!fs.existsSync(UPLOAD_DIR)) {
+        fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+      }
+      cb(null, `${UPLOAD_DIR}/`);
+    } catch (e) {
+      cb(e as Error, `${UPLOAD_DIR}/`);
+    }
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -25,16 +39,18 @@ const upload = multer({
     fileSize: 10 * 1024 * 1024, // 10MB limit
   },
   fileFilter: (req, file, cb) => {
-    // Allow images and common document types
-    const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx|txt/;
+    // Allow images and common document types (including webp)
+    const allowedTypes = /jpeg|jpg|png|gif|webp|pdf|doc|docx|txt/;
     const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = allowedTypes.test(file.mimetype);
+    const mimetype = allowedTypes.test(file.mimetype.toLowerCase());
 
     if (mimetype && extname) {
       return cb(null, true);
-    } else {
-      cb(new Error('Only images and documents are allowed'));
     }
+
+    // Mark error on request so route can respond with 400 JSON
+    (req as any).fileTypeError = 'Unsupported file type. Allowed: JPEG, PNG, GIF, WEBP, PDF, DOC, DOCX, TXT';
+    return cb(null, false);
   }
 });
 
@@ -49,6 +65,10 @@ router.post('/', authenticate, upload.single('file'), async (req, res) => {
     }
 
     if (!req.file) {
+      const typeErr = (req as any).fileTypeError as string | undefined;
+      if (typeErr) {
+        return res.status(400).json({ error: typeErr });
+      }
       return res.status(400).json({ error: 'No file uploaded' });
     }
 

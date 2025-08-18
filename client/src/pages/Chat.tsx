@@ -38,6 +38,7 @@ export default function Chat() {
   const [showDispute, setShowDispute] = useState(false);
   const [showQuickReplies, setShowQuickReplies] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -162,6 +163,7 @@ export default function Chat() {
     if (!file || !orderId) return;
     try {
       setIsUploading(true);
+      setUploadError(null);
       const tgInitData = getTelegramInitData();
       const token = getAuthToken();
       const formData = new FormData();
@@ -178,7 +180,16 @@ export default function Chat() {
         },
         body: formData,
       });
-      if (!res.ok) throw new Error('Upload failed');
+      if (!res.ok) {
+        // Try to parse server error message
+        let message = 'Upload failed';
+        try {
+          const text = await res.text();
+          const json = JSON.parse(text);
+          message = json?.error || message;
+        } catch {}
+        throw new Error(message);
+      }
       const json = await res.json();
       const mediaUrl: string = json.url;
       await sendMessage({
@@ -189,6 +200,8 @@ export default function Chat() {
       });
     } catch (err) {
       console.error('Upload error', err);
+      const msg = err instanceof Error ? err.message : 'Upload failed';
+      setUploadError(msg);
     } finally {
       setIsUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
@@ -335,6 +348,11 @@ export default function Chat() {
                 <div className="text-xs opacity-70 mt-1">{(messagesError as any)?.message || ''}</div>
               </div>
             )}
+            {uploadError && (
+              <div className="text-center text-red-400 text-sm py-2">
+                {uploadError}
+              </div>
+            )}
             {messages?.map((msg: ChatMessageType) => (
               <ChatMessage
                 key={msg.id}
@@ -374,20 +392,7 @@ export default function Chat() {
             </Card>
           )}
 
-          {/* Show dispute button for other statuses too */}
-          {['IN_PROGRESS', 'FUNDED'].includes(order.status) && (
-            <div className="text-center">
-              <Button
-                onClick={() => setShowDispute(true)}
-                variant="outline"
-                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
-                size="sm"
-              >
-                <AlertTriangle className="w-4 h-4 mr-2" />
-                {t('chat.openDispute')}
-              </Button>
-            </div>
-          )}
+          {/* Removed bottom Open Dispute button */}
 
           {/* Rating Form */}
           {showRating && (
