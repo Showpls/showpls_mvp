@@ -2,13 +2,13 @@ import { Router } from 'express';
 import { db } from '../db';
 import { chatMessages, orders } from '../../shared/schema';
 import { and, eq } from 'drizzle-orm';
-import { validateTelegramAuth as authenticate } from '../middleware/auth';
+import { authenticateTelegramUser } from '../middleware/telegramAuth';
 import { insertChatMessageSchema } from '../../shared/schema';
 
 const router = Router();
 
 // GET /api/orders/:orderId/messages - Fetch messages for an order
-router.get('/orders/:orderId/messages', authenticate, async (req, res) => {
+router.get('/orders/:orderId/messages', authenticateTelegramUser, async (req, res) => {
   const { orderId } = req.params;
   const currentUser = req.user;
 
@@ -66,7 +66,7 @@ router.get('/orders/:orderId/messages', authenticate, async (req, res) => {
 });
 
 // POST /api/orders/:orderId/messages - Send a new message
-router.post('/orders/:orderId/messages', authenticate, async (req, res) => {
+router.post('/orders/:orderId/messages', authenticateTelegramUser, async (req, res) => {
   const { orderId } = req.params;
   const currentUser = req.user;
 

@@ -4,7 +4,7 @@ import { storage } from "./storage";
 // Note: import moved to avoid circular dependency
 const wsRateLimits = new Map<string, number[]>();
 
-const JWT_SECRET = process.env.JWT_SECRET || "showpls-secret-key-development";
+const JWT_SECRET = process.env.JWT_SECRET || "showpls-secret-key-2024";
 // Simple WebSocket rate limiting (5 messages per second)
 function wsRateLimit(userId: string): boolean {
   const now = Date.now();

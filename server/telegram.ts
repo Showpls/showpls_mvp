@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 import { storage } from './storage';
 
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
-const JWT_SECRET = process.env.JWT_SECRET || 'showpls-secret-key-development';
-console.log('[TELEGRAM] JWT Secret initialized:', JWT_SECRET);
+const JWT_SECRET = process.env.JWT_SECRET || 'showpls-secret-key-2024';
+console.log('[TELEGRAM] JWT Secret initialized');
 
 if (!TELEGRAM_BOT_TOKEN) {
   console.warn('TELEGRAM_BOT_TOKEN not set - Telegram functionality will be disabled');
