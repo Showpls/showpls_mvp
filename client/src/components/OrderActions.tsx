@@ -104,13 +104,14 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
         }
       }
 
-      // Build transaction in nanoTON
+      // Build transaction in nanoTON; include stateInit to deploy if needed
       const tx = {
         validUntil: Math.floor(Date.now() / 1000) + 300,
         messages: [
           {
             address: order.escrowAddress,
             amount: String(order.budgetNanoTon),
+            ...(order as any).escrowInitData ? { stateInit: (order as any).escrowInitData } : {},
           },
         ],
       } as const;

@@ -55,8 +55,31 @@ export class TonService {
       });
       // open wallet contract
       this.walletContract = this.client.open(this.platformWallet);
+      const addr = this.platformWallet.address.toString({ urlSafe: true, bounceable: true });
+      console.log(`[TON] Platform wallet address: ${addr}`);
     } catch (error) {
       console.error('Failed to initialize platform wallet:', error);
+    }
+  }
+
+  private async ensurePlatformWalletReady(): Promise<void> {
+    if (!this.platformWallet || !this.walletContract) throw new Error('Platform wallet not initialized');
+    const address = this.platformWallet.address;
+    try {
+      // Check balance to infer deployment
+      const balance = await this.client.getBalance(address);
+      const info = await this.client.getContractState(address);
+      const addrStr = address.toString({ urlSafe: true, bounceable: true });
+      if (!info || info.state !== 'active') {
+        throw new Error(`Platform wallet not deployed on chain. Address: ${addrStr}`);
+      }
+      if (balance <= BigInt(0)) {
+        throw new Error(`Platform wallet has zero balance. Top up testnet wallet: ${addrStr}`);
+      }
+      // Probe seqno (will throw if wallet not active)
+      await this.walletContract.getSeqno();
+    } catch (e) {
+      throw e instanceof Error ? e : new Error('Platform wallet not ready');
     }
   }
 
@@ -69,6 +92,7 @@ export class TonService {
     try {
       // Real escrow: deploy per-order contract from precompiled code (ESCROW_CODE_B64)
       if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
+      await this.ensurePlatformWalletReady();
       
       // Basic input logging for diagnostics
       console.log('[TON] createEscrowContract called', {
@@ -151,22 +175,7 @@ export class TonService {
       const workchain = 0;
       const addr = contractAddress(workchain, { code: codeCell, data: dataCell });
 
-      // deploy with small grams to cover storage/fees
-      const seqno: number = await this.walletContract.getSeqno();
-      await this.walletContract.sendTransfer({
-        secretKey: this.platformSecretKey,
-        seqno: seqno,
-        messages: [
-          internal({
-            to: addr,
-            value: toNano('0.05'),
-            bounce: false,
-            init: { code: codeCell, data: dataCell },
-            body: beginCell().storeUint(0, 32).endCell(),
-          })
-        ]
-      });
-
+      // Do NOT deploy from platform wallet. Client will deploy on first funding by including stateInit.
       return {
         address: addr.toString({ urlSafe: true, bounceable: true }),
         stateInit: beginCell().storeRef(codeCell).storeRef(dataCell).endCell().toBoc().toString('base64')
