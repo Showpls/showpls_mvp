@@ -2,11 +2,32 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { verifyTelegramWebAppData, generateUserToken } from '../telegram';
 import { storage } from '../storage';
+import { validateTelegramAuth as authenticateTelegramHeader } from './auth';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'showpls-secret-key-2024';
 
 export interface AuthenticatedRequest extends Request {
   user?: import("@shared/schema").User;
+}
+
+// Middleware that accepts either Bearer JWT or Telegram initData header
+export function authenticateEither(
+  req: AuthenticatedRequest,
+  res: Response,
+  next: NextFunction
+): void {
+  const authHeader = req.headers.authorization || '';
+  if (authHeader.startsWith('Bearer ')) {
+    // Delegate to JWT auth
+    authenticateTelegramUser(req, res, next);
+    return;
+  }
+  if (authHeader.startsWith('Telegram ')) {
+    // Delegate to Telegram header auth
+    authenticateTelegramHeader(req as any, res, next);
+    return;
+  }
+  res.status(401).json({ error: 'No authorization token provided' });
 }
 
 // Middleware to authenticate Telegram Web App users

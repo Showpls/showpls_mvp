@@ -2,7 +2,7 @@ import type { Express } from "express";
 import { z } from "zod";
 import { storage } from "../storage";
 import { nanoid } from "nanoid";
-import { authenticateTelegramUser } from "../middleware/telegramAuth";
+import { authenticateTelegramUser, authenticateEither } from "../middleware/telegramAuth";
 import { tonService } from "../services/ton";
 
 // Order creation schema
@@ -276,8 +276,8 @@ export function setupOrderRoutes(app: Express) {
     }
   });
 
-  // Get single order details - JWT protected
-  app.get('/api/orders/:orderId', authenticateTelegramUser, async (req, res) => {
+  // Get single order details - Accepts JWT Bearer or Telegram initData header
+  app.get('/api/orders/:orderId', authenticateEither, async (req, res) => {
     try {
       const authUser = (req as any).user as { id: string } | undefined;
       if (!authUser?.id) {
