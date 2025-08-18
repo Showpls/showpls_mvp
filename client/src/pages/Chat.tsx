@@ -163,13 +163,18 @@ export default function Chat() {
     try {
       setIsUploading(true);
       const tgInitData = getTelegramInitData();
+      const token = getAuthToken();
       const formData = new FormData();
       formData.append('file', file);
       formData.append('orderId', orderId);
       const res = await fetch('/api/upload', {
         method: 'POST',
         headers: {
-          ...(tgInitData ? { Authorization: `Telegram ${tgInitData}` } : {}),
+          ...(token
+            ? { Authorization: `Bearer ${token}` }
+            : tgInitData
+              ? { Authorization: `Telegram ${tgInitData}` }
+              : {}),
         },
         body: formData,
       });
@@ -429,7 +434,7 @@ export default function Chat() {
       )}
 
       {/* Chat Input */}
-      <div className="fixed bottom-0 left-0 right-0 p-4">
+      <div className="fixed bottom-0 left-0 right-0 bg-indigo-900 p-4">
         <form onSubmit={handleSendMessage} className="max-w-sm mx-auto space-y-2">
           {/* Quick Actions Bar */}
           <div className="flex items-center justify-between">

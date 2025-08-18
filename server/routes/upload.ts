@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
-import { validateTelegramAuth as authenticate } from '../middleware/auth';
+import { authenticateEither as authenticate } from '../middleware/telegramAuth';
 import { db } from '../db';
 import { orders } from '../../shared/schema';
 import { eq } from 'drizzle-orm';
