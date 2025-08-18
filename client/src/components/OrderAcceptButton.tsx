@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { getAuthToken } from "@/lib/auth";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
 interface OrderAcceptButtonProps {
     orderId: string;
@@ -125,35 +126,66 @@ export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
         return 'default';
     };
 
-    const handleAccept = () => {
-        if (!canAccept()) {
-            return;
-        }
-
-        setButtonState({ error: null, isLoading: true });
-        acceptOrderMutation.mutate();
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const handleAcceptClick = () => {
+        if (!canAccept()) return;
+        setConfirmOpen(true);
     };
 
     return (
         <div className="space-y-2">
-            <Button
-                onClick={handleAccept}
-                disabled={!canAccept() || buttonState.isLoading}
-                variant={getButtonVariant()}
-                className={className}
-            >
-                {buttonState.isLoading ? (
-                    <>
-                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                        {t('order.accepting') || 'Accepting...'}
-                    </>
-                ) : (
-                    <>
-                        <CheckCircle className="w-4 h-4 mr-2" />
-                        {getButtonText()}
-                    </>
-                )}
-            </Button>
+            <AlertDialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
+                <AlertDialog.Trigger asChild>
+                    <Button
+                        onClick={handleAcceptClick}
+                        disabled={!canAccept() || buttonState.isLoading}
+                        variant={getButtonVariant()}
+                        className={className}
+                    >
+                        {buttonState.isLoading ? (
+                            <>
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                {t('order.accepting') || 'Accepting...'}
+                            </>
+                        ) : (
+                            <>
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                {getButtonText()}
+                            </>
+                        )}
+                    </Button>
+                </AlertDialog.Trigger>
+                <AlertDialog.Portal>
+                    <AlertDialog.Overlay className="fixed inset-0 bg-black/40" />
+                    <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm rounded-lg bg-card border border-brand-primary/30 p-4 shadow-xl">
+                        <AlertDialog.Title className="font-semibold mb-2">
+                            {t('order.acceptConfirm.title') || 'Accept this order?'}
+                        </AlertDialog.Title>
+                        <AlertDialog.Description className="text-sm text-text-muted mb-4">
+                            {t('order.acceptConfirm.body') || 'You will become the provider for this order. Proceed?'}
+                        </AlertDialog.Description>
+                        <div className="flex justify-end gap-2">
+                            <AlertDialog.Cancel asChild>
+                                <Button variant="outline" disabled={buttonState.isLoading}>
+                                    {t('common.cancel') || 'Cancel'}
+                                </Button>
+                            </AlertDialog.Cancel>
+                            <AlertDialog.Action asChild>
+                                <Button
+                                    className="bg-brand-primary text-white"
+                                    disabled={buttonState.isLoading}
+                                    onClick={() => {
+                                        setButtonState({ error: null, isLoading: true });
+                                        acceptOrderMutation.mutate();
+                                    }}
+                                >
+                                    {buttonState.isLoading ? (t('order.accepting') || 'Accepting...') : (t('order.acceptConfirm.confirm') || 'Accept')}
+                                </Button>
+                            </AlertDialog.Action>
+                        </div>
+                    </AlertDialog.Content>
+                </AlertDialog.Portal>
+            </AlertDialog.Root>
             {buttonState.error && (
                 <p className="text-sm text-red-500">{buttonState.error}</p>
             )}

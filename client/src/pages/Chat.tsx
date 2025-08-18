@@ -7,7 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { ChatMessage } from "@/components/ChatMessage";
 import { RatingForm } from "@/components/RatingForm";
 import { DisputeModal } from "@/components/DisputeModal";
-import { QuickReplies } from "@/components/QuickReplies";
 import { TipModal } from "@/components/TipModal";
 import { useTranslation } from "react-i18next";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -36,7 +35,7 @@ export default function Chat() {
   const [message, setMessage] = useState('');
   const [showRating, setShowRating] = useState(false);
   const [showDispute, setShowDispute] = useState(false);
-  const [showQuickReplies, setShowQuickReplies] = useState(false);
+  // Removed quick replies feature
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -175,17 +174,10 @@ export default function Chat() {
     },
     onSuccess: () => {
       setMessage('');
-      setShowQuickReplies(false);
     }
   });
 
-  const handleQuickReply = (replyMessage: string) => {
-    if (replyMessage) {
-      setMessage(replyMessage);
-    } else {
-      setShowQuickReplies(false);
-    }
-  };
+  // Quick replies removed
 
   const approveOrder = useMutation({
     mutationFn: () => {
@@ -481,105 +473,73 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Quick Replies Panel */}
-      {showQuickReplies && (
-        <div className="fixed bottom-20 left-4 right-4 z-10">
-          <div className="max-w-sm mx-auto">
-            <QuickReplies
-              onReplySelect={handleQuickReply}
-              orderStatus={order.status}
-              className="mb-4"
-            />
-          </div>
-        </div>
-      )}
+      {/* Quick replies removed */}
 
       {/* Chat Input */}
       <div className="fixed bottom-0 left-0 right-0 bg-indigo-900 p-4">
         <form onSubmit={handleSendMessage} className="max-w-sm mx-auto space-y-2">
-          {/* Quick Actions Bar */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowQuickReplies(!showQuickReplies)}
-                className={showQuickReplies ? 'text-brand-primary' : 'text-text-muted'}
-              >
-                <Clock className="w-4 h-4" />
-              </Button>
-              <Button type="button" variant="ghost" size="sm" onClick={handlePickFile} disabled={isUploading}>
-                <Paperclip className="w-4 h-4" />
-              </Button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                className="hidden"
-                onChange={handleFileChange}
-              />
-            </div>
-            <div className="flex items-center gap-2">
-              {/* Requester: REFUND */}
-              {isRequester && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="h-8 px-2 border-red-500/40 text-red-300 hover:bg-red-500/10"
-                  disabled={refundEscrow.isPending}
-                  onClick={() => {
-                    // Require a dispute before refund; if not disputed, open dispute modal instead
-                    if (order.status !== 'DISPUTED') {
-                      setShowDispute(true);
-                      return;
-                    }
-                    refundEscrow.mutate();
-                  }}
-                >
-                  {refundEscrow.isPending ? t('chat.processing') || 'Processing…' : 'REFUND'}
-                </Button>
-              )}
-              {/* Provider: Finish (Submit Delivery) */}
-              {isProvider && (
-                <Button
-                  type="button"
-                  size="sm"
-                  className="h-8 px-2 bg-emerald-600 hover:bg-emerald-500"
-                  disabled={deliverOrder.isPending || providerImageCount < 5 || !(order.status === 'FUNDED' || order.status === 'IN_PROGRESS')}
-                  onClick={() => {
-                    if (providerImageCount < 5) return;
-                    const proofUri = prompt('Enter proof URL (image/video link):') || '';
-                    if (!proofUri) return;
-                    deliverOrder.mutate(proofUri);
-                  }}
-                  title={providerImageCount < 5 ? 'Upload at least 5 images to finish' : ''}
-                >
-                  {deliverOrder.isPending ? 'Finishing…' : 'Finish'}
-                </Button>
-              )}
-              <div className="text-xs text-text-muted hidden sm:block">
-                {isConnected ? t('chat.connected') : t('chat.connecting')}
-              </div>
-            </div>
-          </div>
-
-          {/* Message Input */}
-          <div className="flex items-center space-x-3">
+          {/* Message Input Row with Attach + Actions */}
+          <div className="flex items-center gap-2">
+            {/* Attach */}
+            <Button type="button" variant="ghost" className="w-10 h-10" onClick={handlePickFile} disabled={isUploading}>
+              <Paperclip className="w-5 h-5" />
+            </Button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+            {/* Message input */}
             <Input
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={t('chat.typeMessage')}
-              className="flex-1 bg-panel border-transparent rounded-md h-9 text-sm"
+              className="flex-1 bg-panel border-transparent rounded-md h-10 text-sm"
             />
+            {/* Actions: Refund / Finish / Send */}
+            {isRequester && (
+              <Button
+                type="button"
+                variant="outline"
+                className="h-10 px-3 border-red-500/40 text-red-300 hover:bg-red-500/10"
+                disabled={refundEscrow.isPending}
+                onClick={() => {
+                  if (order.status !== 'DISPUTED') {
+                    setShowDispute(true);
+                    return;
+                  }
+                  refundEscrow.mutate();
+                }}
+                title={order.status !== 'DISPUTED' ? t('chat.openDispute') : undefined}
+              >
+                {refundEscrow.isPending ? t('chat.processing') || 'Processing…' : 'Refund'}
+              </Button>
+            )}
+            {isProvider && (
+              <Button
+                type="button"
+                className="h-10 px-3 bg-emerald-600 hover:bg-emerald-500"
+                disabled={deliverOrder.isPending || providerImageCount < 5 || !(order.status === 'FUNDED' || order.status === 'IN_PROGRESS')}
+                onClick={() => {
+                  if (providerImageCount < 5) return;
+                  const proofUri = prompt('Enter proof URL (image/video link):') || '';
+                  if (!proofUri) return;
+                  deliverOrder.mutate(proofUri);
+                }}
+                title={providerImageCount < 5 ? 'Upload at least 5 images to finish' : ''}
+              >
+                {deliverOrder.isPending ? 'Finishing…' : 'Finish'}
+              </Button>
+            )}
             <Button
               type="submit"
-              size="sm"
-              className="bg-brand-primary hover:bg-brand-primary/80 px-3 h-9 rounded-md"
+              className="bg-brand-primary hover:bg-brand-primary/80 px-3 h-10 rounded-md"
               disabled={(!message.trim() || !isConnected) && !isUploading}
+              title={!isConnected ? (t('chat.connecting') as string) : undefined}
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5" />
             </Button>
           </div>
 

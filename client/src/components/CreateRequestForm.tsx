@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { insertOrderSchema } from "@shared/schema";
 import { getAuthToken } from "@/lib/auth";
+import * as AlertDialog from "@radix-ui/react-alert-dialog";
 
 // Use a local schema shaped for the UI, convert to API before submit
 const formSchema = z.object({
@@ -42,6 +43,7 @@ export function CreateRequestForm({ onClose, onSuccess }: CreateRequestFormProps
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [selectedMediaType, setSelectedMediaType] = useState<'photo' | 'video' | 'live'>('photo');
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -94,8 +96,14 @@ export function CreateRequestForm({ onClose, onSuccess }: CreateRequestFormProps
   });
 
   const onSubmit = (data: FormData) => {
+    // Open confirmation modal first
+    setConfirmOpen(true);
+  };
+
+  const confirmCreate = () => {
+    const values = form.getValues();
     createOrder.mutate({
-      ...data,
+      ...values,
       mediaType: selectedMediaType,
     });
   };
@@ -229,16 +237,47 @@ export function CreateRequestForm({ onClose, onSuccess }: CreateRequestFormProps
           </div>
 
           <div className="flex space-x-3">
-            <Button
-              type="submit"
-              disabled={createOrder.isPending}
-              className="flex-1 gradient-bg text-white font-medium"
-            >
-              {createOrder.isPending
-                ? t('createRequest.creating')
-                : t('createRequest.createAndFund')
-              }
-            </Button>
+            <AlertDialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
+              <AlertDialog.Trigger asChild>
+                <Button
+                  type="submit"
+                  disabled={createOrder.isPending}
+                  className="flex-1 gradient-bg text-white font-medium"
+                >
+                  {createOrder.isPending
+                    ? t('createRequest.creating')
+                    : t('createRequest.createAndFund')
+                  }
+                </Button>
+              </AlertDialog.Trigger>
+              <AlertDialog.Portal>
+                <AlertDialog.Overlay className="fixed inset-0 bg-black/40" />
+                <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm rounded-lg bg-card border border-brand-primary/30 p-4 shadow-xl">
+                  <AlertDialog.Title className="font-semibold mb-2">
+                    {t('createRequest.confirm.title') || 'Create and fund this order?'}
+                  </AlertDialog.Title>
+                  <AlertDialog.Description className="text-sm text-text-muted mb-4">
+                    {t('createRequest.confirm.body') || 'You will create the order and proceed to funding. Continue?'}
+                  </AlertDialog.Description>
+                  <div className="flex justify-end gap-2">
+                    <AlertDialog.Cancel asChild>
+                      <Button variant="outline" disabled={createOrder.isPending}>
+                        {t('common.cancel') || 'Cancel'}
+                      </Button>
+                    </AlertDialog.Cancel>
+                    <AlertDialog.Action asChild>
+                      <Button
+                        className="bg-brand-primary text-white"
+                        disabled={createOrder.isPending}
+                        onClick={confirmCreate}
+                      >
+                        {t('createRequest.confirm.confirm') || 'Create order'}
+                      </Button>
+                    </AlertDialog.Action>
+                  </div>
+                </AlertDialog.Content>
+              </AlertDialog.Portal>
+            </AlertDialog.Root>
             <Button
               type="button"
               variant="ghost"

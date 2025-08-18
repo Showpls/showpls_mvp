@@ -252,10 +252,14 @@ export default function TelegramWebApp() {
             (() => {
               const allOrders = (userOrders as any).orders;
               const activeStatuses = ['CREATED', 'PENDING_FUNDING', 'FUNDED', 'IN_PROGRESS', 'AT_LOCATION', 'DRAFT_CONTENT'];
-              const activeOrders = allOrders.filter((order: any) =>
-                (order.requesterId === currentUser?.id || order.providerId === currentUser?.id) &&
-                activeStatuses.includes(order.status)
-              );
+              const activeOrders = allOrders.filter((order: any) => {
+                const isMine = order.requesterId === currentUser?.id || order.providerId === currentUser?.id;
+                if (!isMine) return false;
+                if (!activeStatuses.includes(order.status)) return false;
+                // Exclude own orders that have not been accepted by a provider yet
+                if (order.requesterId === currentUser?.id && !order.providerId) return false;
+                return true;
+              });
               const ordersToShow = showAllMyOrders ? allOrders : activeOrders;
 
               if (ordersToShow.length === 0) {
