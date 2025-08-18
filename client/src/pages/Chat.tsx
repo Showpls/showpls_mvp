@@ -45,10 +45,13 @@ export default function Chat() {
     queryKey: ['/api/orders', orderId],
     enabled: !!orderId,
     queryFn: async () => {
+      const token = getAuthToken();
       const tgInitData = getTelegramInitData();
-      if (!tgInitData) throw new Error('Not authenticated');
+      if (!token && !tgInitData) throw new Error('Not authenticated');
       const res = await fetch(`/api/orders/${orderId}`, {
-        headers: { Authorization: `Telegram ${tgInitData}` },
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : { Authorization: `Telegram ${tgInitData}` },
       });
       if (!res.ok) throw new Error('Failed to fetch order');
       const json = await res.json();
@@ -74,10 +77,13 @@ export default function Chat() {
     queryKey: ['/api/orders', orderId, 'messages'],
     enabled: !!orderId,
     queryFn: async () => {
+      const token = getAuthToken();
       const tgInitData = getTelegramInitData();
-      if (!tgInitData) throw new Error('Not authenticated');
+      if (!token && !tgInitData) throw new Error('Not authenticated');
       const res = await fetch(`/api/orders/${orderId}/messages`, {
-        headers: { Authorization: `Telegram ${tgInitData}` },
+        headers: token
+          ? { Authorization: `Bearer ${token}` }
+          : { Authorization: `Telegram ${tgInitData}` },
       });
       if (!res.ok) throw new Error('Failed to fetch messages');
       return res.json();
