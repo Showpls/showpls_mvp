@@ -266,6 +266,7 @@
     "locationUnknown": "Location unknown",
     "chat": "Chat",
     "accept": "Accept",
+    "accepting": "Accepting...",
     "mustBeProvider": "Only providers can accept orders"
   },
   "wallet": {

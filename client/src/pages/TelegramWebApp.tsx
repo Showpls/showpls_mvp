@@ -115,7 +115,7 @@ export default function TelegramWebApp() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="glass-panel p-4 mb-6">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
@@ -128,11 +128,11 @@ export default function TelegramWebApp() {
             <WalletConnect />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="bg-panel border-brand-primary/30 w-9 h-9 p-2">
+                <Button variant="outline" size="sm" className="bg-card border-brand-primary/30 w-9 h-9 p-2">
                   <User className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-panel border-brand-primary/30 text-text-primary">
+              <DropdownMenuContent className="w-56 bg-card border-brand-primary/30 text-foreground">
                 <DropdownMenuLabel>{t('twa.settings')}</DropdownMenuLabel>
                 <DropdownMenuSeparator className="bg-brand-primary/20" />
                 <div className="p-2">

@@ -1,9 +1,7 @@
 import React from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from './ui/sheet';
-import { Button } from './ui/button';
-import { Badge } from './ui/badge';
 import { Card, CardContent } from './ui/card';
-import { MapPin, Clock, User, Wallet, Camera, Video, Radio, X } from 'lucide-react';
+import { MapPin, Clock, User, Wallet, Camera, Video, Radio } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Order } from '@shared/schema';
 import { Chat } from './Chat';
@@ -30,16 +28,7 @@ const getMediaTypeIcon = (type: string) => {
   }
 };
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case 'CREATED': return 'bg-blue-500/20 text-blue-400 border-blue-500/30';
-    case 'IN_PROGRESS': return 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30';
-    case 'DELIVERED': return 'bg-purple-500/20 text-purple-400 border-purple-500/30';
-    case 'APPROVED': return 'bg-green-500/20 text-green-400 border-green-500/30';
-    case 'CANCELLED': return 'bg-red-500/20 text-red-400 border-red-500/30';
-    default: return 'bg-gray-500/20 text-gray-400 border-gray-500/30';
-  }
-};
+// Status badge removed; no status-specific styling in header
 
 export const OrderDetailsSheet: React.FC<OrderDetailsSheetProps> = ({ order, isOpen, onOpenChange }) => {
   const { currentUser } = useCurrentUser();
@@ -54,8 +43,8 @@ export const OrderDetailsSheet: React.FC<OrderDetailsSheetProps> = ({ order, isO
       <SheetContent className="w-full sm:max-w-2xl p-0 flex flex-col bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 text-white border-l border-white/10">
         {/* Header */}
         <SheetHeader className="p-6 border-b border-white/10 bg-black/20 backdrop-blur-sm">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 pr-4">
+          <div className="flex items-start">
+            <div className="flex-1 pr-0">
               <div className="flex items-center gap-3 mb-2">
                 {getMediaTypeIcon(order.mediaType)}
                 <SheetTitle className="text-xl font-bold text-white">{order.title}</SheetTitle>
@@ -64,9 +53,6 @@ export const OrderDetailsSheet: React.FC<OrderDetailsSheetProps> = ({ order, isO
                 {order.description}
               </SheetDescription>
             </div>
-            <Badge className={`${getStatusColor(order.status)} border`}>
-              {order.status.replace('_', ' ')}
-            </Badge>
           </div>
         </SheetHeader>
 
@@ -90,7 +76,7 @@ export const OrderDetailsSheet: React.FC<OrderDetailsSheetProps> = ({ order, isO
                     <div>
                       <p className="text-xs text-gray-400 uppercase tracking-wide">Created</p>
                       <p className="font-semibold text-white">
-                        {new Date(order.createdAt).toLocaleDateString()}
+                        {order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '—'}
                       </p>
                     </div>
                   </div>
