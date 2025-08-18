@@ -90,9 +90,7 @@ export class TonService {
     providerAddress: string
   ): Promise<{ address: string; stateInit: string }> {
     try {
-      // Real escrow: deploy per-order contract from precompiled code (ESCROW_CODE_B64)
-      if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
-      await this.ensurePlatformWalletReady();
+      // Build stateInit for escrow; no on-chain action here
       
       // Basic input logging for diagnostics
       console.log('[TON] createEscrowContract called', {
@@ -118,7 +116,20 @@ export class TonService {
         throw new Error('FEE_RECEIVER_WALLET environment variable not set');
       }
 
-      const guarantorAddress = this.platformWallet!.address;
+      // Resolve guarantor address from initialized platform wallet or env var
+      let guarantorAddress: Address;
+      if (this.platformWallet) {
+        guarantorAddress = this.platformWallet.address;
+      } else if (process.env.GUARANTOR_ADDRESS) {
+        try {
+          guarantorAddress = Address.parse(process.env.GUARANTOR_ADDRESS);
+        } catch (e) {
+          console.error('[TON] Invalid GUARANTOR_ADDRESS:', process.env.GUARANTOR_ADDRESS);
+          throw new Error('Invalid GUARANTOR_ADDRESS');
+        }
+      } else {
+        throw new Error('Guarantor address not configured. Set TON_PLATFORM_WALLET or GUARANTOR_ADDRESS');
+      }
       let feeWalletAddress: Address;
       let buyerAddress: Address;
       let sellerAddress: Address;
