@@ -137,6 +137,40 @@ export default function Chat() {
     scrollToBottom();
   }, [messages]);
 
+  // Current user details (must be before any conditional returns)
+  const { currentUser } = useCurrentUser();
+  // Safe TON display
+  const tonDisplay = useMemo(() => {
+    try {
+      const n = Number(order?.budgetNanoTon);
+      const val = n / 1e9;
+      return Number.isFinite(val) ? val.toFixed(4) : '—';
+    } catch {
+      return '—';
+    }
+  }, [order?.budgetNanoTon]);
+  // Determine the other participant's display info using messages (preferred) or fallback by role
+  const otherUser = useMemo(() => {
+    // Prefer deriving from messages that include sender info
+    const otherMsg = messages?.find(m => m.senderId !== currentUser?.id);
+    if (otherMsg && (otherMsg as any).sender) {
+      const sender = (otherMsg as any).sender as { username?: string; firstName?: string };
+      return {
+        username: sender.username || 'User',
+        firstName: sender.firstName || sender.username || 'User',
+      };
+    }
+
+    // Fallback to role-based placeholder if we don't yet have messages
+    if (currentUser?.id && order) {
+      const isRequester = order.requesterId === currentUser.id;
+      return isRequester
+        ? { username: 'Provider', firstName: 'Provider' }
+        : { username: 'Requester', firstName: 'Requester' };
+    }
+    return { username: 'User', firstName: 'User' };
+  }, [messages, currentUser?.id, order]);
+
   if (isOrderLoading) {
     return (
       <div className="min-h-screen bg-bg-primary flex items-center justify-center">
@@ -163,41 +197,6 @@ export default function Chat() {
       </div>
     );
   }
-
-  // Current user details
-  const { currentUser } = useCurrentUser();
-  // Safe TON display
-  const tonDisplay = useMemo(() => {
-    try {
-      const n = Number(order?.budgetNanoTon);
-      const val = n / 1e9;
-      return Number.isFinite(val) ? val.toFixed(4) : '—';
-    } catch {
-      return '—';
-    }
-  }, [order?.budgetNanoTon]);
-
-  // Determine the other participant's display info using messages (preferred) or fallback by role
-  const otherUser = useMemo(() => {
-    // Prefer deriving from messages that include sender info
-    const otherMsg = messages?.find(m => m.senderId !== currentUser?.id);
-    if (otherMsg && (otherMsg as any).sender) {
-      const sender = (otherMsg as any).sender as { username?: string; firstName?: string };
-      return {
-        username: sender.username || 'User',
-        firstName: sender.firstName || sender.username || 'User',
-      };
-    }
-
-    // Fallback to role-based placeholder if we don't yet have messages
-    if (currentUser?.id && order) {
-      const isRequester = order.requesterId === currentUser.id;
-      return isRequester
-        ? { username: 'Provider', firstName: 'Provider' }
-        : { username: 'Requester', firstName: 'Requester' };
-    }
-    return { username: 'User', firstName: 'User' };
-  }, [messages, currentUser?.id, order]);
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
