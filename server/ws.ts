@@ -194,21 +194,31 @@ async function handleChatMessage(
     // Store the message in database (skip for demo orders)
     let message;
     if (!socket.orderId?.startsWith("demo-")) {
+      const resolvedType = data.messageType || "text";
+      const resolvedMessage =
+        resolvedType === 'image'
+          ? '[image]'
+          : (data.content ?? data.text ?? '');
       message = await storage.createChatMessage({
         orderId: socket.orderId,
         senderId: socket.userId,
-        message: data.content || data.text,
-        messageType: data.messageType || "text",
+        message: resolvedMessage,
+        messageType: resolvedType,
         metadata: data.metadata,
       });
     } else {
       // For demo orders, create a fake message object
+      const resolvedType = data.messageType || "text";
+      const resolvedMessage =
+        resolvedType === 'image'
+          ? '[image]'
+          : (data.content ?? data.text ?? '');
       message = {
         id: `demo-${Date.now()}`,
         orderId: socket.orderId,
         senderId: socket.userId,
-        message: data.content || data.text,
-        messageType: data.messageType || "text",
+        message: resolvedMessage,
+        messageType: resolvedType,
         metadata: data.metadata,
         createdAt: new Date(),
       };

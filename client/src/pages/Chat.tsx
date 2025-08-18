@@ -313,7 +313,7 @@ export default function Chat() {
       </div>
 
       {/* Chat Messages */}
-      <div className="max-w-sm mx-auto px-4 mb-20">
+      <div className="max-w-sm mx-auto px-4 pb-32">
         <div className="space-y-4">
           {/* Order Info */}
           <Card className="glass-panel border-brand-primary/20">
