@@ -224,7 +224,12 @@
     "selectLocation": "Tap to select location",
     "creating": "Creating...",
     "createAndFund": "Create & Fund",
-    "sample": "Sample"
+    "sample": "Sample",
+    "confirm": {
+      "title": "Create this order?",
+      "body": "You'll create the order now. Once a provider accepts, you'll be able to fund the escrow to proceed.",
+      "confirm": "Create order"
+    }
   },
   "mediaType": {
     "photo": "Photo",
@@ -267,7 +272,12 @@
     "chat": "Chat",
     "accept": "Accept",
     "accepting": "Accepting...",
-    "mustBeProvider": "Only providers can accept orders"
+    "mustBeProvider": "Only providers can accept orders",
+    "acceptConfirm": {
+      "title": "Accept this order?",
+      "body": "You will become the provider for this order and be responsible for completing it.",
+      "confirm": "Accept"
+    }
   },
   "wallet": {
     "connect": "Connect",
@@ -332,7 +342,8 @@
     "failedToGetLocation": "Failed to get your location",
     "sampleTitle": "Photos of Red Square",
     "sampleDescription": "Need recent photos of Red Square with a view of the Kremlin. Preferably at sunset.",
-    "sampleAddress": "Red Square, Moscow"
+    "sampleAddress": "Red Square, Moscow",
+    "insufficientBalance": "Insufficient balance. Balance: {{balance}} TON, required: {{required}} TON."
   },
   "orderDetails": {
     "budget": "Budget",

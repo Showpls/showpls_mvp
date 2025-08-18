@@ -394,29 +394,29 @@ export default function CreateOrder() {
                 </Select>
               </div>
 
-              {/* Submit Button with confirmation */}
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                disabled={createOrderMutation.isPending || isCreatingEscrow}
+              >
+                {isCreatingEscrow
+                  ? 'Creating Escrow...'
+                  : createOrderMutation.isPending
+                  ? t('createOrder.creating')
+                  : t('createOrder.createOrder')}
+              </Button>
+
+              {/* Confirmation Dialog (controlled) */}
               <AlertDialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
-                <AlertDialog.Trigger asChild>
-                  <Button
-                    type="submit"
-                    className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                    disabled={createOrderMutation.isPending || isCreatingEscrow}
-                  >
-                    {isCreatingEscrow
-                      ? 'Creating Escrow...'
-                      : createOrderMutation.isPending
-                      ? t('createOrder.creating')
-                      : t('createOrder.createOrder')}
-                  </Button>
-                </AlertDialog.Trigger>
                 <AlertDialog.Portal>
-                  <AlertDialog.Overlay className="fixed inset-0 bg-black/40 z-[1000]" />
-                  <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm rounded-lg bg-card border border-white/20 p-4 shadow-xl z-[1001]">
-                    <AlertDialog.Title className="font-semibold mb-2 text-white">
-                      {t('createRequest.confirm.title') || 'Create and fund this order?'}
+                  <AlertDialog.Overlay className="fixed inset-0 bg-black/60 z-[1000]" />
+                  <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 shadow-xl z-[1001]">
+                    <AlertDialog.Title className="font-semibold mb-2 text-slate-900 dark:text-white">
+                      {t('createRequest.confirm.title')}
                     </AlertDialog.Title>
-                    <AlertDialog.Description className="text-sm text-white/70 mb-4">
-                      {t('createRequest.confirm.body') || 'You will create the order and later fund escrow once a provider accepts.'}
+                    <AlertDialog.Description className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                      {t('createRequest.confirm.body')}
                       {balanceInfo?.sufficient && (
                         <div className="mt-2 text-xs">
                           {t('createOrder.balanceOk', {
@@ -428,11 +428,11 @@ export default function CreateOrder() {
                     </AlertDialog.Description>
                     <div className="flex justify-end gap-2">
                       <AlertDialog.Cancel asChild>
-                        <Button variant="outline">{t('common.cancel') || 'Cancel'}</Button>
+                        <Button variant="outline">{t('common.cancel')}</Button>
                       </AlertDialog.Cancel>
                       <AlertDialog.Action asChild>
-                        <Button onClick={() => createOrderMutation.mutate(orderData)} className="gradient-bg text-white">
-                          {t('createRequest.confirm.confirm') || 'Create order'}
+                        <Button onClick={() => createOrderMutation.mutate(orderData)} className="bg-blue-600 hover:bg-blue-700 text-white">
+                          {t('createRequest.confirm.confirm')}
                         </Button>
                       </AlertDialog.Action>
                     </div>

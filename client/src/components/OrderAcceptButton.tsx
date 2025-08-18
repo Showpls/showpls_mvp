@@ -156,8 +156,8 @@ export const OrderAcceptButton: React.FC<OrderAcceptButtonProps> = ({
                     </Button>
                 </AlertDialog.Trigger>
                 <AlertDialog.Portal>
-                    <AlertDialog.Overlay className="fixed inset-0 bg-black/40 z-[1000]" />
-                    <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm rounded-lg bg-card border border-brand-primary/30 p-4 shadow-xl z-[1001]">
+                    <AlertDialog.Overlay className="fixed inset-0 bg-black/60 z-[1000]" />
+                    <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 shadow-xl z-[1001]">
                         <AlertDialog.Title className="font-semibold mb-2">
                             {t('order.acceptConfirm.title') || 'Accept this order?'}
                         </AlertDialog.Title>
