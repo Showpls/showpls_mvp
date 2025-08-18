@@ -69,10 +69,16 @@ export default function Chat() {
   const { sendMessage, isConnected } = useWebSocket(orderId!, {
     onMessage: (data) => {
       if (data.type === 'chat_message' && data.message) {
+        // Minimal logging for diagnostics
+        if (process.env.NODE_ENV !== 'production') {
+          console.debug('[WS] chat_message received', data.message);
+        }
         queryClient.setQueryData(['/api/orders', orderId, 'messages'], (old: ChatMessageType[] | undefined) => [
           ...(old || []),
           data.message
         ]);
+      } else if (data.type === 'chat_message' && !data.message) {
+        console.warn('[WS] chat_message without message payload', data);
       }
     }
   });
@@ -101,9 +107,13 @@ export default function Chat() {
 
   const approveOrder = useMutation({
     mutationFn: () => {
+      const token = getAuthToken();
       return fetch(`/api/orders/${orderId}/approve`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        }
       });
     },
     onSuccess: () => {
@@ -156,6 +166,16 @@ export default function Chat() {
 
   // Current user details
   const { currentUser } = useCurrentUser();
+  // Safe TON display
+  const tonDisplay = useMemo(() => {
+    try {
+      const n = Number(order?.budgetNanoTon);
+      const val = n / 1e9;
+      return Number.isFinite(val) ? val.toFixed(4) : '—';
+    } catch {
+      return '—';
+    }
+  }, [order?.budgetNanoTon]);
 
   // Determine the other participant's display info using messages (preferred) or fallback by role
   const otherUser = useMemo(() => {
@@ -229,7 +249,7 @@ export default function Chat() {
                       'bg-gray-500/20 text-gray-400'
                   }`}
               >
-                {((Number(order.budgetNanoTon) / 1e9).toFixed(4))} TON • {t(`order.status.${order.status.toLowerCase()}`)}
+                {tonDisplay} TON • {t(`order.status.${order.status.toLowerCase()}`)}
               </Badge>
             </CardContent>
           </Card>

@@ -12,15 +12,21 @@ import Chat from "./pages/Chat";
 import DaoWhitepaper from "./pages/DaoWhitepaper";
 import MapPage from "./pages/MapPage";
 import NotFound from "@/pages/not-found";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 function Router() {
+  const ChatWithBoundary = () => (
+    <ErrorBoundary>
+      <Chat />
+    </ErrorBoundary>
+  );
   return (
     <Switch>
       <Route path="/" component={NewLanding} />
       <Route path="/twa" component={TelegramWebApp} />
       <Route path="/create-order" component={CreateOrder} />
       <Route path="/map" component={MapPage} />
-      <Route path="/chat/:orderId" component={Chat} />
+      <Route path="/chat/:orderId" component={ChatWithBoundary} />
       <Route path="/dao/whitepaper" component={DaoWhitepaper} />
       <Route component={NotFound} />
     </Switch>
