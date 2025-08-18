@@ -69,16 +69,53 @@ export class TonService {
     try {
       // Real escrow: deploy per-order contract from precompiled code (ESCROW_CODE_B64)
       if (!this.walletContract || !this.platformSecretKey) throw new Error('Platform wallet not initialized');
+      
+      // Basic input logging for diagnostics
+      console.log('[TON] createEscrowContract called', {
+        orderId,
+        amountNano: amount.toString(),
+        amountTon: fromNano(amount),
+        requesterAddress,
+        providerAddress,
+      });
 
-      if (!process.env.ESCROW_CODE_B64) {
+      if (!process.env.ESCROW_CODE_B64 || process.env.ESCROW_CODE_B64.trim().length === 0) {
         throw new Error('ESCROW_CODE_B64 environment variable not set');
       }
-      const codeCell = Cell.fromBase64(process.env.ESCROW_CODE_B64);
+      let codeCell: Cell;
+      try {
+        codeCell = Cell.fromBase64(process.env.ESCROW_CODE_B64);
+      } catch (e) {
+        console.error('[TON] Invalid ESCROW_CODE_B64 value');
+        throw new Error('Invalid ESCROW_CODE_B64 (cannot parse base64 cell)');
+      }
+
+      if (!process.env.FEE_RECEIVER_WALLET) {
+        throw new Error('FEE_RECEIVER_WALLET environment variable not set');
+      }
 
       const guarantorAddress = this.platformWallet!.address;
-      const feeWalletAddress = Address.parse(process.env.FEE_RECEIVER_WALLET!);
-      const buyerAddress = Address.parse(requesterAddress);
-      const sellerAddress = Address.parse(providerAddress);
+      let feeWalletAddress: Address;
+      let buyerAddress: Address;
+      let sellerAddress: Address;
+      try {
+        feeWalletAddress = Address.parse(process.env.FEE_RECEIVER_WALLET);
+      } catch (e) {
+        console.error('[TON] Invalid FEE_RECEIVER_WALLET:', process.env.FEE_RECEIVER_WALLET);
+        throw new Error('Invalid FEE_RECEIVER_WALLET');
+      }
+      try {
+        buyerAddress = Address.parse(requesterAddress);
+      } catch (e) {
+        console.error('[TON] Invalid requesterAddress:', requesterAddress);
+        throw new Error('Invalid requester wallet address');
+      }
+      try {
+        sellerAddress = Address.parse(providerAddress);
+      } catch (e) {
+        console.error('[TON] Invalid providerAddress:', providerAddress);
+        throw new Error('Invalid provider wallet address');
+      }
 
       const royaltyBps = 1000; // 10% in basis points
       const deadline = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60); // 30 days from now
@@ -98,6 +135,13 @@ export class TonService {
         .storeUint(0, 1) // disputed
         .storeUint(0, 1) // closed
         .endCell();
+
+      // Log resultant cell sizes for debugging potential overflows
+      try {
+        const bits = dataCell.bits.length;
+        const refs = dataCell.refs.length;
+        console.log('[TON] Escrow dataCell built', { bits, refs });
+      } catch {}
 
       const workchain = 0;
       const addr = contractAddress(workchain, { code: codeCell, data: dataCell });
@@ -123,7 +167,7 @@ export class TonService {
         stateInit: beginCell().storeRef(codeCell).storeRef(dataCell).endCell().toBoc().toString('base64')
       };
     } catch (error) {
-        console.error('Failed to create escrow contract:', error);
+        console.error('[TON] Failed to create escrow contract:', error);
         throw error;
     }
   }

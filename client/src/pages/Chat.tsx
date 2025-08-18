@@ -108,6 +108,63 @@ export default function Chat() {
     }
   });
 
+  // Current user details (must be before any usage)
+  const { currentUser } = useCurrentUser();
+
+  // Provider: submit delivery ("Finish")
+  const deliverOrder = useMutation({
+    mutationFn: async (proofUri: string) => {
+      const token = getAuthToken();
+      const res = await fetch(`/api/orders/${orderId}/deliver`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ proofUri })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to submit delivery');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/orders', orderId] });
+    }
+  });
+
+  // Requester: refund after dispute
+  const refundEscrow = useMutation({
+    mutationFn: async () => {
+      const token = getAuthToken();
+      const res = await fetch('/api/escrow/refund', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ orderId, opId: `refund_${orderId}_${Date.now()}` })
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to refund');
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/orders', orderId] });
+    }
+  });
+
+  // Helpers for conditional actions
+  const isProvider = !!(order && order.providerId && order.providerId === currentUser?.id);
+  const isRequester = !!(order && order.requesterId === currentUser?.id);
+  const providerImageCount = useMemo(() => {
+    if (!messages || !order?.providerId) return 0;
+    return messages.filter(m => m.messageType === 'image' && m.senderId === order.providerId).length;
+  }, [messages, order?.providerId]);
+
   const sendChatMessage = useMutation({
     mutationFn: (content: string) => {
       return sendMessage({
@@ -216,8 +273,7 @@ export default function Chat() {
     scrollToBottom();
   }, [messages]);
 
-  // Current user details (must be before any conditional returns)
-  const { currentUser } = useCurrentUser();
+  
   // Safe TON display
   const tonDisplay = useMemo(() => {
     try {
@@ -464,8 +520,48 @@ export default function Chat() {
                 onChange={handleFileChange}
               />
             </div>
-            <div className="text-xs text-text-muted">
-              {isConnected ? t('chat.connected') : t('chat.connecting')}
+            <div className="flex items-center gap-2">
+              {/* Requester: REFUND */}
+              {isRequester && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="h-8 px-2 border-red-500/40 text-red-300 hover:bg-red-500/10"
+                  disabled={refundEscrow.isPending}
+                  onClick={() => {
+                    // Require a dispute before refund; if not disputed, open dispute modal instead
+                    if (order.status !== 'DISPUTED') {
+                      setShowDispute(true);
+                      return;
+                    }
+                    refundEscrow.mutate();
+                  }}
+                >
+                  {refundEscrow.isPending ? t('chat.processing') || 'Processing…' : 'REFUND'}
+                </Button>
+              )}
+              {/* Provider: Finish (Submit Delivery) */}
+              {isProvider && (
+                <Button
+                  type="button"
+                  size="sm"
+                  className="h-8 px-2 bg-emerald-600 hover:bg-emerald-500"
+                  disabled={deliverOrder.isPending || providerImageCount < 5 || !(order.status === 'FUNDED' || order.status === 'IN_PROGRESS')}
+                  onClick={() => {
+                    if (providerImageCount < 5) return;
+                    const proofUri = prompt('Enter proof URL (image/video link):') || '';
+                    if (!proofUri) return;
+                    deliverOrder.mutate(proofUri);
+                  }}
+                  title={providerImageCount < 5 ? 'Upload at least 5 images to finish' : ''}
+                >
+                  {deliverOrder.isPending ? 'Finishing…' : 'Finish'}
+                </Button>
+              )}
+              <div className="text-xs text-text-muted hidden sm:block">
+                {isConnected ? t('chat.connected') : t('chat.connecting')}
+              </div>
             </div>
           </div>
 
@@ -486,6 +582,17 @@ export default function Chat() {
               <Send className="w-4 h-4" />
             </Button>
           </div>
+
+          {/* Helper text: provider images count requirement */}
+          {isProvider && providerImageCount < 5 && (
+            <div className="text-[11px] text-yellow-300/80 mt-1">Send at least 5 images before finishing. Uploaded: {providerImageCount}/5</div>
+          )}
+          {refundEscrow.error && (
+            <div className="text-[11px] text-red-300 mt-1">{(refundEscrow.error as any)?.message || 'Refund failed'}</div>
+          )}
+          {deliverOrder.error && (
+            <div className="text-[11px] text-red-300 mt-1">{(deliverOrder.error as any)?.message || 'Delivery failed'}</div>
+          )}
         </form>
       </div>
 
