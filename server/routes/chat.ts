@@ -51,6 +51,7 @@ router.get('/orders/:orderId/messages', authenticateTelegramUser, async (req, re
           columns: {
             id: true,
             username: true,
+            firstName: true,
             photoUrl: true,
           },
         },

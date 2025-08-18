@@ -1,6 +1,7 @@
 import WebSocket, { WebSocketServer } from "ws";
 import jwt from "jsonwebtoken";
 import { storage } from "./storage";
+import { notificationService } from "./services/notifications";
 // Note: import moved to avoid circular dependency
 const wsRateLimits = new Map<string, number[]>();
 
@@ -213,10 +214,36 @@ async function handleChatMessage(
       };
     }
 
-    // Broadcast to all clients in the same order
+    // Enrich with sender details for immediate UI header correctness
+    let sender: any = undefined;
+    let recipientTelegramId: string | undefined;
+    try {
+      sender = await storage.getUser(socket.userId);
+      const order = await storage.getOrder(socket.orderId);
+      if (order) {
+        const recipientUserId = order.requesterId === socket.userId ? order.providerId : order.requesterId;
+        if (recipientUserId) {
+          const recipient = await storage.getUser(recipientUserId);
+          recipientTelegramId = recipient?.telegramId;
+        }
+      }
+    } catch (e) {
+      console.warn('[WS] Failed to enrich chat message with sender/order info:', e);
+    }
+
     const broadcastMessage = {
       type: "chat_message",
-      message,
+      message: sender
+        ? {
+            ...message,
+            sender: {
+              id: sender.id,
+              username: sender.username,
+              firstName: sender.firstName,
+              photoUrl: sender.photoUrl,
+            },
+          }
+        : message,
     };
 
     wss.clients.forEach((client: AuthenticatedWebSocket) => {
@@ -227,6 +254,20 @@ async function handleChatMessage(
         client.send(JSON.stringify(broadcastMessage));
       }
     });
+
+    // Fire-and-forget Telegram notification to recipient
+    try {
+      if (recipientTelegramId && sender) {
+        const preview = message.messageType === 'image'
+          ? '🖼️ Image'
+          : (message.message || '');
+        notificationService
+          .sendChatNotification(recipientTelegramId, socket.orderId!, sender.firstName || sender.username || 'User', preview)
+          .catch((err) => console.warn('[WS] Notification send failed:', err));
+      }
+    } catch (err) {
+      console.warn('[WS] Error scheduling chat notification:', err);
+    }
   } catch (error) {
     console.error("[WS] Error handling chat message:", error);
     socket.send(

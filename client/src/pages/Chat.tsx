@@ -45,10 +45,10 @@ export default function Chat() {
     queryKey: ['/api/orders', orderId],
     enabled: !!orderId,
     queryFn: async () => {
-      const token = getAuthToken();
-      if (!token) throw new Error('Not authenticated');
+      const tgInitData = getTelegramInitData();
+      if (!tgInitData) throw new Error('Not authenticated');
       const res = await fetch(`/api/orders/${orderId}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Telegram ${tgInitData}` },
       });
       if (!res.ok) throw new Error('Failed to fetch order');
       const json = await res.json();
@@ -56,14 +56,28 @@ export default function Chat() {
     },
   });
 
+  // Helper to get Telegram WebApp initData (query string) for auth
+  const getTelegramInitData = () => {
+    try {
+      // Telegram WebApp provides initData as a signed query string
+      const initData = (window as any)?.Telegram?.WebApp?.initData as string | undefined;
+      if (initData && typeof initData === 'string' && initData.length > 0) return initData;
+      // Optional: fallback from localStorage if app stored it previously
+      const stored = localStorage.getItem('telegram_init_data');
+      return stored || '';
+    } catch {
+      return '';
+    }
+  };
+
   const { data: messages, isLoading: areMessagesLoading, isError: areMessagesError, error: messagesError, refetch: refetchMessages } = useQuery<ChatMessageType[]>({
     queryKey: ['/api/orders', orderId, 'messages'],
     enabled: !!orderId,
     queryFn: async () => {
-      const token = getAuthToken();
-      if (!token) throw new Error('Not authenticated');
+      const tgInitData = getTelegramInitData();
+      if (!tgInitData) throw new Error('Not authenticated');
       const res = await fetch(`/api/orders/${orderId}/messages`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: { Authorization: `Telegram ${tgInitData}` },
       });
       if (!res.ok) throw new Error('Failed to fetch messages');
       return res.json();
@@ -142,14 +156,14 @@ export default function Chat() {
     if (!file || !orderId) return;
     try {
       setIsUploading(true);
-      const token = getAuthToken();
+      const tgInitData = getTelegramInitData();
       const formData = new FormData();
       formData.append('file', file);
       formData.append('orderId', orderId);
       const res = await fetch('/api/upload', {
         method: 'POST',
         headers: {
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          ...(tgInitData ? { Authorization: `Telegram ${tgInitData}` } : {}),
         },
         body: formData,
       });
@@ -409,7 +423,7 @@ export default function Chat() {
       )}
 
       {/* Chat Input */}
-      <div className="fixed bottom-0 left-0 right-0 glass-panel p-4">
+      <div className="fixed bottom-0 left-0 right-0 p-4">
         <form onSubmit={handleSendMessage} className="max-w-sm mx-auto space-y-2">
           {/* Quick Actions Bar */}
           <div className="flex items-center justify-between">
