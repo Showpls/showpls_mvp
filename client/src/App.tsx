@@ -15,18 +15,17 @@ import NotFound from "@/pages/not-found";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 function Router() {
-  const ChatWithBoundary = () => (
-    <ErrorBoundary>
-      <Chat />
-    </ErrorBoundary>
-  );
   return (
     <Switch>
       <Route path="/" component={NewLanding} />
       <Route path="/twa" component={TelegramWebApp} />
       <Route path="/create-order" component={CreateOrder} />
       <Route path="/map" component={MapPage} />
-      <Route path="/chat/:orderId" component={ChatWithBoundary} />
+      <Route path="/chat/:orderId">
+        <ErrorBoundary>
+          <Chat />
+        </ErrorBoundary>
+      </Route>
       <Route path="/dao/whitepaper" component={DaoWhitepaper} />
       <Route component={NotFound} />
     </Switch>
