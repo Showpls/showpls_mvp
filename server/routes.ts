@@ -587,6 +587,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   }));
 
+  // Serve uploaded files
+  // This enables accessing files uploaded via /api/upload at /uploads/<filename>
+  app.use('/uploads', express.static('uploads'));
+
   // This should be last - catch-all for SPA routing
   app.get('*', (req, res, next) => {
     // Skip API routes

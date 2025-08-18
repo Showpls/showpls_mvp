@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useMemo } from "react";
-import { useParams } from "wouter";
+import { useParams, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,19 +23,23 @@ import {
   Star,
   AlertTriangle,
   Heart,
-  Clock
+  Clock,
+  ArrowLeft
 } from "lucide-react";
 import type { ChatMessage as ChatMessageType, Order } from "@shared/schema";
 
 export default function Chat() {
   const { orderId } = useParams<{ orderId: string }>();
+  const [, setLocation] = useLocation();
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [message, setMessage] = useState('');
   const [showRating, setShowRating] = useState(false);
   const [showDispute, setShowDispute] = useState(false);
   const [showQuickReplies, setShowQuickReplies] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: order, isLoading: isOrderLoading, isError: isOrderError, error: orderError } = useQuery<Order>({
     queryKey: ['/api/orders', orderId],
@@ -129,6 +133,43 @@ export default function Chat() {
     }
   };
 
+  const handlePickFile = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !orderId) return;
+    try {
+      setIsUploading(true);
+      const token = getAuthToken();
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('orderId', orderId);
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: {
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Upload failed');
+      const json = await res.json();
+      const mediaUrl: string = json.url;
+      await sendMessage({
+        type: 'chat_message',
+        content: '',
+        messageType: 'image',
+        metadata: { mediaUrl },
+      });
+    } catch (err) {
+      console.error('Upload error', err);
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
@@ -204,6 +245,9 @@ export default function Chat() {
       <div className="glass-panel p-4 mb-6">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
+            <Button variant="ghost" size="sm" className="mr-2" onClick={() => setLocation('/twa')}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
             <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center mr-3">
               <span className="text-white font-semibold text-sm">
                 {otherUser?.firstName?.[0] || otherUser?.username?.[0] || 'U'}
@@ -220,8 +264,8 @@ export default function Chat() {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm">
-              <Phone className="w-4 h-4" />
+            <Button variant="ghost" size="sm" onClick={() => setShowDispute(true)} title={t('chat.openDispute')}>
+              <AlertTriangle className="w-4 h-4 text-red-400" />
             </Button>
             <Button variant="ghost" size="sm">
               <Info className="w-4 h-4" />
@@ -379,9 +423,16 @@ export default function Chat() {
               >
                 <Clock className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="sm">
+              <Button type="button" variant="ghost" size="sm" onClick={handlePickFile} disabled={isUploading}>
                 <Paperclip className="w-4 h-4" />
               </Button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleFileChange}
+              />
             </div>
             <div className="text-xs text-text-muted">
               {isConnected ? t('chat.connected') : t('chat.connecting')}
@@ -394,13 +445,13 @@ export default function Chat() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={t('chat.typeMessage')}
-              className="flex-1 bg-panel border-brand-primary/30 rounded-full"
+              className="flex-1 bg-panel border-transparent rounded-md h-9 text-sm"
             />
             <Button
               type="submit"
               size="sm"
-              className="bg-brand-primary hover:bg-brand-primary/80 p-3 rounded-full"
-              disabled={!message.trim() || !isConnected}
+              className="bg-brand-primary hover:bg-brand-primary/80 px-3 h-9 rounded-md"
+              disabled={(!message.trim() || !isConnected) && !isUploading}
             >
               <Send className="w-4 h-4" />
             </Button>

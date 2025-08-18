@@ -34,11 +34,22 @@ export function useWebSocket(
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const attemptCountRef = useRef(0);
   const isIntentionalCloseRef = useRef(false);
+  // Store handlers in refs to avoid re-creating connect/disconnect
+  const onMessageRef = useRef<UseWebSocketOptions['onMessage']>();
+  const onConnectRef = useRef<UseWebSocketOptions['onConnect']>();
+  const onDisconnectRef = useRef<UseWebSocketOptions['onDisconnect']>();
+  const onErrorRef = useRef<UseWebSocketOptions['onError']>();
+
+  useEffect(() => {
+    onMessageRef.current = onMessage;
+    onConnectRef.current = onConnect;
+    onDisconnectRef.current = onDisconnect;
+    onErrorRef.current = onError;
+  }, [onMessage, onConnect, onDisconnect, onError]);
 
   const connect = useCallback(() => {
-    if (wsRef.current?.readyState === WebSocket.OPEN) {
-      return;
-    }
+    // Guard: do not create multiple sockets
+    if (wsRef.current && wsRef.current.readyState !== WebSocket.CLOSED && wsRef.current.readyState !== WebSocket.CLOSING) return;
 
     setConnectionStatus('connecting');
     
@@ -55,13 +66,13 @@ export function useWebSocket(
         setConnectionStatus('connected');
         attemptCountRef.current = 0;
         
-        onConnect?.();
+        onConnectRef.current?.();
       };
 
       wsRef.current.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          onMessage?.(data);
+          onMessageRef.current?.(data);
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);
         }
@@ -73,7 +84,7 @@ export function useWebSocket(
         setConnectionStatus('disconnected');
         wsRef.current = null;
 
-        onDisconnect?.();
+        onDisconnectRef.current?.();
 
         // Attempt to reconnect if not intentional close
         if (!isIntentionalCloseRef.current && attemptCountRef.current < reconnectAttempts) {
@@ -89,14 +100,15 @@ export function useWebSocket(
       wsRef.current.onerror = (error) => {
         console.error('WebSocket error:', error);
         setConnectionStatus('error');
-        onError?.(error);
+        onErrorRef.current?.(error);
       };
 
     } catch (error) {
       console.error('Error creating WebSocket connection:', error);
       setConnectionStatus('error');
     }
-  }, [orderId, onMessage, onConnect, onDisconnect, onError, reconnectAttempts, reconnectInterval]);
+  // Only depend on orderId and reconnect settings to avoid re-creation on every render
+  }, [orderId, reconnectAttempts, reconnectInterval]);
 
   const disconnect = useCallback(() => {
     isIntentionalCloseRef.current = true;
@@ -136,11 +148,10 @@ export function useWebSocket(
       isIntentionalCloseRef.current = false;
       connect();
     }
-
     return () => {
       disconnect();
     };
-  }, [orderId, connect, disconnect]);
+  }, [orderId]);
 
   return {
     isConnected,

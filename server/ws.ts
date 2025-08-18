@@ -198,6 +198,7 @@ async function handleChatMessage(
         senderId: socket.userId,
         message: data.content || data.text,
         messageType: data.messageType || "text",
+        metadata: data.metadata,
       });
     } else {
       // For demo orders, create a fake message object
@@ -206,7 +207,8 @@ async function handleChatMessage(
         orderId: socket.orderId,
         senderId: socket.userId,
         message: data.content || data.text,
-        messageType: "text",
+        messageType: data.messageType || "text",
+        metadata: data.metadata,
         createdAt: new Date(),
       };
     }
