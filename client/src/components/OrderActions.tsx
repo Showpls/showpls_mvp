@@ -13,6 +13,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { getAuthToken } from '@/lib/auth';
+import { tonConnectService } from '@/lib/ton-connect';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import type { Order } from '@shared/schema';
 import { ConfirmationModal } from './ConfirmationModal';
@@ -86,7 +87,38 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
   // Fund escrow mutation
   const fundEscrowMutation = useMutation({
     mutationFn: async () => {
-      const response = await fetch('/api/escrow/fund', {
+      if (!order.escrowAddress) throw new Error('Escrow address not set');
+      // Ensure TonConnect is ready
+      await tonConnectService.initialize();
+      const ui = tonConnectService.getUI();
+      if (!ui) throw new Error('Wallet UI not available');
+
+      // Connect if not connected
+      if (!tonConnectService.isConnected()) {
+        ui.openModal();
+        // Wait up to ~15s for connection
+        const start = Date.now();
+        while (!tonConnectService.isConnected()) {
+          await new Promise(r => setTimeout(r, 300));
+          if (Date.now() - start > 15000) throw new Error('Wallet connection timeout');
+        }
+      }
+
+      // Build transaction in nanoTON
+      const tx = {
+        validUntil: Math.floor(Date.now() / 1000) + 300,
+        messages: [
+          {
+            address: order.escrowAddress,
+            amount: String(order.budgetNanoTon),
+          },
+        ],
+      } as const;
+
+      await ui.sendTransaction(tx as any);
+
+      // Verify funding on backend
+      const verify = await fetch('/api/escrow/verify-funding', {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -94,11 +126,11 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
         },
         body: JSON.stringify({ orderId: order.id }),
       });
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to fund escrow');
+      if (!verify.ok) {
+        const err = await verify.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to verify funding');
       }
-      return response.json();
+      return verify.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
