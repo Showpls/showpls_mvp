@@ -286,6 +286,9 @@
       "refunded": "Возврат",
       "pending_funding": "Ожидание Финансирования"
     },
+    "fundNow": "Пополнить сейчас",
+    "processing": "Обработка...",
+    "proccessing": "Обработка...",
     "accepting": "Принимаем...",
     "locationUnknown": "Локация неизвестна",
     "chat": "Чат",

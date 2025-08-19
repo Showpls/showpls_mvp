@@ -235,15 +235,43 @@ export default function Chat() {
   // Quick replies removed
 
   const approveOrder = useMutation({
-    mutationFn: () => {
+    mutationFn: async () => {
       const token = getAuthToken();
-      return fetch(`/api/orders/${orderId}/approve`, {
+      // Prepare approve transaction payload
+      const prepRes = await fetch('/api/escrow/prepare-approve', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        }
+        },
+        body: JSON.stringify({ orderId })
       });
+      if (!prepRes.ok) {
+        const err = await prepRes.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to prepare approval');
+      }
+      const { address, amountNano, bodyBase64 } = await prepRes.json();
+      // Send TonConnect transaction
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
+        messages: [
+          { address, amount: amountNano, payload: bodyBase64 }
+        ]
+      } as any);
+      // Mark approved in backend
+      const markRes = await fetch('/api/escrow/mark-approved', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ orderId, opId: `approve_${orderId}_${Date.now()}` })
+      });
+      if (!markRes.ok) {
+        const err = await markRes.json().catch(() => ({}));
+        throw new Error(err.error || 'Failed to mark approved');
+      }
+      return markRes.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/orders', orderId] });
@@ -519,7 +547,7 @@ export default function Chat() {
           </div>
 
           {/* Status Update */}
-          {order.status === 'DELIVERED' && !showRating && (
+          {isRequester && order.status === 'DELIVERED' && !showRating && (
             <Card className="glass-panel border-brand-accent/20">
               <CardContent className="p-4 text-center">
                 <div className="inline-block bg-brand-accent/20 text-brand-accent px-3 py-1 rounded-full text-xs mb-3">

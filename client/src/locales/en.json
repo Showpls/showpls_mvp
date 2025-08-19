@@ -270,6 +270,9 @@
       "pending_funding": "Pending Funding"
     },
     "locationUnknown": "Location unknown",
+    "fundNow": "Fund Now",
+    "processing": "Processing...",
+    "proccessing": "Processing...",
     "chat": "Chat",
     "accept": "Accept",
     "accepting": "Accepting...",
@@ -305,6 +308,17 @@
     "rateUser": "Rate this user",
     "ratingNote": "Only eligible users can submit ratings.",
     "ratingEligibilityHint": "Open this profile from a specific chat to rate this user for that order."
+  },
+  "profile": {
+    "loading": "Loading profile...",
+    "failedToLoad": "Failed to load profile.",
+    "rating": "Rating",
+    "provider": "Provider",
+    "totalOrders": "Total Orders",
+    "location": "Location",
+    "locationUnknown": "Location unknown",
+    "rateUser": "Rate this user",
+    "ratingNote": "Only eligible users can submit ratings."
   },
   "createOrder": {
     "title": "Create Order",
