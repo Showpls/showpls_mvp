@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { useParams, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,6 +29,7 @@ export default function Profile() {
   const { t } = useTranslation();
   const { currentUser } = useCurrentUser();
   const { theme, setTheme } = useTheme();
+  const queryClient = useQueryClient();
 
   const { data, isLoading, isError } = useQuery<PublicUserProfile>({
     queryKey: ["/api/users", id],
@@ -122,11 +123,11 @@ export default function Profile() {
                   )}
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-                  <div className="glass-panel p-3">
+                  <div className="glass-panel p-3 rounded-md">
                     <div className="text-text-muted">{t('profile.totalOrders')}</div>
                     <div className="font-semibold">{data.totalOrders ?? 0}</div>
                   </div>
-                  <div className="glass-panel p-3">
+                  <div className="glass-panel p-3 rounded-md">
                     <div className="text-text-muted">{t('profile.location')}</div>
                     <div className="font-semibold">{data.location || t('profile.locationUnknown')}</div>
                   </div>
@@ -138,7 +139,8 @@ export default function Profile() {
               <Card className="glass-panel border-brand-primary/20">
                 <CardContent className="p-4 space-y-3">
                   <div className="font-semibold mb-1">Settings</div>
-                  <div className="p-2 rounded-md bg-panel/50">
+                  <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
+                    <div className="text-sm">Language</div>
                     <LanguageSwitcher />
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
@@ -150,7 +152,10 @@ export default function Profile() {
                   <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
                     <div className="text-sm">Role</div>
                     <Button size="sm" variant="outline" onClick={async () => {
+                      const confirmSwitch = window.confirm('Are you sure you want to switch your role?');
+                      if (!confirmSwitch) return;
                       await updateProfile({ isProvider: !(currentUser?.isProvider ?? false) });
+                      await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
                     }}>
                       {currentUser?.isProvider ? 'Switch to Buyer' : 'Switch to Provider'}
                     </Button>

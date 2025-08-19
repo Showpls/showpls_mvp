@@ -87,6 +87,7 @@ class DatabaseStorage implements IStorage {
         lastActiveAt: new Date(),
         createdAt: new Date(),
         updatedAt: new Date(),
+        location: null,
       })
       .returning();
 

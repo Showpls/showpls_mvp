@@ -55,9 +55,12 @@ export function RatingForm({ orderId, toUserId, onSuccess }: RatingFormProps) {
       return response.json();
     },
     onSuccess: () => {
+      // Refresh order and recipient profile to reflect new aggregate rating
       queryClient.invalidateQueries({ queryKey: ['/api/orders', orderId] });
+      queryClient.invalidateQueries({ queryKey: ['/api/users', toUserId] });
       onSuccess();
-    }
+    },
+    onError: () => {}
   });
 
   const handleStarClick = (starRating: number) => {
@@ -135,6 +138,9 @@ export function RatingForm({ orderId, toUserId, onSuccess }: RatingFormProps) {
               : t('rating.submitAndApprove')
             }
           </Button>
+          {submitRating.error && (
+            <div className="text-xs text-red-400 text-center">{t('rating.errorDescription') as any}</div>
+          )}
         </form>
       </CardContent>
     </Card>

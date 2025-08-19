@@ -33,6 +33,7 @@ export default function Chat() {
   const queryClient = useQueryClient();
   const [message, setMessage] = useState('');
   const [showRating, setShowRating] = useState(false);
+  const [ratingSuccess, setRatingSuccess] = useState(false);
   const [showDispute, setShowDispute] = useState(false);
   // Removed quick replies feature
   const [isUploading, setIsUploading] = useState(false);
@@ -408,6 +409,13 @@ export default function Chat() {
             </CardContent>
           </Card>
 
+          {/* Inline success banner after rating */}
+          {ratingSuccess && (
+            <div className="p-3 bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 rounded-md text-sm">
+              {t('rating.successDescription') || 'Your rating was submitted successfully.'}
+            </div>
+          )}
+
           {/* Messages */}
           <div className="space-y-3">
             {areMessagesLoading && (
@@ -472,7 +480,12 @@ export default function Chat() {
             <RatingForm
               orderId={order.id}
               toUserId={order.providerId || order.requesterId}
-              onSuccess={() => setShowRating(false)}
+              onSuccess={() => {
+                setShowRating(false);
+                setRatingSuccess(true);
+                // Auto-hide banner after a short delay
+                setTimeout(() => setRatingSuccess(false), 3000);
+              }}
             />
           )}
 

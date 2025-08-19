@@ -38,35 +38,40 @@ export function OrderCard({ order }: OrderCardProps) {
   return (
     <Card className="glass-panel border-brand-primary/20 hover:bg-brand-primary/5 transition-all">
       <CardContent className="p-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center">
-            <div className="w-10 h-10 bg-brand-primary/20 rounded-full flex items-center justify-center mr-3">
-              {getMediaIcon(order.mediaType)}
-            </div>
-            <div>
-              <div className="font-medium text-sm truncate w-40">{order.title}</div>
-              <div className="text-xs text-text-muted capitalize">
-                {t(`order.status.${order.status.toLowerCase()}`)}
+        <div className="grid grid-cols-[1fr_auto] gap-2">
+          {/* Left column: icon + title/status and chat button below */}
+          <div>
+            <div className="flex items-center">
+              <div className="w-10 h-10 bg-brand-primary/20 rounded-full flex items-center justify-center mr-3">
+                {getMediaIcon(order.mediaType)}
+              </div>
+              <div>
+                <div className="font-medium text-sm truncate w-40">{order.title}</div>
+                <div className="text-xs text-text-muted capitalize">
+                  {t(`order.status.${order.status.toLowerCase()}`)}
+                </div>
               </div>
             </div>
+            {isOrderActive && (
+              <div className="mt-2">
+                <Link href={`/chat/${order.id}`}>
+                  <Button size="sm" variant="outline" className="border-brand-primary/30">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    {t('order.chat')}
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
-          <div className="text-right">
+
+          {/* Right column: amount top-right and time bottom-right */}
+          <div className="flex flex-col items-end justify-between">
             <div className="text-sm font-medium text-brand-accent">+{formatTON(order.budgetNanoTon)}</div>
             <div className="text-xs text-text-muted">
               {order.createdAt ? formatDistanceToNow(new Date(order.createdAt), { addSuffix: true, locale: i18n.language === 'ru' ? ru : undefined }) : ''}
             </div>
           </div>
         </div>
-        {isOrderActive && (
-          <div className="flex justify-end mt-2">
-             <Link href={`/chat/${order.id}`}>
-                <Button size="sm" variant="outline" className="border-brand-primary/30">
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  {t('order.chat')}
-                </Button>
-              </Link>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
