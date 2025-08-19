@@ -143,7 +143,9 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
 
       // Poll verification to allow indexer to catch up
       const opId = `fund_${order.id}_${Date.now()}`;
-      const maxAttempts = 12; // ~36s at 3s interval
+      // Short initial delay helps when toncenter lags a bit after wallet broadcast
+      await new Promise(r => setTimeout(r, 2500));
+      const maxAttempts = 20; // ~60s at 3s interval
       const intervalMs = 3000;
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
         const verify = await fetch('/api/escrow/verify-funding', {

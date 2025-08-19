@@ -455,10 +455,27 @@ export class TonService {
       const apiKey = process.env.TON_API_KEY;
       const isTestnet = (process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet';
       const base = isTestnet ? 'https://testnet.toncenter.com' : 'https://toncenter.com';
-      const url = `${base}/api/v2/getTransactions?address=${address}&limit=20${apiKey ? `&api_key=${apiKey}` : ''}`;
+      const url = `${base}/api/v2/getTransactions?address=${address}&limit=50${apiKey ? `&api_key=${apiKey}` : ''}`;
+      try {
+        console.log('[ESCROW] verify: querying transactions', { address, minValueNano: minValueNano?.toString(), url: `${base}/api/v2/getTransactions?...` });
+      } catch {}
       const res = await fetch(url);
       const json = await res.json();
       if (json?.ok && Array.isArray(json.result)) {
+        // Diagnostics: log inbound values and payload prefixes
+        try {
+          const inboundSumm = json.result
+            .map((tx: any) => {
+              const v = tx?.in_msg?.value;
+              const body = tx?.in_msg?.msg_data?.body; // base64 if present
+              const prefix = body ? String(body).slice(0, 24) : undefined;
+              return v ? { v, prefix, utime: tx?.utime } : null;
+            })
+            .filter(Boolean)
+            .slice(0, 10);
+          console.log('[ESCROW] verify: inbound candidates (top10)', inboundSumm);
+        } catch {}
+
         const inbound = json.result.find((tx: any) => {
           const v = tx?.in_msg?.value;
           if (!v) return false;
@@ -470,7 +487,29 @@ export class TonService {
             return false;
           }
         });
-        return inbound ? 'funded' : 'pending';
+        if (inbound) return 'funded';
+
+        // Fallback: check live balance if no inbound tx matched (indexer delay cases)
+        try {
+          const infoUrl = `${base}/api/v2/getAddressInformation?address=${address}${apiKey ? `&api_key=${apiKey}` : ''}`;
+          const infoRes = await fetch(infoUrl);
+          const info = await infoRes.json();
+          const balStr = info?.ok ? info?.result?.balance : undefined;
+          if (balStr) {
+            const bal = BigInt(balStr);
+            if (!minValueNano) {
+              return bal > BigInt(0) ? 'funded' : 'pending';
+            }
+            if (bal >= minValueNano) {
+              try { console.log('[ESCROW] verify: funded by balance fallback', { address, bal: bal.toString(), min: minValueNano.toString() }); } catch {}
+              return 'funded';
+            }
+          }
+        } catch (e) {
+          try { console.warn('[ESCROW] verify: balance fallback failed'); } catch {}
+        }
+
+        return 'pending';
       }
       return 'pending';
     } catch (error) {

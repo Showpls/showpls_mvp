@@ -291,6 +291,14 @@ export function setupEscrowRoutes(app: Express) {
       if (!order.escrowAddress) return res.status(400).json({ error: 'Escrow not created' });
 
       // In real impl: query chain to confirm transfer. Require value >= budget to avoid counting deploy tx.
+      try {
+        console.log('[ESCROW] verify-funding', {
+          orderId: order.id,
+          escrowAddress: order.escrowAddress,
+          budgetNano: String(order.budgetNanoTon),
+          when: new Date().toISOString(),
+        });
+      } catch {}
       const status = await tonService.getEscrowStatus(order.escrowAddress, BigInt(order.budgetNanoTon));
       if (status !== 'funded') return res.status(400).json({ error: 'Escrow not funded yet' });
 
