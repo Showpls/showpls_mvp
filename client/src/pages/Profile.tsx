@@ -1,0 +1,128 @@
+import { useMemo } from "react";
+import { useParams, useLocation } from "wouter";
+import { useTranslation } from "react-i18next";
+import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { RatingForm } from "@/components/RatingForm";
+
+interface PublicUserProfile {
+  id: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  rating?: number;
+  totalOrders?: number;
+  isProvider?: boolean;
+  location?: string;
+  photoUrl?: string;
+}
+
+export default function Profile() {
+  const { id } = useParams<{ id: string }>();
+  const [location, setLocation] = useLocation();
+  const { t } = useTranslation();
+
+  const { data, isLoading, isError } = useQuery<PublicUserProfile>({
+    queryKey: ["/api/users", id],
+    enabled: !!id,
+    queryFn: async () => {
+      const res = await fetch(`/api/users/${id}`);
+      if (!res.ok) throw new Error("Failed to load profile");
+      return res.json();
+    },
+  });
+
+  const displayName = useMemo(() => {
+    if (!data) return "";
+    return data.firstName || data.username || t("chat.unknown");
+  }, [data, t]);
+
+  const initial = (displayName || "U").charAt(0).toUpperCase();
+
+  const orderIdFromQuery = useMemo(() => {
+    const qs = location.split('?')[1] || '';
+    const params = new URLSearchParams(qs);
+    const oid = params.get('orderId') || '';
+    return oid;
+  }, [location]);
+
+  return (
+    <div className="min-h-screen bg-bg-primary text-text-primary">
+      <div className="glass-panel p-4 mb-6 sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="max-w-sm mx-auto flex items-center justify-between">
+          <div className="flex items-center">
+            <Button variant="ghost" size="sm" className="mr-2" onClick={() => setLocation('/twa')}>
+              ←
+            </Button>
+            <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center mr-3">
+              <span className="text-white font-semibold text-sm">{initial}</span>
+            </div>
+            <div>
+              <div className="font-semibold">{displayName}</div>
+              {data?.username && (
+                <div className="text-xs text-text-muted">@{data.username}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-sm mx-auto px-4 pb-20 space-y-4">
+        {isLoading && (
+          <div className="text-center text-text-muted py-8">{t('profile.loading')}</div>
+        )}
+        {isError && (
+          <div className="text-center text-red-400 py-8">{t('profile.failedToLoad') || 'Failed to load profile'}</div>
+        )}
+        {!isLoading && !isError && data && (
+          <>
+            <Card className="glass-panel border-brand-primary/20">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="text-sm text-text-muted">{t('profile.rating')}</div>
+                    <div className="text-xl font-semibold">{Number(data.rating ?? 0).toFixed(2)}</div>
+                  </div>
+                  {data.isProvider && (
+                    <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-400">{t('profile.provider')}</Badge>
+                  )}
+                </div>
+                <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
+                  <div className="glass-panel p-3">
+                    <div className="text-text-muted">{t('profile.totalOrders')}</div>
+                    <div className="font-semibold">{data.totalOrders ?? 0}</div>
+                  </div>
+                  <div className="glass-panel p-3">
+                    <div className="text-text-muted">{t('profile.location')}</div>
+                    <div className="font-semibold">{data.location || t('profile.locationUnknown')}</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Rating form: shown only when navigated with a specific orderId */}
+            <Card className="glass-panel border-brand-accent/20">
+              <CardContent className="p-4">
+                <div className="font-semibold mb-3">{t('profile.rateUser')}</div>
+                {orderIdFromQuery ? (
+                  <>
+                    <RatingForm
+                      orderId={orderIdFromQuery}
+                      toUserId={data.id}
+                      onSuccess={() => { /* no-op on profile page */ }}
+                    />
+                    <div className="text-xs text-text-muted mt-2">{t('profile.ratingNote')}</div>
+                  </>
+                ) : (
+                  <div className="text-sm text-text-muted">{t('profile.ratingEligibilityHint')}</div>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}

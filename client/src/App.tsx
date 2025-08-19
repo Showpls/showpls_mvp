@@ -13,6 +13,7 @@ import DaoWhitepaper from "./pages/DaoWhitepaper";
 import MapPage from "./pages/MapPage";
 import NotFound from "@/pages/not-found";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import Profile from "./pages/Profile";
 
 function Router() {
   return (
@@ -21,6 +22,7 @@ function Router() {
       <Route path="/twa" component={TelegramWebApp} />
       <Route path="/create-order" component={CreateOrder} />
       <Route path="/map" component={MapPage} />
+      <Route path="/profile/:id" component={Profile} />
       <Route path="/chat/:orderId">
         <ErrorBoundary>
           <Chat />

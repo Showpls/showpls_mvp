@@ -298,6 +298,13 @@ export default function Chat() {
     return { username: 'User', firstName: 'User' };
   }, [messages, currentUser?.id, order]);
 
+  // Compute other participant userId for navigation
+  const otherUserId = useMemo(() => {
+    if (!order || !currentUser?.id) return undefined;
+    if (order.requesterId === currentUser.id) return order.providerId || undefined;
+    return order.requesterId;
+  }, [order, currentUser?.id]);
+
   if (isOrderLoading) {
     return (
       <div className="min-h-screen bg-bg-primary flex items-center justify-center">
@@ -334,12 +341,23 @@ export default function Chat() {
             <Button variant="ghost" size="sm" className="mr-2" onClick={() => setLocation('/twa')}>
               <ArrowLeft className="w-4 h-4" />
             </Button>
-            <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center mr-3">
+            <div
+              className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center mr-3 cursor-pointer"
+              onClick={() => {
+                if (otherUserId) setLocation(`/profile/${otherUserId}?orderId=${orderId}`);
+              }}
+              title={otherUserId ? 'Open profile' : undefined}
+            >
               <span className="text-white font-semibold text-sm">
                 {otherUser?.firstName?.[0] || otherUser?.username?.[0] || 'U'}
               </span>
             </div>
-            <div>
+            <div
+              className={`select-none ${otherUserId ? 'cursor-pointer' : ''}`}
+              onClick={() => {
+                if (otherUserId) setLocation(`/profile/${otherUserId}?orderId=${orderId}`);
+              }}
+            >
               <div className="font-semibold">
                 {otherUser?.firstName || otherUser?.username || t('chat.unknown')}
               </div>

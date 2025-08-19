@@ -235,6 +235,32 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Public: Get user profile by id (limited fields)
+  app.get('/api/users/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
+      if (!id) return res.status(400).json({ error: 'User id required' });
+
+      const user = await storage.getUser(id);
+      if (!user) return res.status(404).json({ error: 'User not found' });
+
+      return res.json({
+        id: user.id,
+        username: user.username,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        rating: user.rating,
+        totalOrders: user.totalOrders,
+        isProvider: user.isProvider,
+        location: user.location,
+        photoUrl: user.photoUrl,
+      });
+    } catch (error) {
+      console.error('Get public user error:', error);
+      return res.status(500).json({ error: 'Failed to get user profile' });
+    }
+  });
+
   // Get orders in area
   app.get('/api/orders/area', authenticateTelegramUser, async (req, res) => {
     try {

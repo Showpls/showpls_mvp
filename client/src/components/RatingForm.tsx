@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Star } from "lucide-react";
+import { getAuthToken, bootstrapTelegramAuth } from "@/lib/auth";
 
 interface RatingFormProps {
   orderId: string;
@@ -18,19 +19,26 @@ export function RatingForm({ orderId, toUserId, onSuccess }: RatingFormProps) {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState('');
   const [hoveredRating, setHoveredRating] = useState(0);
+  const [authInProgress, setAuthInProgress] = useState(false);
+
+  const token = useMemo(() => getAuthToken(), []);
 
   const submitRating = useMutation({
     mutationFn: async () => {
+      let jwt = getAuthToken();
+      if (!jwt) {
+        setAuthInProgress(true);
+        const ok = await bootstrapTelegramAuth();
+        setAuthInProgress(false);
+        if (!ok) throw new Error('Authentication required');
+        jwt = getAuthToken();
+      }
+
       const response = await fetch('/api/ratings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-telegram-auth': JSON.stringify({
-            id: 'demo_user_123',
-            username: 'demo_user',
-            first_name: 'Demo',
-            language_code: 'en'
-          })
+          'Authorization': `Bearer ${jwt}`
         },
         body: JSON.stringify({
           orderId,
@@ -69,6 +77,23 @@ export function RatingForm({ orderId, toUserId, onSuccess }: RatingFormProps) {
         <h4 className="font-semibold mb-3 text-center">
           {t('rating.title')}
         </h4>
+        {!token && (
+          <div className="mb-3 text-center">
+            <Button
+              type="button"
+              variant="secondary"
+              className="w-full"
+              onClick={async () => {
+                setAuthInProgress(true);
+                await bootstrapTelegramAuth();
+                setAuthInProgress(false);
+              }}
+              disabled={authInProgress}
+            >
+              {authInProgress ? 'Authenticating…' : 'Authenticate via Telegram'}
+            </Button>
+          </div>
+        )}
         
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex justify-center space-x-1">
@@ -102,7 +127,7 @@ export function RatingForm({ orderId, toUserId, onSuccess }: RatingFormProps) {
 
           <Button
             type="submit"
-            disabled={rating === 0 || submitRating.isPending}
+            disabled={rating === 0 || submitRating.isPending || authInProgress}
             className="w-full gradient-bg text-white font-medium"
           >
             {submitRating.isPending 
