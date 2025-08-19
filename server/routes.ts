@@ -75,6 +75,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Setup escrow routes
   setupEscrowRoutes(app);
 
+  // Dynamic TonConnect manifest to match current origin (must be before static)
+  app.get('/tonconnect-manifest.json', (req, res) => {
+    try {
+      const base = process.env.WEBAPP_BASE_URL || `${req.protocol}://${req.get('host')}`;
+      const url = base.replace(/\/$/, '');
+      res.json({
+        url,
+        name: 'Showpls',
+        iconUrl: `${url}/logo-showpls.svg`,
+        termsOfUseUrl: 'https://showpls.com/terms',
+        privacyPolicyUrl: 'https://showpls.com/privacy'
+      });
+    } catch (e) {
+      res.status(500).json({ error: 'Failed to serve manifest' });
+    }
+  });
+
   // Setup dispute routes
   setupDisputeRoutes(app);
 
