@@ -266,7 +266,8 @@
       "delivered": "Delivered",
       "approved": "Approved",
       "disputed": "Disputed",
-      "refunded": "Refunded"
+      "refunded": "Refunded",
+      "pending_funding": "Pending Funding"
     },
     "locationUnknown": "Location unknown",
     "chat": "Chat",

@@ -3,15 +3,18 @@ import {
   orders,
   notifications,
   disputes,
+  ratings,
   type User,
   type InsertUser,
   type Order,
   type InsertOrder,
   type InsertNotification,
   type Dispute,
+  type Rating,
+  type InsertRating,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, or, desc } from "drizzle-orm";
+import { eq, or, desc, and } from "drizzle-orm";
 import { randomUUID } from "crypto";
 import { parseLocation, parseMilestones } from "./utils/orderHelpers";
 
@@ -41,6 +44,11 @@ export interface IStorage {
   getOrderDisputes(orderId: string): Promise<Dispute[]>;
   createDispute(params: { orderId: string; openedBy: string; reason: string; evidence?: string[] }): Promise<Dispute>;
   addDisputeEvidence(disputeId: string, evidence: string[]): Promise<Dispute>;
+
+  // Ratings
+  createRating(rating: InsertRating): Promise<Rating>;
+  getRatingByOrderAndFrom(orderId: string, fromUserId: string): Promise<Rating | undefined>;
+  recalculateUserRating(userId: string): Promise<{ average: number; count: number }>;
 }
 
 // In-memory storage for development (replace with DatabaseStorage for production)
@@ -278,6 +286,40 @@ class DatabaseStorage implements IStorage {
       .returning();
 
     return updated as Dispute;
+  }
+
+  async createRating(ratingInput: InsertRating): Promise<Rating> {
+    const [row] = await (db as any)
+      .insert(ratings as any)
+      .values({
+        ...ratingInput,
+        createdAt: new Date(),
+      })
+      .returning();
+    return row as Rating;
+  }
+
+  async getRatingByOrderAndFrom(orderId: string, fromUserId: string): Promise<Rating | undefined> {
+    const existing = await (db as any).query.ratings.findFirst({
+      where: and(eq((ratings as any).orderId, orderId), eq((ratings as any).fromUserId, fromUserId)),
+    });
+    return existing as Rating | undefined;
+  }
+
+  async recalculateUserRating(userId: string): Promise<{ average: number; count: number }> {
+    const rows = await (db as any).query.ratings.findMany({
+      where: eq((ratings as any).toUserId, userId),
+    });
+    const count = rows?.length || 0;
+    const sum = (rows || []).reduce((acc: number, r: any) => acc + Number(r.rating || 0), 0);
+    const average = count > 0 ? sum / count : 0;
+
+    await this.updateUser(userId, {
+      totalRatings: count,
+      rating: (Math.round(average * 100) / 100).toFixed(2) as any,
+    } as any);
+
+    return { average, count };
   }
 }
 

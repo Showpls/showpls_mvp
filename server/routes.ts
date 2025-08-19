@@ -410,6 +410,62 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Create rating (JWT protected) - delegates DB ops to storage layer
+  app.post('/api/ratings', authenticateTelegramUser, async (req, res) => {
+    try {
+      const userId = (req as any).user?.id as string | undefined;
+      if (!userId) return res.status(401).json({ error: 'User not authenticated' });
+
+      const { orderId, toUserId, rating, comment } = req.body as {
+        orderId?: string;
+        toUserId?: string;
+        rating?: number;
+        comment?: string;
+      };
+
+      if (!orderId || !toUserId || typeof rating !== 'number') {
+        return res.status(400).json({ error: 'orderId, toUserId and numeric rating are required' });
+      }
+      if (rating < 1 || rating > 5) {
+        return res.status(400).json({ error: 'rating must be an integer 1-5' });
+      }
+      if (toUserId === userId) {
+        return res.status(400).json({ error: 'Cannot rate yourself' });
+      }
+
+      // Validate order and participants
+      const order = await storage.getOrder(orderId);
+      if (!order) return res.status(404).json({ error: 'Order not found' });
+      const participants = [order.requesterId, order.providerId].filter(Boolean) as string[];
+      if (!participants.includes(userId) || !participants.includes(toUserId)) {
+        return res.status(403).json({ error: 'Only order participants can rate each other' });
+      }
+
+      // Prevent duplicate rating per order from same user
+      const existing = await storage.getRatingByOrderAndFrom(orderId, userId);
+      if (existing) {
+        return res.status(409).json({ error: 'You have already rated this order' });
+      }
+
+      // Insert rating via storage
+      const created = await storage.createRating({
+        orderId,
+        fromUserId: userId,
+        toUserId,
+        rating,
+        comment,
+      } as any);
+
+      // Update aggregate rating for recipient via storage
+      await storage.recalculateUserRating(toUserId);
+
+      return res.json({ success: true, rating: created });
+    } catch (error) {
+      console.error('Create rating error:', error);
+      return res.status(500).json({ error: 'Failed to create rating' });
+    }
+  });
+
   // Use the dedicated chat router
   app.use('/api', chatRoutes);
   

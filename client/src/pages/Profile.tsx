@@ -82,7 +82,7 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
-      <div className="glass-panel p-4 mb-6 sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="glass-panel p-4 mb-6 sticky top-0 z-40">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <Button variant="ghost" size="sm" className="mr-2" onClick={() => setLocation('/twa')}>
@@ -168,24 +168,25 @@ export default function Profile() {
               </Card>
             )}
 
-            {/* Rating form: shown only when navigated with a specific orderId */}
-            <Card className="glass-panel border-brand-accent/20">
-              <CardContent className="p-4">
-                <div className="font-semibold mb-3">{t('profile.rateUser')}</div>
-                {orderIdFromQuery ? (
-                  <>
-                    <RatingForm
-                      orderId={orderIdFromQuery}
-                      toUserId={data.id}
-                      onSuccess={() => { /* no-op on profile page */ }}
-                    />
-                    <div className="text-xs text-text-muted mt-2">{t('profile.ratingNote')}</div>
-                  </>
-                ) : (
-                  <div className="text-sm text-text-muted">{t('profile.ratingEligibilityHint')}</div>
-                )}
-              </CardContent>
-            </Card>
+            {!isOwnProfile && (
+              <Card className="glass-panel border-brand-accent/20">
+                <CardContent className="p-4">
+                  <div className="font-semibold mb-3">{t('profile.rateUser')}</div>
+                  {orderIdFromQuery ? (
+                    <>
+                      <RatingForm
+                        orderId={orderIdFromQuery}
+                        toUserId={data.id}
+                        onSuccess={() => { /* no-op on profile page */ }}
+                      />
+                      <div className="text-xs text-text-muted mt-2">{t('profile.ratingNote')}</div>
+                    </>
+                  ) : (
+                    <div className="text-sm text-text-muted">{t('profile.ratingEligibilityHint')}</div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </>
         )}
       </div>

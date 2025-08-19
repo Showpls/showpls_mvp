@@ -15,7 +15,6 @@ import { getAuthToken } from "@/lib/auth";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import {
   Phone,
-  Info,
   Paperclip,
   Send,
   Upload,
@@ -305,6 +304,17 @@ export default function Chat() {
     return order.requesterId;
   }, [order, currentUser?.id]);
 
+  // Fetch other user's public profile to display rating in header
+  const { data: otherProfile } = useQuery<any>({
+    queryKey: ['/api/users', otherUserId],
+    enabled: !!otherUserId,
+    queryFn: async () => {
+      const res = await fetch(`/api/users/${otherUserId}`);
+      if (!res.ok) throw new Error('Failed to load user');
+      return res.json();
+    }
+  });
+
   if (isOrderLoading) {
     return (
       <div className="min-h-screen bg-bg-primary flex items-center justify-center">
@@ -335,7 +345,7 @@ export default function Chat() {
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
       {/* Chat Header */}
-      <div className="glass-panel p-4 mb-6 sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="glass-panel p-4 mb-6 sticky top-0 z-40">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <Button variant="ghost" size="sm" className="mr-2" onClick={() => setLocation('/twa')}>
@@ -362,17 +372,14 @@ export default function Chat() {
                 {otherUser?.firstName || otherUser?.username || t('chat.unknown')}
               </div>
               <div className="text-xs text-text-muted flex items-center">
-                <div className="w-2 h-2 bg-green-400 rounded-full mr-1"></div>
-                {t('chat.online')}
+                <Star className="w-3 h-3 text-yellow-400 mr-1" />
+                {otherProfile ? (Number(otherProfile.rating || 0) > 0 ? Number(otherProfile.rating).toFixed(2) : '—') : '—'}
               </div>
             </div>
           </div>
           <div className="flex items-center space-x-2">
             <Button variant="ghost" size="sm" onClick={() => setShowDispute(true)} title={t('chat.openDispute')}>
               <AlertTriangle className="w-4 h-4 text-red-400" />
-            </Button>
-            <Button variant="ghost" size="sm">
-              <Info className="w-4 h-4" />
             </Button>
           </div>
         </div>
