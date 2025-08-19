@@ -186,6 +186,23 @@ export function setupEscrowRoutes(app: Express) {
 
       const formattedAddress = Address.parse(fund.address).toString(addrOptsFund);
 
+      // Diagnostics: log prepared funding details (abbreviated)
+      try {
+        const deployReserveStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
+        const fundReserveStr = process.env.TON_ESCROW_FUND_RESERVE ?? '0.1';
+        console.log('[ESCROW] prepare-fund', {
+          orderId: order.id,
+          isActive,
+          formattedAddress,
+          hasStateInit: !!fund.stateInit,
+          bodyPrefix: fund.bodyBase64 ? String(fund.bodyBase64).slice(0, 24) : undefined,
+          stateInitPrefix: fund.stateInit ? String(fund.stateInit).slice(0, 24) : undefined,
+          amountNano: fund.amountNano,
+          deployReserveStr,
+          fundReserveStr,
+        });
+      } catch {}
+
       // If stateInit is needed (first deploy), return two messages for better wallet compatibility:
       // 1) Deploy with small amount and stateInit, no payload
       // 2) Fund with OP_FUND payload and full amount, no stateInit
@@ -194,20 +211,35 @@ export function setupEscrowRoutes(app: Express) {
         const { toNano } = await import('@ton/core');
         const deployAmount = toNano(deployValueStr).toString();
         // IMPORTANT: Do not reduce the fund transfer. Contract checks msg_value of funding tx alone.
-        return res.json({
+        const response = {
           messages: [
             { address: formattedAddress, amountNano: deployAmount, stateInit: fund.stateInit, bounce: false },
             { address: formattedAddress, amountNano: fund.amountNano, bodyBase64: fund.bodyBase64, bounce: false },
           ]
-        });
+        } as const;
+        try {
+          console.log('[ESCROW] prepare-fund response (deploy+fund)', {
+            orderId: order.id,
+            deployAmount,
+            fundAmount: fund.amountNano,
+          });
+        } catch {}
+        return res.json(response);
       }
 
       // Otherwise, keep legacy single-message shape
-      return res.json({
+      const singleResponse = {
         address: formattedAddress,
         amountNano: fund.amountNano,
         bodyBase64: fund.bodyBase64,
-      });
+      };
+      try {
+        console.log('[ESCROW] prepare-fund response (single)', {
+          orderId: order.id,
+          amountNano: fund.amountNano,
+        });
+      } catch {}
+      return res.json(singleResponse);
     } catch (e) {
       console.error('[ESCROW] prepare-fund error:', e);
       return res.status(500).json({ error: 'Failed to prepare funding transaction' });
@@ -258,8 +290,8 @@ export function setupEscrowRoutes(app: Express) {
       if (order.requesterId !== authUser.id) return res.status(403).json({ error: 'Only requester can verify funding' });
       if (!order.escrowAddress) return res.status(400).json({ error: 'Escrow not created' });
 
-      // In real impl: query chain to confirm transfer
-      const status = await tonService.getEscrowStatus(order.escrowAddress);
+      // In real impl: query chain to confirm transfer. Require value >= budget to avoid counting deploy tx.
+      const status = await tonService.getEscrowStatus(order.escrowAddress, BigInt(order.budgetNanoTon));
       if (status !== 'funded') return res.status(400).json({ error: 'Escrow not funded yet' });
 
       const updated = await storage.updateOrder(order.id, {

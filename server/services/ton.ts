@@ -448,7 +448,7 @@ export class TonService {
     }
   }
 
-  async getEscrowStatus(contractAddress: string): Promise<string> {
+  async getEscrowStatus(contractAddress: string, minValueNano?: bigint): Promise<string> {
     try {
       // Check inbound transactions to escrow address via toncenter
       const address = Address.parse(contractAddress).toString({ urlSafe: true, bounceable: true });
@@ -459,7 +459,17 @@ export class TonService {
       const res = await fetch(url);
       const json = await res.json();
       if (json?.ok && Array.isArray(json.result)) {
-        const inbound = json.result.find((tx: any) => tx.in_msg && tx.in_msg.value && Number(tx.in_msg.value) > 0);
+        const inbound = json.result.find((tx: any) => {
+          const v = tx?.in_msg?.value;
+          if (!v) return false;
+          try {
+            const val = BigInt(v);
+            if (minValueNano && val < minValueNano) return false;
+            return val > BigInt(0);
+          } catch {
+            return false;
+          }
+        });
         return inbound ? 'funded' : 'pending';
       }
       return 'pending';
@@ -489,12 +499,20 @@ export class TonService {
     }
   }
 
-  async checkSufficientBalance(address: string, requiredAmount: bigint): Promise<{ sufficient: boolean; balance: bigint; required: bigint }> {
+  async checkSufficientBalance(
+    address: string,
+    requiredAmount: bigint,
+    options?: { includeDeployReserve?: boolean; includeFundReserve?: boolean }
+  ): Promise<{ sufficient: boolean; balance: bigint; required: bigint }> {
     try {
       const balance = await this.getWalletBalance(address);
-      const defaultReserveStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.2';
-      const gasReserve = toNano(defaultReserveStr); // Reserve from env (default 0.2 TON)
-      const totalRequired = requiredAmount + gasReserve;
+      const deployReserveStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
+      const fundReserveStr = process.env.TON_ESCROW_FUND_RESERVE ?? '0.1';
+      const includeDeploy = options?.includeDeployReserve ?? true;
+      const includeFund = options?.includeFundReserve ?? true;
+      const deployReserve = includeDeploy ? toNano(deployReserveStr) : BigInt(0);
+      const fundReserve = includeFund ? toNano(fundReserveStr) : BigInt(0);
+      const totalRequired = requiredAmount + deployReserve + fundReserve;
       
       return {
         sufficient: balance >= totalRequired,
