@@ -20,20 +20,10 @@ import {
   Video,
   Radio,
   User,
-  Sun,
-  Moon,
   MessageSquare
 } from "lucide-react";
 import { bootstrapTelegramAuth, getAuthToken } from "@/lib/auth";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+// Settings moved to Profile page
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 export default function TelegramWebApp() {
@@ -55,9 +45,7 @@ export default function TelegramWebApp() {
     return `${ton.toLocaleString()} TON`;
   };
 
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
+  // Theme toggle moved to Profile page
 
   useEffect(() => {
     // Initialize Telegram Web App
@@ -189,34 +177,19 @@ export default function TelegramWebApp() {
           </div>
           <div className="flex items-center space-x-2">
             <WalletConnect />
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="bg-card border-brand-primary/30 w-9 h-9 p-2">
-                  <User className="w-5 h-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-56 bg-card border-brand-primary/30 text-foreground">
-                <DropdownMenuLabel>{t('twa.settings')}</DropdownMenuLabel>
-                <DropdownMenuSeparator className="bg-brand-primary/20" />
-                <div className="p-2">
-                  <LanguageSwitcher />
-                </div>
-                <DropdownMenuSeparator className="bg-brand-primary/20" />
-                <DropdownMenuItem onClick={toggleTheme} className="cursor-pointer">
-                  {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
-                  <span>{theme === 'dark' ? t('twa.lightMode') : t('twa.darkMode')}</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-brand-primary/20" />
-                <DropdownMenuItem onClick={toggleProvider} className="cursor-pointer">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>{(currentUser?.isProvider ? t('twa.switchToBuyer') : t('twa.switchToProvider')) as any}</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={setLocationFromDevice} className="cursor-pointer">
-                  <MapPin className="mr-2 h-4 w-4" />
-                  <span>{t('twa.updateLocationFromDevice') as any}</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <Button
+              variant="outline"
+              size="sm"
+              className="bg-card border-brand-primary/30 w-9 h-9 p-2"
+              onClick={() => {
+                if (currentUser?.id) {
+                  window.location.href = `/profile/${currentUser.id}`;
+                }
+              }}
+              title="Open Profile"
+            >
+              <User className="w-5 h-5" />
+            </Button>
           </div>
         </div>
       </div>
@@ -278,24 +251,7 @@ export default function TelegramWebApp() {
             </CardContent>
           </Card>
 
-        {/* Profile Section */}
-        {currentUser && (
-          <Card className="glass-panel border-brand-primary/20">
-            <CardContent className="p-4">
-              <h3 className="font-semibold mb-3 flex items-center">
-                <User className="w-5 h-5 text-brand-primary mr-2" />
-                {t('twa.profile') as any}
-              </h3>
-              <div className="space-y-1 text-sm">
-                <div><span className="text-text-muted">{t('twa.username') as any}:</span> @{(currentUser as any).username || '-'}</div>
-                <div><span className="text-text-muted">{t('twa.role') as any}:</span> {(currentUser as any).isProvider ? (t('twa.provider') as any) : (t('twa.buyer') as any)}</div>
-                <div><span className="text-text-muted">{t('twa.rating') as any}:</span> {(currentUser as any).rating ?? '-'}</div>
-                <div><span className="text-text-muted">{t('twa.totalOrders') as any}:</span> {(currentUser as any).totalOrders ?? 0}</div>
-                <div><span className="text-text-muted">{t('twa.location') as any}:</span> {(currentUser as any).location ? `${(currentUser as any).location.lat.toFixed(4)}, ${(currentUser as any).location.lng.toFixed(4)}` : '-'}</div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
+        {/* Profile section removed; open profile from top-right button */}
           <Card
             className="glass-panel border-brand-primary/20 hover:bg-brand-accent/10 transition-all cursor-pointer"
             onClick={() => window.location.href = '/map'}

@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { RatingForm } from "@/components/RatingForm";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useTheme } from "next-themes";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { getAuthToken } from "@/lib/auth";
 
 interface PublicUserProfile {
   id: string;
@@ -23,6 +27,8 @@ export default function Profile() {
   const { id } = useParams<{ id: string }>();
   const [location, setLocation] = useLocation();
   const { t } = useTranslation();
+  const { currentUser } = useCurrentUser();
+  const { theme, setTheme } = useTheme();
 
   const { data, isLoading, isError } = useQuery<PublicUserProfile>({
     queryKey: ["/api/users", id],
@@ -42,11 +48,37 @@ export default function Profile() {
   const initial = (displayName || "U").charAt(0).toUpperCase();
 
   const orderIdFromQuery = useMemo(() => {
-    const qs = location.split('?')[1] || '';
-    const params = new URLSearchParams(qs);
-    const oid = params.get('orderId') || '';
-    return oid;
-  }, [location]);
+    const search = typeof window !== 'undefined' ? window.location.search : '';
+    const params = new URLSearchParams(search);
+    return params.get('orderId') || '';
+  }, []);
+
+  const isOwnProfile = currentUser?.id && data?.id && currentUser.id === data.id;
+
+  const updateProfile = async (payload: any) => {
+    const token = getAuthToken();
+    const res = await fetch('/api/me', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Failed to update profile');
+    await res.json();
+  };
+
+  const getDeviceLocation = async (): Promise<{ lat: number; lng: number } | null> => {
+    if (!('geolocation' in navigator)) return null;
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => resolve(null),
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    });
+  };
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -101,6 +133,40 @@ export default function Profile() {
                 </div>
               </CardContent>
             </Card>
+
+            {isOwnProfile && (
+              <Card className="glass-panel border-brand-primary/20">
+                <CardContent className="p-4 space-y-3">
+                  <div className="font-semibold mb-1">Settings</div>
+                  <div className="p-2 rounded-md bg-panel/50">
+                    <LanguageSwitcher />
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
+                    <div className="text-sm">Theme</div>
+                    <Button size="sm" variant="outline" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                      {theme === 'dark' ? 'Light' : 'Dark'}
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
+                    <div className="text-sm">Role</div>
+                    <Button size="sm" variant="outline" onClick={async () => {
+                      await updateProfile({ isProvider: !(currentUser?.isProvider ?? false) });
+                    }}>
+                      {currentUser?.isProvider ? 'Switch to Buyer' : 'Switch to Provider'}
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
+                    <div className="text-sm">Update Location</div>
+                    <Button size="sm" variant="secondary" onClick={async () => {
+                      const loc = await getDeviceLocation();
+                      if (loc) await updateProfile({ location: loc });
+                    }}>
+                      Use Device Location
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Rating form: shown only when navigated with a specific orderId */}
             <Card className="glass-panel border-brand-accent/20">
