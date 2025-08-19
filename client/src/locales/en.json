@@ -239,7 +239,7 @@
   "map": {
     "title": "Order Map",
     "filterPanel": {
-      "infoTitle": "💡 Filters are available directly on the map",
+      "infoTitle": "Filters are available directly on the map",
       "infoText": "Click the 'Filters' button in the top left corner of the map to customize your search by content type, radius, and budget.",
       "closeButton": "Got it"
     },
@@ -296,28 +296,6 @@
     "approvePayment": "Approve & Release Payment",
     "typeMessage": "Type a message...",
     "openDispute": "Open Dispute",
-    "quickReplies": "Quick Replies",
-    "customMessage": "Custom message",
-    "categories": {
-      "status_update": "Status",
-      "eta": "ETA",
-      "clarification": "Ask"
-    },
-    "connected": "Connected",
-    "connecting": "Connecting..."
-  },
-  "error": "Error",
-  "cancel": "Cancel",
-  "creating": "Creating...",
-  "uploading": "Uploading...",
-  "rating": {
-    "title": "Rate this provider",
-    "commentPlaceholder": "Great photos, fast delivery!",
-    "submitting": "Submitting...",
-    "submitAndApprove": "Submit Rating & Approve Payment"
-  },
-  "profile": {
-    "loading": "Loading profile...",
     "failedToLoad": "Failed to load profile.",
     "rating": "Rating",
     "provider": "Provider",
@@ -327,6 +305,38 @@
     "rateUser": "Rate this user",
     "ratingNote": "Only eligible users can submit ratings.",
     "ratingEligibilityHint": "Open this profile from a specific chat to rate this user for that order."
+  },
+  "createOrder": {
+    "title": "Create Order",
+    "newContentRequest": "New Content Request",
+    "fillSample": "Fill with sample",
+    "orderTitle": "Order Title",
+    "orderTitlePlaceholder": "e.g. Photo of the Eiffel Tower",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe in detail what you need...",
+    "contentType": "Content Type",
+    "photo": "Photo",
+    "video": "Video",
+    "liveStream": "Live Stream",
+    "location": "Location",
+    "specifyAddress": "Specify address",
+    "addressPlaceholder": "Address or place description",
+    "coordinates": "Coordinates: {{lat}}, {{lng}}",
+    "nearbyOrdersMap": "Nearby orders map",
+    "budget": "Budget (TON)",
+    "creating": "Creating...",
+    "createOrder": "Create order",
+    "errorPrefix": "Error: {{message}}",
+    "fillTitleAndDescription": "Please fill in the order title and description",
+    "authRequired": "Please authenticate via Telegram WebApp and try again.",
+    "failedToCreate": "Failed to create order",
+    "failedToGetLocation": "Failed to get your location",
+    "sampleTitle": "Red Square Photos",
+    "sampleDescription": "Need fresh photos of Red Square with a view of the Kremlin. Sunset preferred.",
+    "sampleAddress": "Red Square, Moscow",
+    "insufficientBalance": "Insufficient balance. Balance: {{balance}} TON, required: {{required}} TON.",
+    "balanceOk": "Balance sufficient. Balance: {{balance}} TON, required: {{required}} TON.",
+    "walletNotConnected": "TON wallet not connected"
   },
   "orderDetails": {
     "budget": "Budget",

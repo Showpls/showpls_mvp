@@ -9,6 +9,8 @@ import { Camera, Video, Radio, MessageSquare } from "lucide-react";
 import type { OrderWithRelations } from "@shared/schema";
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { useState } from "react";
+import { getAuthToken } from "@/lib/auth";
 
 interface OrderCardProps {
   order: OrderWithRelations;
@@ -18,6 +20,8 @@ export function OrderCard({ order }: OrderCardProps) {
   const [tonConnectUI] = useTonConnectUI();
   const { data: user } = useQuery<{ id: string } | undefined>({ queryKey: ['/api/me'] });
   const { t, i18n } = useTranslation();
+  const [isFunding, setIsFunding] = useState(false);
+  const [fundError, setFundError] = useState<string | null>(null);
 
   const formatTON = (nanoTon: string | number): string => {
     const ton = Number(nanoTon) / 1e9;
@@ -34,6 +38,52 @@ export function OrderCard({ order }: OrderCardProps) {
   };
 
   const isOrderActive = order.providerId !== null;
+  const allowedChatStatuses = ['FUNDED', 'IN_PROGRESS', 'DELIVERED', 'APPROVED'] as const;
+  const chatEnabled = allowedChatStatuses.includes(order.status as any);
+  const isRequester = !!(user?.id && order.requesterId === user.id);
+
+  const handleFundNow = async () => {
+    setFundError(null);
+    setIsFunding(true);
+    try {
+      const token = getAuthToken();
+      const prepRes = await fetch('/api/escrow/prepare-fund', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ orderId: order.id })
+      });
+      if (!prepRes.ok) {
+        const txt = await prepRes.text();
+        try { throw new Error(JSON.parse(txt).error || 'Failed to prepare funding'); } catch { throw new Error('Failed to prepare funding'); }
+      }
+      const fund = await prepRes.json() as { address: string; amountNano: string; bodyBase64: string; stateInit?: string };
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
+        messages: [{ address: fund.address, amount: fund.amountNano, payload: fund.bodyBase64, stateInit: (fund as any).stateInit }]
+      });
+      const verifyRes = await fetch('/api/escrow/verify-funding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ orderId: order.id, opId: `verify_${order.id}_${Date.now()}` })
+      });
+      if (!verifyRes.ok) {
+        const txt = await verifyRes.text();
+        try { throw new Error(JSON.parse(txt).error || 'Failed to verify funding'); } catch { throw new Error('Failed to verify funding'); }
+      }
+      // After successful funding, go to chat
+      window.location.href = `/chat/${order.id}`;
+    } catch (e: any) {
+      setFundError(e?.message || 'Funding failed');
+    } finally {
+      setIsFunding(false);
+    }
+  };
 
   return (
     <Card className="glass-panel border-brand-primary/20 hover:bg-brand-primary/5 transition-all">
@@ -54,12 +104,23 @@ export function OrderCard({ order }: OrderCardProps) {
             </div>
             {isOrderActive && (
               <div className="mt-2">
-                <Link href={`/chat/${order.id}`}>
-                  <Button size="sm" variant="outline" className="border-brand-primary/30">
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    {t('order.chat')}
-                  </Button>
-                </Link>
+                {chatEnabled ? (
+                  <Link href={`/chat/${order.id}`}>
+                    <Button size="sm" variant="outline" className="border-brand-primary/30">
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      {t('order.chat')}
+                    </Button>
+                  </Link>
+                ) : order.status === 'PENDING_FUNDING' && isRequester ? (
+                  <div className="space-y-1">
+                    {fundError && (
+                      <div className="text-[11px] text-red-400">{fundError}</div>
+                    )}
+                    <Button size="sm" onClick={handleFundNow} disabled={isFunding} className="bg-yellow-500 text-black hover:bg-yellow-600">
+                      {isFunding ? t('order.processing') || 'Processing…' : t('order.fundNow') || 'Fund Now'}
+                    </Button>
+                  </div>
+                ) : null}
               </div>
             )}
           </div>

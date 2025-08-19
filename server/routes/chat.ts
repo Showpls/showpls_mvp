@@ -23,6 +23,7 @@ router.get('/orders/:orderId/messages', authenticateEither, async (req, res) => 
       columns: {
         requesterId: true,
         providerId: true,
+        status: true,
       },
     });
 
@@ -33,7 +34,8 @@ router.get('/orders/:orderId/messages', authenticateEither, async (req, res) => 
     // 2. Check if the order is active and the user has permission
     const isRequester = order.requesterId === currentUser.id;
     const isProvider = order.providerId === currentUser.id;
-    const isOrderActive = order.providerId !== null;
+    const allowedStatuses = ['FUNDED', 'IN_PROGRESS', 'DELIVERED', 'APPROVED'];
+    const isOrderActive = order.providerId !== null && allowedStatuses.includes((order as any).status);
 
     if (!isOrderActive) {
       return res.status(403).json({ error: 'Chat is not available for this order yet.' });
@@ -96,6 +98,7 @@ router.post('/orders/:orderId/messages', authenticateEither, async (req, res) =>
         id: true,
         requesterId: true,
         providerId: true,
+        status: true,
       },
     });
 
@@ -105,7 +108,8 @@ router.post('/orders/:orderId/messages', authenticateEither, async (req, res) =>
 
     const isRequester = order.requesterId === currentUser.id;
     const isProvider = order.providerId === currentUser.id;
-    const isOrderActive = order.providerId !== null;
+    const allowedStatuses = ['FUNDED', 'IN_PROGRESS', 'DELIVERED', 'APPROVED'];
+    const isOrderActive = order.providerId !== null && allowedStatuses.includes((order as any).status);
 
     if (!isOrderActive) {
         return res.status(403).json({ error: 'Chat is not available for this order yet.' });

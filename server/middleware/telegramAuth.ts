@@ -73,6 +73,7 @@ export async function authenticateTelegramUser(
         portfolioLinks: [],
         providerRank: 'BASIC',
         totalTipsReceived: "0",
+        location: null,
         onboardingCompleted: false,
         lastActiveAt: null,
         createdAt: null,

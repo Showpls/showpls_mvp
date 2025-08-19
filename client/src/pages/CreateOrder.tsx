@@ -42,7 +42,7 @@ export default function CreateOrder() {
 
   const [showMap, setShowMap] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
-  const [isCreatingEscrow, setIsCreatingEscrow] = useState(false);
+  // Removed immediate escrow creation on order creation; funding occurs after provider accepts
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [balanceInfo, setBalanceInfo] = useState<{ sufficient: boolean; balance: string; required: string } | null>(null);
   const wallet = useTonWallet();
@@ -112,21 +112,19 @@ export default function CreateOrder() {
         console.error('API response missing order:', responseData);
         throw new Error(t('createOrder.failedToCreate'));
       }
-      const order = responseData.order;
+      const order = responseData.order as { id: string; status: string };
       console.log('Order created response:', order); // DEBUG
-
-      // Escrow creation is now handled separately after a provider accepts the order.
 
       return order;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/orders/user'] });
-      // Redirect to orders page or show success
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ['/api/orders/user'] });
+      // Redirect after successful funding & verification
       window.location.href = '/twa';
     },
     onError: (error) => {
       console.error('Order creation failed:', error);
-      setIsCreatingEscrow(false);
+      // no-op
     },
   });
 
@@ -398,13 +396,9 @@ export default function CreateOrder() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
-                disabled={createOrderMutation.isPending || isCreatingEscrow}
+                disabled={createOrderMutation.isPending}
               >
-                {isCreatingEscrow
-                  ? 'Creating Escrow...'
-                  : createOrderMutation.isPending
-                  ? t('createOrder.creating')
-                  : t('createOrder.createOrder')}
+                {createOrderMutation.isPending ? t('createOrder.creating') : t('createOrder.createOrder')}
               </Button>
 
               {/* Confirmation Dialog (controlled) */}

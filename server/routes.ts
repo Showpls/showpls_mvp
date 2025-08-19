@@ -337,34 +337,9 @@ export async function registerRoutes(app: Express): Promise<Server> {
       };
 
       const order = await storage.createOrder(orderData);
-      
-      // Auto-create and fund escrow for the order
-      if (!req.body.isSampleOrder && user.walletAddress) {
-        try {
-          const { tonService } = await import('./services/ton');
-          
-          // Create escrow contract
-          const escrowAddress = await tonService.createEscrow(
-            user.walletAddress,
-            BigInt(order.budgetNanoTon)
-          );
-          
-          if (escrowAddress) {
-            // Update order with escrow address
-            await storage.updateOrder(order.id, {
-              escrowAddress,
-              status: 'FUNDED',
-              updatedAt: new Date(),
-            } as any);
-            
-            console.log(`[ORDER] Created escrow ${escrowAddress} for order ${order.id}`);
-          }
-        } catch (escrowError) {
-          console.error('[ORDER] Failed to create escrow:', escrowError);
-          // Don't fail the order creation, but log the error
-        }
-      }
 
+      // Escrow is no longer auto-created on order creation.
+      // Flow: provider accepts -> order moves to PENDING_FUNDING -> requester funds via TonConnect -> order becomes FUNDED.
       res.json({ success: true, order });
     } catch (error) {
       console.error('Create order error:', error);
@@ -527,14 +502,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const order = await storage.getOrder(orderId);
       if (!order) return res.status(404).json({ error: 'Order not found' });
       if (order.requesterId === userId) return res.status(400).json({ error: 'Cannot accept your own order' });
-      if (order.status !== 'CREATED' && order.status !== 'FUNDED') {
+      // Only allow accepting newly created orders; funding will happen afterward
+      if (order.status !== 'CREATED') {
         return res.status(400).json({ error: 'Order cannot be accepted in current status' });
+      }
+      // Provider must have a connected TON wallet to proceed (required for escrow contract params)
+      if (!user.walletAddress) {
+        return res.status(400).json({ error: 'Provider wallet connection required to accept orders' });
       }
 
       const updated = await storage.updateOrder(orderId, {
         // @ts-ignore Partial typing loosened in storage
         providerId: userId,
-        status: 'IN_PROGRESS',
+        status: 'PENDING_FUNDING',
         acceptedAt: new Date(),
         updatedAt: new Date(),
       } as any);
@@ -544,8 +524,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       if (requester?.telegramId) {
         await notificationService.sendNotification({
           userId: requester.telegramId,
-          title: 'Order Accepted!',
-          message: `Your order "${order.title}" has been accepted by ${user.username}. The provider will start working on it soon.`,
+          title: 'Order Accepted — Funding Required',
+          message: `Your order "${order.title}" was accepted by ${user.username}. Please fund the escrow to start the work.`,
           type: 'order',
           metadata: { orderId: order.id }
         });

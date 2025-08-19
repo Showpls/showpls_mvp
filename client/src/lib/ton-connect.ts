@@ -199,17 +199,3 @@ export const createDisputeTransaction = (escrowAddress: string) => ({
   ],
 });
 
-// Extend Window interface for Telegram WebApp in a compatible way
-declare global {
-  interface Window {
-    Telegram?: {
-      WebApp?: {
-        initDataUnsafe?: {
-          user?: {
-            language_code?: string;
-          };
-        };
-      };
-    };
-  }
-}

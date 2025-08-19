@@ -351,7 +351,9 @@
     "sampleTitle": "Фото Красной площади",
     "sampleDescription": "Нужны свежие фотографии Красной площади с видом на Кремль. Желательно во время заката.",
     "sampleAddress": "Красная площадь, Москва",
-    "insufficientBalance": "Недостаточный баланс. Баланс: {{balance}} TON, требуется: {{required}} TON."
+    "insufficientBalance": "Недостаточный баланс. Баланс: {{balance}} TON, требуется: {{required}} TON.",
+    "balanceOk": "Баланс достаточный. Баланс: {{balance}} TON, требуется: {{required}} TON.",
+    "walletNotConnected": "Кошелек TON не подключен"
   },
   "orderDetails": {
     "budget": "Бюджет",

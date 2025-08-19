@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useWebSocket } from "@/lib/websocket";
 import { getAuthToken } from "@/lib/auth";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useTonConnectUI } from "@tonconnect/ui-react";
 import {
   Phone,
   Paperclip,
@@ -40,6 +41,9 @@ export default function Chat() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isFunding, setIsFunding] = useState(false);
+  const [fundError, setFundError] = useState<string | null>(null);
+  const [tonConnectUI] = useTonConnectUI();
 
   const { data: order, isLoading: isOrderLoading, isError: isOrderError, error: orderError } = useQuery<Order>({
     queryKey: ['/api/orders', orderId],
@@ -58,6 +62,57 @@ export default function Chat() {
       return json.order as Order;
     },
   });
+
+  // Chat availability by status
+  const allowedStatuses = ['FUNDED', 'IN_PROGRESS', 'DELIVERED', 'APPROVED'] as const;
+  const chatEnabled = !!order && allowedStatuses.includes(order.status as any);
+
+  const handleFundNow = async () => {
+    if (!order?.id) return;
+    setFundError(null);
+    setIsFunding(true);
+    try {
+      const token = getAuthToken();
+      // Prepare fund payload
+      const prepRes = await fetch('/api/escrow/prepare-fund', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ orderId: order.id })
+      });
+      if (!prepRes.ok) {
+        const txt = await prepRes.text();
+        try { throw new Error(JSON.parse(txt).error || 'Failed to prepare funding'); } catch { throw new Error('Failed to prepare funding'); }
+      }
+      const fund = await prepRes.json() as { address: string; amountNano: string; bodyBase64: string; stateInit?: string };
+      // TonConnect transaction
+      await tonConnectUI.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
+        messages: [{ address: fund.address, amount: fund.amountNano, payload: fund.bodyBase64, stateInit: (fund as any).stateInit }]
+      });
+      // Verify
+      const verifyRes = await fetch('/api/escrow/verify-funding', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify({ orderId: order.id, opId: `verify_${order.id}_${Date.now()}` })
+      });
+      if (!verifyRes.ok) {
+        const txt = await verifyRes.text();
+        try { throw new Error(JSON.parse(txt).error || 'Failed to verify funding'); } catch { throw new Error('Failed to verify funding'); }
+      }
+      await queryClient.invalidateQueries({ queryKey: ['/api/orders', orderId] });
+      await queryClient.invalidateQueries({ queryKey: ['/api/orders', orderId, 'messages'] });
+    } catch (e: any) {
+      setFundError(e?.message || 'Funding failed');
+    } finally {
+      setIsFunding(false);
+    }
+  };
 
   // Helper to get Telegram WebApp initData (query string) for auth
   const getTelegramInitData = () => {
@@ -416,6 +471,25 @@ export default function Chat() {
             </div>
           )}
 
+          {/* PENDING_FUNDING gating and funding prompt */}
+          {order.status === 'PENDING_FUNDING' && (
+            <Card className="glass-panel border-yellow-400/30">
+              <CardContent className="p-4 text-center">
+                {isRequester ? (
+                  <>
+                    <div className="text-sm text-yellow-300 mb-2">This order was accepted. Fund the escrow to start the chat.</div>
+                    {fundError && <div className="text-xs text-red-400 mb-2">{fundError}</div>}
+                    <Button onClick={handleFundNow} disabled={isFunding} className="w-full bg-yellow-500 hover:bg-yellow-600 text-black">
+                      {isFunding ? 'Processing…' : 'Fund Now'}
+                    </Button>
+                  </>
+                ) : (
+                  <div className="text-sm text-yellow-300">Waiting for the buyer to fund the escrow… Chat will unlock once funded.</div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Messages */}
           <div className="space-y-3">
             {areMessagesLoading && (
@@ -535,6 +609,7 @@ export default function Chat() {
               onChange={(e) => setMessage(e.target.value)}
               placeholder={t('chat.typeMessage')}
               className="flex-1 bg-panel border-transparent rounded-md h-10 text-sm"
+              disabled={!chatEnabled}
             />
             {/* Actions: Refund / Finish / Send */}
             {isRequester && (
@@ -574,7 +649,7 @@ export default function Chat() {
             <Button
               type="submit"
               className="bg-brand-primary hover:bg-brand-primary/80 px-3 h-10 rounded-md"
-              disabled={(!message.trim() || !isConnected) && !isUploading}
+              disabled={!chatEnabled || ((!message.trim() || !isConnected) && !isUploading)}
               title={!isConnected ? (t('chat.connecting') as string) : undefined}
             >
               <Send className="w-5 h-5" />
