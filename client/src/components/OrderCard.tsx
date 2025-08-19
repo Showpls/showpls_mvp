@@ -59,13 +59,29 @@ export function OrderCard({ order }: OrderCardProps) {
         const txt = await prepRes.text();
         try { throw new Error(JSON.parse(txt).error || 'Failed to prepare funding'); } catch { throw new Error('Failed to prepare funding'); }
       }
-      const fund = await prepRes.json() as { address: string; amountNano: string; bodyBase64?: string; stateInit?: string };
-      const msg: any = { address: fund.address, amount: fund.amountNano, bounce: false };
-      if (fund.bodyBase64 && fund.bodyBase64.length > 0) msg.payload = fund.bodyBase64;
-      if ((fund as any).stateInit) msg.stateInit = (fund as any).stateInit;
+      const fund = await prepRes.json() as
+        | { address: string; amountNano: string; bodyBase64?: string; stateInit?: string }
+        | { messages: Array<{ address: string; amountNano: string; bodyBase64?: string; stateInit?: string; bounce?: boolean }> };
+
+      let messages: any[];
+      if ('messages' in fund && Array.isArray(fund.messages)) {
+        messages = fund.messages.map((m) => {
+          const out: any = { address: m.address, amount: m.amountNano, bounce: m.bounce ?? false };
+          if (m.bodyBase64) out.payload = m.bodyBase64;
+          if (m.stateInit) out.stateInit = m.stateInit;
+          return out;
+        });
+      } else {
+        const single = fund as { address: string; amountNano: string; bodyBase64?: string; stateInit?: string };
+        const msg: any = { address: single.address, amount: single.amountNano, bounce: false };
+        if (single.bodyBase64) msg.payload = single.bodyBase64;
+        if (single.stateInit) msg.stateInit = single.stateInit;
+        messages = [msg];
+      }
+
       await tonConnectUI.sendTransaction({
         validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
-        messages: [msg]
+        messages
       });
       const verifyRes = await fetch('/api/escrow/verify-funding', {
         method: 'POST',

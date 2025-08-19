@@ -183,11 +183,29 @@ export function setupEscrowRoutes(app: Express) {
       const Address = (await import('@ton/core')).Address;
       const addrOptsFund: any = { urlSafe: true, bounceable: false };
       if ((process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet') addrOptsFund.testOnly = true;
+
+      const formattedAddress = Address.parse(fund.address).toString(addrOptsFund);
+
+      // If stateInit is needed (first deploy), return two messages for better wallet compatibility:
+      // 1) Deploy with small amount and stateInit, no payload
+      // 2) Fund with OP_FUND payload and full amount, no stateInit
+      if (fund.stateInit) {
+        const deployValueStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
+        const { toNano } = await import('@ton/core');
+        const deployAmount = toNano(deployValueStr).toString();
+        return res.json({
+          messages: [
+            { address: formattedAddress, amountNano: deployAmount, stateInit: fund.stateInit, bounce: false },
+            { address: formattedAddress, amountNano: fund.amountNano, bodyBase64: fund.bodyBase64, bounce: false },
+          ]
+        });
+      }
+
+      // Otherwise, keep legacy single-message shape
       return res.json({
-        address: Address.parse(fund.address).toString(addrOptsFund),
+        address: formattedAddress,
         amountNano: fund.amountNano,
         bodyBase64: fund.bodyBase64,
-        stateInit: fund.stateInit,
       });
     } catch (e) {
       console.error('[ESCROW] prepare-fund error:', e);
