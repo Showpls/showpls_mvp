@@ -167,7 +167,32 @@ export function setupEscrowRoutes(app: Express) {
           stateInitPrefix: String(contract.stateInit).slice(0, 32),
         });
       } catch {}
-      // Since this is a brand new contract, always return two messages: deploy + fund
+      // If env requests single-message deploy+fund, include stateInit on the funding message itself
+      const singleMsg = process.env.TON_ESCROW_SINGLE_MSG === '1';
+      if (singleMsg) {
+        const response = {
+          success: true,
+          escrowAddress: nonBounceAddr,
+          escrowInitData: updated.escrowInitData,
+          fund: {
+            address: nonBounceAddr,
+            amountNano: fund.amountNano,
+            bodyBase64: fund.bodyBase64,
+            stateInit: fund.stateInit,
+          },
+          status: updated.status
+        } as const;
+        try {
+          console.log('[ESCROW] create response (single deploy+fund)', {
+            orderId: order.id,
+            amountNano: fund.amountNano,
+            hasStateInit: !!fund.stateInit,
+          });
+        } catch {}
+        return res.json(response);
+      }
+
+      // Default: return two messages: deploy + fund
       const deployValueStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
       const { toNano } = await import('@ton/core');
       const deployAmount = toNano(deployValueStr).toString();
@@ -257,10 +282,26 @@ export function setupEscrowRoutes(app: Express) {
         });
       } catch {}
 
-      // If stateInit is needed (first deploy), return two messages for better wallet compatibility:
-      // 1) Deploy with small amount and stateInit, no payload
-      // 2) Fund with OP_FUND payload and full amount, no stateInit
+      // If stateInit is needed (first deploy), optionally return single-message or default to two messages
       if (fund.stateInit) {
+        const singleMsg = process.env.TON_ESCROW_SINGLE_MSG === '1';
+        if (singleMsg) {
+          const response = {
+            address: formattedAddress,
+            amountNano: fund.amountNano,
+            bodyBase64: fund.bodyBase64,
+            stateInit: fund.stateInit,
+          } as const;
+          try {
+            console.log('[ESCROW] prepare-fund response (single deploy+fund)', {
+              orderId: order.id,
+              amountNano: fund.amountNano,
+              hasStateInit: !!fund.stateInit,
+            });
+          } catch {}
+          return res.json(response);
+        }
+
         const deployValueStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
         const { toNano } = await import('@ton/core');
         const deployAmount = toNano(deployValueStr).toString();
