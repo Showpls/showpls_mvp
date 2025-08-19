@@ -137,14 +137,15 @@ export function setupEscrowRoutes(app: Express) {
         includeStateInit: (updated as any).escrowInitData as string,
       });
 
-      // Always return non-bounceable for client funding
-      const nonBounceAddr = (await import('@ton/core')).Address.parse(updated.escrowAddress!).toString({ urlSafe: true, bounceable: false });
+      // Always return non-bounceable + testOnly for client funding on testnet
+      const Address = (await import('@ton/core')).Address;
+      const nonBounceAddr = Address.parse(updated.escrowAddress!).toString({ urlSafe: true, bounceable: false, testOnly: true });
       return res.json({ 
         success: true, 
         escrowAddress: nonBounceAddr, 
         escrowInitData: updated.escrowInitData,
         fund: {
-          address: (await import('@ton/core')).Address.parse(fund.address).toString({ urlSafe: true, bounceable: false }),
+          address: Address.parse(fund.address).toString({ urlSafe: true, bounceable: false, testOnly: true }),
           amountNano: fund.amountNano,
           bodyBase64: fund.bodyBase64,
           stateInit: fund.stateInit,

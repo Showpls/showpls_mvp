@@ -67,9 +67,9 @@ export class TonService {
     escrowAddress: string;
     amountNano: bigint; // order amount
     includeStateInit?: string; // base64
-    gasReserveNano?: bigint; // default 0.1 TON
+    gasReserveNano?: bigint; // default 0.05 TON
   }): { address: string; amountNano: string; bodyBase64: string; stateInit?: string } {
-    const gas = params.gasReserveNano ?? toNano('0.1');
+    const gas = params.gasReserveNano ?? toNano('0.05');
     const total = params.amountNano + gas;
     return {
       address: params.escrowAddress,
@@ -241,8 +241,8 @@ export class TonService {
 
       // Do NOT deploy from platform wallet. Client will deploy on first funding by including stateInit.
       return {
-        // Use non-bounceable address so wallets set bounce=false for first deploy + funding
-        address: addr.toString({ urlSafe: true, bounceable: false }),
+        // Use non-bounceable + testOnly for testnet deploy+fund
+        address: addr.toString({ urlSafe: true, bounceable: false, testOnly: true }),
         stateInit: beginCell().storeRef(codeCell).storeRef(dataCell).endCell().toBoc().toString('base64')
       };
     } catch (error) {
