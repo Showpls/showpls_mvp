@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, MapPin, Clock, User, Wallet } from 'lucide-react';
 import { Link } from 'wouter';
-import { Chat } from '@/components/Chat';
 import { OrderActions } from '@/components/OrderActions';
 import type { OrderWithRelations } from '@shared/schema';
 
@@ -155,11 +154,6 @@ export default function OrderDetails() {
 
             {/* Order Actions */}
             <OrderActions order={order} />
-          </div>
-
-          {/* Chat Section */}
-          <div className="space-y-6">
-            <Chat orderId={order.id} />
           </div>
         </div>
       </div>
