@@ -39,6 +39,17 @@ export class TonService {
     this.initializePlatformWallet();
   }
 
+  async isContractActive(addressStr: string): Promise<boolean> {
+    try {
+      const address = Address.parse(addressStr);
+      const info = await this.client.getContractState(address);
+      return info?.state === 'active';
+    } catch (error) {
+      console.error('Failed to get contract state:', error);
+      return false;
+    }
+  }
+
   // Build payload body for OP_FUND (10)
   buildFundBody(): string {
     const body = beginCell().storeUint(10, 32).endCell();
@@ -230,7 +241,8 @@ export class TonService {
 
       // Do NOT deploy from platform wallet. Client will deploy on first funding by including stateInit.
       return {
-        address: addr.toString({ urlSafe: true, bounceable: true }),
+        // Use non-bounceable address so wallets set bounce=false for first deploy + funding
+        address: addr.toString({ urlSafe: true, bounceable: false }),
         stateInit: beginCell().storeRef(codeCell).storeRef(dataCell).endCell().toBoc().toString('base64')
       };
     } catch (error) {

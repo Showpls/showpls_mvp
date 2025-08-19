@@ -62,7 +62,7 @@ export function OrderCard({ order }: OrderCardProps) {
       const fund = await prepRes.json() as { address: string; amountNano: string; bodyBase64: string; stateInit?: string };
       await tonConnectUI.sendTransaction({
         validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
-        messages: [{ address: fund.address, amount: fund.amountNano, payload: fund.bodyBase64, stateInit: (fund as any).stateInit }]
+        messages: [{ address: fund.address, amount: fund.amountNano, payload: fund.bodyBase64, stateInit: (fund as any).stateInit, bounce: false }]
       });
       const verifyRes = await fetch('/api/escrow/verify-funding', {
         method: 'POST',

@@ -168,10 +168,12 @@ export function setupEscrowRoutes(app: Express) {
       if (order.requesterId !== authUser.id) return res.status(403).json({ error: 'Only requester can fund escrow' });
       if (!order.escrowAddress || !order.escrowInitData) return res.status(400).json({ error: 'Escrow not ready' });
 
+      // Include stateInit only if contract is not yet active (first deploy + fund)
+      const isActive = await tonService.isContractActive(order.escrowAddress);
       const fund = tonService.prepareFundingTx({
         escrowAddress: order.escrowAddress,
         amountNano: BigInt(order.budgetNanoTon),
-        includeStateInit: (order as any).escrowInitData,
+        includeStateInit: isActive ? undefined : (order as any).escrowInitData,
       });
 
       return res.json({
