@@ -139,7 +139,8 @@ export function setupEscrowRoutes(app: Express) {
         escrowAddress: contract.address.toString(),
         // escrowInitData is stored but not in typed schema
         escrowInitData: contract.stateInit as any,
-        // Keep status CREATED until verify-funding confirms deposit
+        // Move to PENDING_FUNDING to enable client UX
+        status: 'PENDING_FUNDING',
         updatedAt: new Date(),
       } as any);
 
@@ -151,9 +152,14 @@ export function setupEscrowRoutes(app: Express) {
       });
 
       const Address = (await import('@ton/core')).Address;
-      const addrOptsCreate: any = { urlSafe: true, bounceable: false };
-      if ((process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet') addrOptsCreate.testOnly = true;
-      const nonBounceAddr = Address.parse(updated.escrowAddress!).toString(addrOptsCreate);
+      const addrOptsCreateNonBounce: any = { urlSafe: true, bounceable: false };
+      const addrOptsCreateBounce: any = { urlSafe: true, bounceable: true };
+      if ((process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet') {
+        addrOptsCreateNonBounce.testOnly = true;
+        addrOptsCreateBounce.testOnly = true;
+      }
+      const nonBounceAddr = Address.parse(updated.escrowAddress!).toString(addrOptsCreateNonBounce);
+      const bounceAddr = Address.parse(updated.escrowAddress!).toString(addrOptsCreateBounce);
       try {
         console.log('[ESCROW] create response', {
           orderId: order.id,
@@ -161,18 +167,30 @@ export function setupEscrowRoutes(app: Express) {
           stateInitPrefix: String(contract.stateInit).slice(0, 32),
         });
       } catch {}
-      return res.json({ 
-        success: true, 
-        escrowAddress: nonBounceAddr, 
+      // Since this is a brand new contract, always return two messages: deploy + fund
+      const deployValueStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
+      const { toNano } = await import('@ton/core');
+      const deployAmount = toNano(deployValueStr).toString();
+      const response = {
+        success: true,
+        escrowAddress: nonBounceAddr,
         escrowInitData: updated.escrowInitData,
         fund: {
-          address: Address.parse(fund.address).toString(addrOptsCreate),
-          amountNano: fund.amountNano,
-          bodyBase64: fund.bodyBase64,
-          stateInit: fund.stateInit,
+          messages: [
+            { address: nonBounceAddr, amountNano: deployAmount, stateInit: fund.stateInit, bounce: false },
+            { address: bounceAddr, amountNano: fund.amountNano, bodyBase64: fund.bodyBase64, bounce: true },
+          ]
         },
-        status: updated.status 
-      });
+        status: updated.status
+      } as const;
+      try {
+        console.log('[ESCROW] create response (deploy+fund)', {
+          orderId: order.id,
+          deployAmount,
+          fundAmount: fund.amountNano,
+        });
+      } catch {}
+      return res.json(response);
     } catch (e) {
       console.error('[ESCROW] create error:', e);
       return res.status(500).json({ error: 'Failed to create escrow' });
@@ -215,10 +233,12 @@ export function setupEscrowRoutes(app: Express) {
       });
 
       const Address = (await import('@ton/core')).Address;
-      const addrOptsFund: any = { urlSafe: true, bounceable: false };
-      if ((process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet') addrOptsFund.testOnly = true;
+      const isTestnetNet = (process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet';
+      const addrNonBounce: any = { urlSafe: true, bounceable: false };
+      const addrBounce: any = { urlSafe: true, bounceable: true };
+      if (isTestnetNet) { addrNonBounce.testOnly = true; addrBounce.testOnly = true; }
 
-      const formattedAddress = Address.parse(fund.address).toString(addrOptsFund);
+      const formattedAddress = Address.parse(fund.address).toString(addrNonBounce);
 
       // Diagnostics: log prepared funding details (abbreviated)
       try {
@@ -245,10 +265,11 @@ export function setupEscrowRoutes(app: Express) {
         const { toNano } = await import('@ton/core');
         const deployAmount = toNano(deployValueStr).toString();
         // IMPORTANT: Do not reduce the fund transfer. Contract checks msg_value of funding tx alone.
+        const formattedBounceAddr = Address.parse(fund.address).toString(addrBounce);
         const response = {
           messages: [
             { address: formattedAddress, amountNano: deployAmount, stateInit: fund.stateInit, bounce: false },
-            { address: formattedAddress, amountNano: fund.amountNano, bodyBase64: fund.bodyBase64, bounce: false },
+            { address: formattedBounceAddr, amountNano: fund.amountNano, bodyBase64: fund.bodyBase64, bounce: true },
           ]
         } as const;
         try {

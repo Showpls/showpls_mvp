@@ -47,32 +47,70 @@ export function OrderCard({ order }: OrderCardProps) {
     setIsFunding(true);
     try {
       const token = getAuthToken();
-      const prepRes = await fetch('/api/escrow/prepare-fund', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ orderId: order.id })
-      });
-      if (!prepRes.ok) {
-        const txt = await prepRes.text();
-        try { throw new Error(JSON.parse(txt).error || 'Failed to prepare funding'); } catch { throw new Error('Failed to prepare funding'); }
+      // 1) Try to create escrow (fresh per transaction)
+      let fund: any;
+      let createTried = false;
+      try {
+        createTried = true;
+        const createRes = await fetch('/api/escrow/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ orderId: order.id })
+        });
+        if (createRes.ok) {
+          const cj = await createRes.json();
+          // New route wraps messages under fund
+          fund = cj?.fund ?? cj;
+        } else {
+          const txt = await createRes.text();
+          const msg = (() => { try { return JSON.parse(txt).error as string; } catch { return ''; } })();
+          // If cannot create (wrong status, already created), fallback to prepare-fund
+          if (!msg || !/Escrow can be created only|Escrow not created yet|Only requester|Provider wallet required/i.test(msg)) {
+            // continue to fallback silently
+          }
+        }
+      } catch {
+        // ignore and fallback
       }
-      const fund = await prepRes.json() as
+
+      // 2) If create did not return fund payload, prepare fund for existing escrow
+      if (!fund) {
+        const prepRes = await fetch('/api/escrow/prepare-fund', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ orderId: order.id })
+        });
+        if (!prepRes.ok) {
+          const txt = await prepRes.text();
+          let base = 'Failed to prepare funding';
+          try { base = JSON.parse(txt).error || base; } catch {}
+          throw new Error(base);
+        }
+        fund = await prepRes.json();
+      }
+
+      // fund can be { messages: [...] } or single-message shape
+      const fundShape = fund as
         | { address: string; amountNano: string; bodyBase64?: string; stateInit?: string }
         | { messages: Array<{ address: string; amountNano: string; bodyBase64?: string; stateInit?: string; bounce?: boolean }> };
 
       let messages: any[];
-      if ('messages' in fund && Array.isArray(fund.messages)) {
-        messages = fund.messages.map((m) => {
+      if ('messages' in fundShape && Array.isArray((fundShape as any).messages)) {
+        const arr = (fundShape as any).messages as any[];
+        messages = arr.map((m) => {
           const out: any = { address: m.address, amount: m.amountNano, bounce: m.bounce ?? false };
           if (m.bodyBase64) out.payload = m.bodyBase64;
           if (m.stateInit) out.stateInit = m.stateInit;
           return out;
         });
       } else {
-        const single = fund as { address: string; amountNano: string; bodyBase64?: string; stateInit?: string };
+        const single = fundShape as { address: string; amountNano: string; bodyBase64?: string; stateInit?: string };
         const msg: any = { address: single.address, amount: single.amountNano, bounce: false };
         if (single.bodyBase64) msg.payload = single.bodyBase64;
         if (single.stateInit) msg.stateInit = single.stateInit;
