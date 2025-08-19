@@ -30,9 +30,13 @@ export class TonService {
   private walletContract?: any;
 
   constructor() {
-    // Initialize TON client for testnet
+    // Initialize TON client based on network
+    const isTestnet = (process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet';
+    const endpoint = isTestnet
+      ? 'https://testnet.toncenter.com/api/v2/jsonRPC'
+      : 'https://toncenter.com/api/v2/jsonRPC';
     this.client = new TonClient({
-      endpoint: 'https://testnet.toncenter.com/api/v2/jsonRPC',
+      endpoint,
       apiKey: process.env.TON_API_KEY
     });
     
@@ -76,8 +80,8 @@ export class TonService {
     return {
       address: params.escrowAddress,
       amountNano: total.toString(),
-      // If deploying with stateInit, omit body entirely to avoid wallet fee calc issues
-      bodyBase64: includeInit ? undefined : this.buildFundBody(),
+      // Always include OP_FUND body so contract sets funded=1 on first transfer
+      bodyBase64: this.buildFundBody(),
       stateInit: includeInit,
     };
   }
@@ -210,26 +214,22 @@ export class TonService {
 
       const royaltyBps = 1000; // 10% in basis points
       const deadline = Math.floor(Date.now() / 1000) + (30 * 24 * 60 * 60); // 30 days from now
-      const gasReserveMin = toNano('0.1'); // 0.1 TON
+      const gasReserveMin = toNano('0.1'); // 0.1 TON (fits into 32 bits)
 
-      // To avoid root cell overflow, store buyer & seller in root and pack guarantor & fee wallet into a ref
-      const addrRef = beginCell()
-        .storeAddress(guarantorAddress)
-        .storeAddress(feeWalletAddress)
-        .endCell();
-
-      // (buyer, seller, amount, royaltyBps, deadline, gasReserveMin, funded, disputed, closed, addrRef)
+      // Data layout must match FunC:
+      // buyer, seller, guarantor, feeWallet, amount(uint64), royaltyBps(uint16), deadline(uint64), gasReserveMin(uint32), funded(1), disputed(1), closed(1)
       const dataCell = beginCell()
         .storeAddress(buyerAddress)
         .storeAddress(sellerAddress)
-        .storeCoins(amount) // amount
-        .storeUint(royaltyBps, 16) // royaltyBps
-        .storeUint(deadline, 64) // deadline
-        .storeCoins(gasReserveMin) // gasReserveMin
-        .storeUint(0, 1) // funded
-        .storeUint(0, 1) // disputed
-        .storeUint(0, 1) // closed
-        .storeRef(addrRef)
+        .storeAddress(guarantorAddress)
+        .storeAddress(feeWalletAddress)
+        .storeUint(amount, 64)
+        .storeUint(royaltyBps, 16)
+        .storeUint(deadline, 64)
+        .storeUint(gasReserveMin, 32)
+        .storeUint(0, 1)
+        .storeUint(0, 1)
+        .storeUint(0, 1)
         .endCell();
 
       // Log resultant cell sizes for debugging potential overflows
@@ -245,7 +245,7 @@ export class TonService {
       // Do NOT deploy from platform wallet. Client will deploy on first funding by including stateInit.
       return {
         // Use non-bounceable + testOnly for testnet deploy+fund
-        address: addr.toString({ urlSafe: true, bounceable: false, testOnly: true }),
+        address: addr.toString({ urlSafe: true, bounceable: false, testOnly: (process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet' }),
         stateInit: beginCell().storeRef(codeCell).storeRef(dataCell).endCell().toBoc().toString('base64')
       };
     } catch (error) {
@@ -453,7 +453,9 @@ export class TonService {
       // Check inbound transactions to escrow address via toncenter
       const address = Address.parse(contractAddress).toString({ urlSafe: true, bounceable: true });
       const apiKey = process.env.TON_API_KEY;
-      const url = `https://testnet.toncenter.com/api/v2/getTransactions?address=${address}&limit=20${apiKey ? `&api_key=${apiKey}` : ''}`;
+      const isTestnet = (process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet';
+      const base = isTestnet ? 'https://testnet.toncenter.com' : 'https://toncenter.com';
+      const url = `${base}/api/v2/getTransactions?address=${address}&limit=20${apiKey ? `&api_key=${apiKey}` : ''}`;
       const res = await fetch(url);
       const json = await res.json();
       if (json?.ok && Array.isArray(json.result)) {

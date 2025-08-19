@@ -137,15 +137,16 @@ export function setupEscrowRoutes(app: Express) {
         includeStateInit: (updated as any).escrowInitData as string,
       });
 
-      // Always return non-bounceable + testOnly for client funding on testnet
       const Address = (await import('@ton/core')).Address;
-      const nonBounceAddr = Address.parse(updated.escrowAddress!).toString({ urlSafe: true, bounceable: false, testOnly: true });
+      const addrOptsCreate: any = { urlSafe: true, bounceable: false };
+      if ((process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet') addrOptsCreate.testOnly = true;
+      const nonBounceAddr = Address.parse(updated.escrowAddress!).toString(addrOptsCreate);
       return res.json({ 
         success: true, 
         escrowAddress: nonBounceAddr, 
         escrowInitData: updated.escrowInitData,
         fund: {
-          address: Address.parse(fund.address).toString({ urlSafe: true, bounceable: false, testOnly: true }),
+          address: Address.parse(fund.address).toString(addrOptsCreate),
           amountNano: fund.amountNano,
           bodyBase64: fund.bodyBase64,
           stateInit: fund.stateInit,
@@ -180,8 +181,10 @@ export function setupEscrowRoutes(app: Express) {
       });
 
       const Address = (await import('@ton/core')).Address;
+      const addrOptsFund: any = { urlSafe: true, bounceable: false };
+      if ((process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet') addrOptsFund.testOnly = true;
       return res.json({
-        address: Address.parse(fund.address).toString({ urlSafe: true, bounceable: false, testOnly: true }),
+        address: Address.parse(fund.address).toString(addrOptsFund),
         amountNano: fund.amountNano,
         bodyBase64: fund.bodyBase64,
         stateInit: fund.stateInit,
@@ -209,8 +212,10 @@ export function setupEscrowRoutes(app: Express) {
       const approve = tonService.prepareApproveTx({ escrowAddress: order.escrowAddress });
 
       const Address = (await import('@ton/core')).Address;
+      const addrOptsApprove: any = { urlSafe: true, bounceable: false };
+      if ((process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet') addrOptsApprove.testOnly = true;
       return res.json({
-        address: Address.parse(approve.address).toString({ urlSafe: true, bounceable: false, testOnly: true }),
+        address: Address.parse(approve.address).toString(addrOptsApprove),
         amountNano: approve.amountNano,
         bodyBase64: approve.bodyBase64,
       });
