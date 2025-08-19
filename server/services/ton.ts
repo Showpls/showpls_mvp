@@ -67,16 +67,17 @@ export class TonService {
     escrowAddress: string;
     amountNano: bigint; // order amount
     includeStateInit?: string; // base64
-    gasReserveNano?: bigint; // default 0.05 TON
-  }): { address: string; amountNano: string; bodyBase64: string; stateInit?: string } {
-    const gas = params.gasReserveNano ?? toNano('0.05');
+    gasReserveNano?: bigint; // default from env TON_ESCROW_DEPLOY_RESERVE or 0.2 TON
+  }): { address: string; amountNano: string; bodyBase64?: string; stateInit?: string } {
+    const defaultReserveStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.2';
+    const gas = params.gasReserveNano ?? toNano(defaultReserveStr);
     const total = params.amountNano + gas;
     const includeInit = params.includeStateInit;
     return {
       address: params.escrowAddress,
       amountNano: total.toString(),
-      // If deploying with stateInit, omit body to reduce edge-case fee calc failures
-      bodyBase64: includeInit ? '' : this.buildFundBody(),
+      // If deploying with stateInit, omit body entirely to avoid wallet fee calc issues
+      bodyBase64: includeInit ? undefined : this.buildFundBody(),
       stateInit: includeInit,
     };
   }
@@ -489,7 +490,8 @@ export class TonService {
   async checkSufficientBalance(address: string, requiredAmount: bigint): Promise<{ sufficient: boolean; balance: bigint; required: bigint }> {
     try {
       const balance = await this.getWalletBalance(address);
-      const gasReserve = toNano('0.1'); // Reserve 0.1 TON for gas fees
+      const defaultReserveStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.2';
+      const gasReserve = toNano(defaultReserveStr); // Reserve from env (default 0.2 TON)
       const totalRequired = requiredAmount + gasReserve;
       
       return {

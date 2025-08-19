@@ -59,7 +59,7 @@ export function OrderCard({ order }: OrderCardProps) {
         const txt = await prepRes.text();
         try { throw new Error(JSON.parse(txt).error || 'Failed to prepare funding'); } catch { throw new Error('Failed to prepare funding'); }
       }
-      const fund = await prepRes.json() as { address: string; amountNano: string; bodyBase64: string; stateInit?: string };
+      const fund = await prepRes.json() as { address: string; amountNano: string; bodyBase64?: string; stateInit?: string };
       const msg: any = { address: fund.address, amount: fund.amountNano, bounce: false };
       if (fund.bodyBase64 && fund.bodyBase64.length > 0) msg.payload = fund.bodyBase64;
       if ((fund as any).stateInit) msg.stateInit = (fund as any).stateInit;
