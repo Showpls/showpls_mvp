@@ -82,7 +82,10 @@ export class TonService {
   }): { address: string; amountNano: string; bodyBase64?: string; stateInit?: string } {
     const defaultReserveStr = process.env.TON_ESCROW_FUND_RESERVE ?? '0.1';
     const gas = params.gasReserveNano ?? toNano(defaultReserveStr);
-    const total = params.amountNano + gas;
+    // Important: if includeStateInit is provided, we will send two messages (deploy + fund).
+    // In that case, the deploy message carries the extra reserve; the fund message must equal the budget exactly
+    // because the contract validates the funding tx's msg_value alone.
+    const total = params.includeStateInit ? params.amountNano : params.amountNano + gas;
     const includeInit = params.includeStateInit;
     try {
       console.log('[TON] prepareFundingTx', {
