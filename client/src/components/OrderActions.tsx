@@ -88,13 +88,16 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
   const fundEscrowMutation = useMutation({
     mutationFn: async () => {
       if (!order.escrowAddress) throw new Error('Escrow address not set');
+      try { console.log('[CLIENT ESCROW] start fund', { orderId: order.id, status: order.status, escrowAddress: order.escrowAddress }); } catch {}
       // Ensure TonConnect is ready
       await tonConnectService.initialize();
+      try { console.log('[CLIENT ESCROW] tonconnect initialized', { connected: tonConnectService.isConnected() }); } catch {}
       const ui = tonConnectService.getUI();
       if (!ui) throw new Error('Wallet UI not available');
 
       // Connect if not connected
       if (!tonConnectService.isConnected()) {
+        try { console.log('[CLIENT ESCROW] opening wallet modal'); } catch {}
         ui.openModal();
         // Wait up to ~15s for connection
         const start = Date.now();
@@ -102,6 +105,7 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
           await new Promise(r => setTimeout(r, 300));
           if (Date.now() - start > 15000) throw new Error('Wallet connection timeout');
         }
+        try { console.log('[CLIENT ESCROW] wallet connected'); } catch {}
       }
 
       // Ask backend to prepare funding tx (amount + payload + stateInit)
@@ -113,11 +117,14 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
         },
         body: JSON.stringify({ orderId: order.id }),
       });
+      try { console.log('[CLIENT ESCROW] prepare-fund response', { status: prep.status, ok: prep.ok }); } catch {}
       if (!prep.ok) {
         const err = await prep.json().catch(() => ({}));
+        try { console.log('[CLIENT ESCROW] prepare-fund error', err); } catch {}
         throw new Error(err.error || 'Failed to prepare funding');
       }
       const fund = await prep.json();
+      try { console.log('[CLIENT ESCROW] prepare-fund payload', { keys: Object.keys(fund), messages: Array.isArray(fund?.messages) ? fund.messages.length : undefined }); } catch {}
 
       // Build transaction messages (support deploy+fund two-message flow)
       let messages: any[];
@@ -135,19 +142,25 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
         if (single.stateInit) msg.stateInit = single.stateInit;
         messages = [msg];
       }
+      try {
+        const summary = messages.map((m) => ({ address: m.address, amount: m.amount, bounce: !!m.bounce, hasPayload: !!m.payload, hasStateInit: !!m.stateInit }));
+        console.log('[CLIENT ESCROW] built messages', { count: messages.length, summary });
+      } catch {}
 
-      await ui.sendTransaction({
-        validUntil: Math.floor(Date.now() / 1000) + 300,
-        messages,
-      } as any);
+      const validUntil = Math.floor(Date.now() / 1000) + 300;
+      try { console.log('[CLIENT ESCROW] sending transaction', { validUntil, count: messages.length }); } catch {}
+      await ui.sendTransaction({ validUntil, messages } as any);
+      try { console.log('[CLIENT ESCROW] transaction sent (TonConnect resolved)'); } catch {}
 
       // Poll verification to allow indexer to catch up
       const opId = `fund_${order.id}_${Date.now()}`;
+      try { console.log('[CLIENT ESCROW] begin verify polling', { opId }); } catch {}
       // Short initial delay helps when toncenter lags a bit after wallet broadcast
       await new Promise(r => setTimeout(r, 2500));
       const maxAttempts = 20; // ~60s at 3s interval
       const intervalMs = 3000;
       for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try { console.log('[CLIENT ESCROW] verify attempt', { attempt, max: maxAttempts }); } catch {}
         const verify = await fetch('/api/escrow/verify-funding', {
           method: 'POST',
           headers: {
@@ -156,19 +169,25 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
           },
           body: JSON.stringify({ orderId: order.id, opId }),
         });
-        if (verify.ok) return verify.json();
+        if (verify.ok) {
+          try { console.log('[CLIENT ESCROW] verify success', { attempt }); } catch {}
+          return verify.json();
+        }
         const txt = await verify.text();
         let errMsg = 'Failed to verify funding';
         try { errMsg = JSON.parse(txt).error || errMsg; } catch {}
+        try { console.log('[CLIENT ESCROW] verify response', { status: verify.status, errMsg }); } catch {}
         if (errMsg.toLowerCase().includes('not funded yet')) {
           await new Promise(r => setTimeout(r, intervalMs));
           continue;
         }
         throw new Error(errMsg);
       }
+      try { console.log('[CLIENT ESCROW] verify timeout after max attempts'); } catch {}
       throw new Error('Verification timeout. Please check your wallet and try again.');
     },
     onSuccess: () => {
+      try { console.log('[CLIENT ESCROW] funding flow complete: success'); } catch {}
       queryClient.invalidateQueries({ queryKey: ['orders'] });
       queryClient.invalidateQueries({ queryKey: ['order', order.id] });
     },

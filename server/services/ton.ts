@@ -46,8 +46,11 @@ export class TonService {
   async isContractActive(addressStr: string): Promise<boolean> {
     try {
       const address = Address.parse(addressStr);
+      try { console.log('[TON] isContractActive.check', { address: address.toString({ urlSafe: true, bounceable: true }) }); } catch {}
       const info = await this.client.getContractState(address);
-      return info?.state === 'active';
+      const active = info?.state === 'active';
+      try { console.log('[TON] isContractActive.result', { state: info?.state, active }); } catch {}
+      return active;
     } catch (error) {
       console.error('Failed to get contract state:', error);
       return false;
@@ -57,13 +60,17 @@ export class TonService {
   // Build payload body for OP_FUND (10)
   buildFundBody(): string {
     const body = beginCell().storeUint(10, 32).endCell();
-    return body.toBoc().toString('base64');
+    const b64 = body.toBoc().toString('base64');
+    try { console.log('[TON] buildFundBody', { prefix: b64.slice(0, 24), bytes: Buffer.from(b64, 'base64').length }); } catch {}
+    return b64;
   }
 
   // Build payload body for OP_APPROVE (20)
   buildApproveBody(): string {
     const body = beginCell().storeUint(20, 32).endCell();
-    return body.toBoc().toString('base64');
+    const b64 = body.toBoc().toString('base64');
+    try { console.log('[TON] buildApproveBody', { prefix: b64.slice(0, 24), bytes: Buffer.from(b64, 'base64').length }); } catch {}
+    return b64;
   }
 
   // Prepare funding transaction details for client (TonConnect)
@@ -77,6 +84,17 @@ export class TonService {
     const gas = params.gasReserveNano ?? toNano(defaultReserveStr);
     const total = params.amountNano + gas;
     const includeInit = params.includeStateInit;
+    try {
+      console.log('[TON] prepareFundingTx', {
+        escrowAddress: params.escrowAddress,
+        amountNano: params.amountNano.toString(),
+        gasReserveDefaultStr: defaultReserveStr,
+        gasNano: gas.toString(),
+        totalNano: total.toString(),
+        includeStateInit: !!includeInit,
+        stateInitBytes: includeInit ? Buffer.from(includeInit, 'base64').length : 0,
+      });
+    } catch {}
     return {
       address: params.escrowAddress,
       amountNano: total.toString(),
@@ -460,7 +478,9 @@ export class TonService {
         console.log('[ESCROW] verify: querying transactions', { address, minValueNano: minValueNano?.toString(), url: `${base}/api/v2/getTransactions?...` });
       } catch {}
       const res = await fetch(url);
+      try { console.log('[ESCROW] verify: tx fetch status', { status: res.status, ok: res.ok }); } catch {}
       const json = await res.json();
+      try { console.log('[ESCROW] verify: tx json meta', { ok: json?.ok, count: Array.isArray(json?.result) ? json.result.length : undefined }); } catch {}
       if (json?.ok && Array.isArray(json.result)) {
         // Diagnostics: log inbound values and payload prefixes
         try {
@@ -487,14 +507,26 @@ export class TonService {
             return false;
           }
         });
-        if (inbound) return 'funded';
+        if (inbound) {
+          try {
+            console.log('[ESCROW] verify: inbound match', {
+              value: inbound?.in_msg?.value,
+              utime: inbound?.utime,
+              hasBody: !!inbound?.in_msg?.msg_data?.body,
+              bodyPrefix: inbound?.in_msg?.msg_data?.body ? String(inbound.in_msg.msg_data.body).slice(0, 24) : undefined,
+            });
+          } catch {}
+          return 'funded';
+        }
 
         // Fallback: check live balance if no inbound tx matched (indexer delay cases)
         try {
           const infoUrl = `${base}/api/v2/getAddressInformation?address=${address}${apiKey ? `&api_key=${apiKey}` : ''}`;
           const infoRes = await fetch(infoUrl);
+          try { console.log('[ESCROW] verify: balance fetch status', { status: infoRes.status, ok: infoRes.ok }); } catch {}
           const info = await infoRes.json();
           const balStr = info?.ok ? info?.result?.balance : undefined;
+          try { console.log('[ESCROW] verify: balance json meta', { ok: info?.ok, hasBalance: !!balStr }); } catch {}
           if (balStr) {
             const bal = BigInt(balStr);
             if (!minValueNano) {
@@ -504,6 +536,7 @@ export class TonService {
               try { console.log('[ESCROW] verify: funded by balance fallback', { address, bal: bal.toString(), min: minValueNano.toString() }); } catch {}
               return 'funded';
             }
+            try { console.log('[ESCROW] verify: pending by balance insufficient', { address, bal: bal.toString(), min: minValueNano.toString() }); } catch {}
           }
         } catch (e) {
           try { console.warn('[ESCROW] verify: balance fallback failed'); } catch {}

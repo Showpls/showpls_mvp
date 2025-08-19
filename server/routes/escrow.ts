@@ -120,6 +120,19 @@ export function setupEscrowRoutes(app: Express) {
       if (!validProv || !validReq) return res.status(400).json({ error: 'Invalid wallet address' });
 
       const amount = BigInt(order.budgetNanoTon);
+      try {
+        console.log('[ESCROW] create request', {
+          orderId: order.id,
+          requesterId: authUser.id,
+          headers: { ua: req.headers['user-agent'] },
+          ip: req.ip,
+          orderStatus: order.status,
+          amountNano: String(order.budgetNanoTon),
+          requesterAddress,
+          providerAddress,
+          network: process.env.TON_NETWORK || process.env.NODE_ENV,
+        });
+      } catch {}
       const contract = await tonService.createEscrowContract(order.id, amount, requesterAddress, providerAddress);
 
       const updated = await storage.updateOrder(order.id, {
@@ -141,6 +154,13 @@ export function setupEscrowRoutes(app: Express) {
       const addrOptsCreate: any = { urlSafe: true, bounceable: false };
       if ((process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet') addrOptsCreate.testOnly = true;
       const nonBounceAddr = Address.parse(updated.escrowAddress!).toString(addrOptsCreate);
+      try {
+        console.log('[ESCROW] create response', {
+          orderId: order.id,
+          escrowAddress: (contract.address as any)?.toString?.() ?? contract.address,
+          stateInitPrefix: String(contract.stateInit).slice(0, 32),
+        });
+      } catch {}
       return res.json({ 
         success: true, 
         escrowAddress: nonBounceAddr, 
@@ -174,6 +194,20 @@ export function setupEscrowRoutes(app: Express) {
 
       // Include stateInit only if contract is not yet active (first deploy + fund)
       const isActive = await tonService.isContractActive(order.escrowAddress);
+      try {
+        console.log('[ESCROW] prepare-fund request', {
+          orderId: order.id,
+          requesterId: authUser.id,
+          headers: { ua: req.headers['user-agent'] },
+          ip: req.ip,
+          orderStatus: order.status,
+          budgetNano: String(order.budgetNanoTon),
+          escrowAddress: order.escrowAddress,
+          hasInitData: !!order.escrowInitData,
+          isActive,
+          network: process.env.TON_NETWORK || process.env.NODE_ENV,
+        });
+      } catch {}
       const fund = tonService.prepareFundingTx({
         escrowAddress: order.escrowAddress,
         amountNano: BigInt(order.budgetNanoTon),
@@ -292,14 +326,27 @@ export function setupEscrowRoutes(app: Express) {
 
       // In real impl: query chain to confirm transfer. Require value >= budget to avoid counting deploy tx.
       try {
-        console.log('[ESCROW] verify-funding', {
+        console.log('[ESCROW] verify-funding request', {
           orderId: order.id,
+          requesterId: authUser.id,
+          opId,
+          headers: { ua: req.headers['user-agent'] },
+          ip: req.ip,
           escrowAddress: order.escrowAddress,
           budgetNano: String(order.budgetNanoTon),
           when: new Date().toISOString(),
+          network: process.env.TON_NETWORK || process.env.NODE_ENV,
         });
       } catch {}
       const status = await tonService.getEscrowStatus(order.escrowAddress, BigInt(order.budgetNanoTon));
+      try {
+        console.log('[ESCROW] verify-funding result', {
+          orderId: order.id,
+          escrowAddress: order.escrowAddress,
+          status,
+          budgetNano: String(order.budgetNanoTon),
+        });
+      } catch {}
       if (status !== 'funded') return res.status(400).json({ error: 'Escrow not funded yet' });
 
       const updated = await storage.updateOrder(order.id, {
