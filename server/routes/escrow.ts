@@ -193,6 +193,7 @@ export function setupEscrowRoutes(app: Express) {
         const deployValueStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
         const { toNano } = await import('@ton/core');
         const deployAmount = toNano(deployValueStr).toString();
+        // IMPORTANT: Do not reduce the fund transfer. Contract checks msg_value of funding tx alone.
         return res.json({
           messages: [
             { address: formattedAddress, amountNano: deployAmount, stateInit: fund.stateInit, bounce: false },

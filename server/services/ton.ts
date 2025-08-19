@@ -73,7 +73,7 @@ export class TonService {
     includeStateInit?: string; // base64
     gasReserveNano?: bigint; // default from env TON_ESCROW_DEPLOY_RESERVE or 0.2 TON
   }): { address: string; amountNano: string; bodyBase64?: string; stateInit?: string } {
-    const defaultReserveStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.2';
+    const defaultReserveStr = process.env.TON_ESCROW_FUND_RESERVE ?? '0.1';
     const gas = params.gasReserveNano ?? toNano(defaultReserveStr);
     const total = params.amountNano + gas;
     const includeInit = params.includeStateInit;
