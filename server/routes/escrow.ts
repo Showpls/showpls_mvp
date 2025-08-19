@@ -179,8 +179,9 @@ export function setupEscrowRoutes(app: Express) {
         includeStateInit: isActive ? undefined : (order as any).escrowInitData,
       });
 
+      const Address = (await import('@ton/core')).Address;
       return res.json({
-        address: fund.address,
+        address: Address.parse(fund.address).toString({ urlSafe: true, bounceable: false, testOnly: true }),
         amountNano: fund.amountNano,
         bodyBase64: fund.bodyBase64,
         stateInit: fund.stateInit,
@@ -207,8 +208,9 @@ export function setupEscrowRoutes(app: Express) {
 
       const approve = tonService.prepareApproveTx({ escrowAddress: order.escrowAddress });
 
+      const Address = (await import('@ton/core')).Address;
       return res.json({
-        address: approve.address,
+        address: Address.parse(approve.address).toString({ urlSafe: true, bounceable: false, testOnly: true }),
         amountNano: approve.amountNano,
         bodyBase64: approve.bodyBase64,
       });

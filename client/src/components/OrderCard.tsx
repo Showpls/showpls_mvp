@@ -60,9 +60,12 @@ export function OrderCard({ order }: OrderCardProps) {
         try { throw new Error(JSON.parse(txt).error || 'Failed to prepare funding'); } catch { throw new Error('Failed to prepare funding'); }
       }
       const fund = await prepRes.json() as { address: string; amountNano: string; bodyBase64: string; stateInit?: string };
+      const msg: any = { address: fund.address, amount: fund.amountNano, bounce: false };
+      if (fund.bodyBase64 && fund.bodyBase64.length > 0) msg.payload = fund.bodyBase64;
+      if ((fund as any).stateInit) msg.stateInit = (fund as any).stateInit;
       await tonConnectUI.sendTransaction({
         validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
-        messages: [{ address: fund.address, amount: fund.amountNano, payload: fund.bodyBase64, stateInit: (fund as any).stateInit, bounce: false }]
+        messages: [msg]
       });
       const verifyRes = await fetch('/api/escrow/verify-funding', {
         method: 'POST',

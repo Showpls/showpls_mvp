@@ -71,11 +71,13 @@ export class TonService {
   }): { address: string; amountNano: string; bodyBase64: string; stateInit?: string } {
     const gas = params.gasReserveNano ?? toNano('0.05');
     const total = params.amountNano + gas;
+    const includeInit = params.includeStateInit;
     return {
       address: params.escrowAddress,
       amountNano: total.toString(),
-      bodyBase64: this.buildFundBody(),
-      stateInit: params.includeStateInit,
+      // If deploying with stateInit, omit body to reduce edge-case fee calc failures
+      bodyBase64: includeInit ? '' : this.buildFundBody(),
+      stateInit: includeInit,
     };
   }
 
