@@ -117,37 +117,54 @@ export const OrderActions: React.FC<OrderActionsProps> = ({ order }) => {
         const err = await prep.json().catch(() => ({}));
         throw new Error(err.error || 'Failed to prepare funding');
       }
-      const { address, amountNano, bodyBase64, stateInit } = await prep.json();
+      const fund = await prep.json();
 
-      // Build transaction with payload and optional stateInit
-      const tx = {
-        validUntil: Math.floor(Date.now() / 1000) + 300,
-        messages: [
-          {
-            address,
-            amount: amountNano,
-            payload: bodyBase64,
-            ...(stateInit ? { stateInit } : {}),
-          },
-        ],
-      } as const;
-
-      await ui.sendTransaction(tx as any);
-
-      // Verify funding on backend
-      const verify = await fetch('/api/escrow/verify-funding', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ orderId: order.id, opId: `fund_${order.id}_${Date.now()}` }),
-      });
-      if (!verify.ok) {
-        const err = await verify.json().catch(() => ({}));
-        throw new Error(err.error || 'Failed to verify funding');
+      // Build transaction messages (support deploy+fund two-message flow)
+      let messages: any[];
+      if ('messages' in fund && Array.isArray(fund.messages)) {
+        messages = fund.messages.map((m: any) => {
+          const out: any = { address: m.address, amount: m.amountNano, bounce: m.bounce ?? false };
+          if (m.bodyBase64) out.payload = m.bodyBase64;
+          if (m.stateInit) out.stateInit = m.stateInit;
+          return out;
+        });
+      } else {
+        const single = fund;
+        const msg: any = { address: single.address, amount: single.amountNano, bounce: false };
+        if (single.bodyBase64) msg.payload = single.bodyBase64;
+        if (single.stateInit) msg.stateInit = single.stateInit;
+        messages = [msg];
       }
-      return verify.json();
+
+      await ui.sendTransaction({
+        validUntil: Math.floor(Date.now() / 1000) + 300,
+        messages,
+      } as any);
+
+      // Poll verification to allow indexer to catch up
+      const opId = `fund_${order.id}_${Date.now()}`;
+      const maxAttempts = 12; // ~36s at 3s interval
+      const intervalMs = 3000;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const verify = await fetch('/api/escrow/verify-funding', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ orderId: order.id, opId }),
+        });
+        if (verify.ok) return verify.json();
+        const txt = await verify.text();
+        let errMsg = 'Failed to verify funding';
+        try { errMsg = JSON.parse(txt).error || errMsg; } catch {}
+        if (errMsg.toLowerCase().includes('not funded yet')) {
+          await new Promise(r => setTimeout(r, intervalMs));
+          continue;
+        }
+        throw new Error(errMsg);
+      }
+      throw new Error('Verification timeout. Please check your wallet and try again.');
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });

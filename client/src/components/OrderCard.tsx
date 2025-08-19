@@ -83,20 +83,35 @@ export function OrderCard({ order }: OrderCardProps) {
         validUntil: Math.floor(Date.now() / 1000) + 60 * 5,
         messages
       });
-      const verifyRes = await fetch('/api/escrow/verify-funding', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-        },
-        body: JSON.stringify({ orderId: order.id, opId: `verify_${order.id}_${Date.now()}` })
-      });
-      if (!verifyRes.ok) {
+      // Poll verification for a short period to allow indexer to catch up
+      const opId = `verify_${order.id}_${Date.now()}`;
+      const maxAttempts = 12; // ~36s total at 3s interval
+      const intervalMs = 3000;
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        const verifyRes = await fetch('/api/escrow/verify-funding', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ orderId: order.id, opId })
+        });
+        if (verifyRes.ok) {
+          // After successful funding, go to chat
+          window.location.href = `/chat/${order.id}`;
+          return;
+        }
         const txt = await verifyRes.text();
-        try { throw new Error(JSON.parse(txt).error || 'Failed to verify funding'); } catch { throw new Error('Failed to verify funding'); }
+        let errMsg = 'Failed to verify funding';
+        try { errMsg = JSON.parse(txt).error || errMsg; } catch {}
+        // If not yet funded, keep polling; otherwise, surface error
+        if (errMsg.toLowerCase().includes('not funded yet')) {
+          await new Promise(r => setTimeout(r, intervalMs));
+          continue;
+        }
+        throw new Error(errMsg);
       }
-      // After successful funding, go to chat
-      window.location.href = `/chat/${order.id}`;
+      throw new Error('Verification timeout. Please check your wallet and try again.');
     } catch (e: any) {
       setFundError(e?.message || 'Funding failed');
     } finally {
