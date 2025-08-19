@@ -7,7 +7,7 @@ import { MapView } from "@/components/MapView";
 import { OrderCard } from "@/components/OrderCard";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -43,6 +43,12 @@ export default function TelegramWebApp() {
   const [selectedMediaType, setSelectedMediaType] = useState<string>('');
   const { theme, setTheme } = useTheme();
   const { currentUser } = useCurrentUser();
+  const queryClient = useQueryClient();
+  const [onboarding, setOnboarding] = useState({
+    isProvider: currentUser?.isProvider ?? false,
+    location: currentUser?.location ?? null as null | { lat: number; lng: number; address?: string },
+  });
+  const [saving, setSaving] = useState(false);
 
   const formatTON = (nanoTon: string | number): string => {
     const ton = Number(nanoTon) / 1e9;
@@ -73,6 +79,63 @@ export default function TelegramWebApp() {
     };
     initTelegramWebApp();
   }, []);
+
+  useEffect(() => {
+    // Sync onboarding state when currentUser loads/changes
+    setOnboarding({
+      isProvider: currentUser?.isProvider ?? false,
+      location: (currentUser as any)?.location ?? null,
+    });
+  }, [currentUser?.isProvider, (currentUser as any)?.location]);
+
+  const getDeviceLocation = async (): Promise<{ lat: number; lng: number } | null> => {
+    if (!('geolocation' in navigator)) return null;
+    return new Promise((resolve) => {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => resolve(null),
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    });
+  };
+
+  const updateProfile = async (payload: any) => {
+    const token = getAuthToken();
+    const res = await fetch('/api/me', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error('Failed to update profile');
+    await res.json();
+    await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
+  };
+
+  const completeOnboarding = async () => {
+    try {
+      setSaving(true);
+      await updateProfile({
+        isProvider: onboarding.isProvider,
+        location: onboarding.location,
+        onboardingCompleted: true,
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleProvider = async () => {
+    await updateProfile({ isProvider: !(currentUser?.isProvider ?? false) });
+  };
+
+  const setLocationFromDevice = async () => {
+    const loc = await getDeviceLocation();
+    if (!loc) return;
+    await updateProfile({ location: loc });
+  };
 
   const { data: userOrders } = useQuery({
     queryKey: ['/api/orders/user'],
@@ -143,11 +206,61 @@ export default function TelegramWebApp() {
                   {theme === 'dark' ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
                   <span>{theme === 'dark' ? t('twa.lightMode') : t('twa.darkMode')}</span>
                 </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-brand-primary/20" />
+                <DropdownMenuItem onClick={toggleProvider} className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>{(currentUser?.isProvider ? t('twa.switchToBuyer') : t('twa.switchToProvider')) as any}</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={setLocationFromDevice} className="cursor-pointer">
+                  <MapPin className="mr-2 h-4 w-4" />
+                  <span>{t('twa.updateLocationFromDevice') as any}</span>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
       </div>
+
+      {/* Onboarding Banner */}
+      {currentUser && (currentUser as any).onboardingCompleted === false && (
+        <div className="max-w-sm mx-auto px-4 mb-4">
+          <Card className="glass-panel border-brand-primary/30">
+            <CardContent className="p-4 space-y-3">
+              <h3 className="font-semibold">{t('twa.welcome') as any}</h3>
+              <div className="text-sm text-text-muted">{t('twa.completeOnboarding') as any}</div>
+              <div className="flex items-center justify-between p-2 rounded-md bg-panel/60">
+                <span className="text-sm">{onboarding.isProvider ? (t('twa.roleProvider') as any) : (t('twa.roleBuyer') as any)}</span>
+                <Button size="sm" variant="outline" onClick={() => setOnboarding(o => ({ ...o, isProvider: !o.isProvider }))}>
+                  {(t('twa.toggleRole') as any)}
+                </Button>
+              </div>
+              <div className="space-y-2">
+                <div className="text-sm">
+                  {onboarding.location ? (
+                    <span>{t('twa.locationSet') as any}: {onboarding.location.lat.toFixed(4)}, {onboarding.location.lng.toFixed(4)}</span>
+                  ) : (
+                    <span>{t('twa.locationNotSet') as any}</span>
+                  )}
+                </div>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="secondary" onClick={async () => {
+                    const loc = await getDeviceLocation();
+                    if (loc) setOnboarding(o => ({ ...o, location: loc }));
+                  }}>
+                    <MapPin className="w-4 h-4 mr-2" />{t('twa.useDeviceLocation') as any}
+                  </Button>
+                  <Button size="sm" variant="outline" onClick={() => setOnboarding(o => ({ ...o, location: null }))}>
+                    {t('twa.clearLocation') as any}
+                  </Button>
+                </div>
+              </div>
+              <Button disabled={saving} onClick={completeOnboarding} className="w-full">
+                {saving ? (t('twa.saving') as any) : (t('twa.saveAndContinue') as any)}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {/* Main TWA Content */}
       <div className="max-w-sm mx-auto px-4 space-y-6">
@@ -164,6 +277,25 @@ export default function TelegramWebApp() {
               <div className="text-sm text-text-muted">{String(t('twa.createOrder'))}</div>
             </CardContent>
           </Card>
+
+        {/* Profile Section */}
+        {currentUser && (
+          <Card className="glass-panel border-brand-primary/20">
+            <CardContent className="p-4">
+              <h3 className="font-semibold mb-3 flex items-center">
+                <User className="w-5 h-5 text-brand-primary mr-2" />
+                {t('twa.profile') as any}
+              </h3>
+              <div className="space-y-1 text-sm">
+                <div><span className="text-text-muted">{t('twa.username') as any}:</span> @{(currentUser as any).username || '-'}</div>
+                <div><span className="text-text-muted">{t('twa.role') as any}:</span> {(currentUser as any).isProvider ? (t('twa.provider') as any) : (t('twa.buyer') as any)}</div>
+                <div><span className="text-text-muted">{t('twa.rating') as any}:</span> {(currentUser as any).rating ?? '-'}</div>
+                <div><span className="text-text-muted">{t('twa.totalOrders') as any}:</span> {(currentUser as any).totalOrders ?? 0}</div>
+                <div><span className="text-text-muted">{t('twa.location') as any}:</span> {(currentUser as any).location ? `${(currentUser as any).location.lat.toFixed(4)}, ${(currentUser as any).location.lng.toFixed(4)}` : '-'}</div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
           <Card
             className="glass-panel border-brand-primary/20 hover:bg-brand-accent/10 transition-all cursor-pointer"
             onClick={() => window.location.href = '/map'}

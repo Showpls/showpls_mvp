@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { useTranslation } from "react-i18next";
 import type { ChatMessage as ChatMessageType } from "@shared/schema";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 
 interface ChatMessageProps {
   message: ChatMessageType;
@@ -29,11 +31,24 @@ export function ChatMessage({ message, isOwn }: ChatMessageProps) {
       >
         <CardContent className={`p-3 ${isOwn ? 'rounded-br-sm' : 'rounded-bl-sm'}`}>
           {message.messageType === 'image' && message.metadata?.mediaUrl && (
-            <img
-              src={message.metadata.mediaUrl}
-              alt="Shared image"
-              className="rounded-lg w-full mb-2"
-            />
+            <div className="relative mb-2">
+              <img
+                src={message.metadata.mediaUrl}
+                alt="Shared image"
+                className="rounded-lg w-full"
+              />
+              <a
+                href={message.metadata.mediaUrl}
+                download
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute top-2 right-2"
+              >
+                <Button type="button" size="icon" variant={isOwn ? 'secondary' : 'ghost'} className="h-8 w-8 rounded-full shadow">
+                  <Download className={`h-4 w-4 ${isOwn ? '' : ''}`} />
+                </Button>
+              </a>
+            </div>
           )}
 
           <p className={`text-sm ${isOwn ? 'text-white' : 'text-text-primary'}`}>

@@ -328,7 +328,7 @@ export default function Chat() {
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
       {/* Chat Header */}
-      <div className="glass-panel p-4 mb-6">
+      <div className="glass-panel p-4 mb-6 sticky top-0 z-40 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <Button variant="ghost" size="sm" className="mr-2" onClick={() => setLocation('/twa')}>

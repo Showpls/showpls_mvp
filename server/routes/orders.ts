@@ -215,6 +215,26 @@ export function setupOrderRoutes(app: Express) {
         return res.status(400).json({ error: 'Order already has a provider' });
       }
 
+      // Enforce provider distance limit (300km)
+      if (!user.location || !order.location) {
+        return res.status(400).json({ error: 'Location not set for user or order' });
+      }
+      const distanceKm = (() => {
+        const R = 6371; // km
+        const dLat = ((order.location!.lat - user.location!.lat) * Math.PI) / 180;
+        const dLng = ((order.location!.lng - user.location!.lng) * Math.PI) / 180;
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos((user.location!.lat * Math.PI) / 180) *
+            Math.cos((order.location!.lat * Math.PI) / 180) *
+            Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+      })();
+      if (distanceKm > 300) {
+        return res.status(400).json({ error: `Order is too far (${distanceKm.toFixed(1)}km). Max allowed is 300km` });
+      }
+
       // --- Escrow Creation --- 
 
       const requester = await storage.getUser(order.requesterId);

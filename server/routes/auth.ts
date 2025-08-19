@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import crypto from "crypto";
 import { z } from "zod";
+import type { Request, Response } from "express";
 import { storage } from "../storage";
 import { authenticateTelegramUser } from "../middleware/telegramAuth";
 import { generateUserToken } from "../telegram";
@@ -118,6 +119,7 @@ export function setupAuthRoutes(app: Express) {
         firstName: user.firstName,
         lastName: user.lastName,
         isProvider: user.isProvider,
+        location: user.location,
         walletAddress: user.walletAddress,
         rating: user.rating,
         totalOrders: user.totalOrders,
@@ -126,6 +128,46 @@ export function setupAuthRoutes(app: Express) {
     } catch (error) {
       console.error('[AUTH] Error getting user:', error);
       res.status(500).json({ error: 'Failed to get user info' });
+    }
+  });
+
+  // Update user profile (JWT protected)
+  app.put('/api/me', authenticateTelegramUser, async (req: Request, res: Response) => {
+    try {
+      const authUser = (req as any).user as { id: string } | undefined;
+      if (!authUser?.id) {
+        return res.status(401).json({ error: 'Not authenticated' });
+      }
+
+      const body = req.body as {
+        isProvider?: boolean;
+        location?: { lat: number; lng: number; address?: string } | null;
+        onboardingCompleted?: boolean;
+      };
+
+      const updates: any = {};
+      if (typeof body.isProvider === 'boolean') updates.isProvider = body.isProvider;
+      if (body.location === null) {
+        updates.location = null;
+      } else if (body.location && typeof body.location.lat === 'number' && typeof body.location.lng === 'number') {
+        updates.location = { lat: body.location.lat, lng: body.location.lng, address: body.location.address };
+      }
+      if (typeof body.onboardingCompleted === 'boolean') updates.onboardingCompleted = body.onboardingCompleted;
+
+      if (Object.keys(updates).length === 0) {
+        return res.status(400).json({ error: 'No valid fields to update' });
+      }
+
+      const updated = await storage.updateUser(authUser.id, updates);
+      return res.json({
+        id: updated.id,
+        isProvider: updated.isProvider,
+        location: updated.location,
+        onboardingCompleted: updated.onboardingCompleted,
+      });
+    } catch (error) {
+      console.error('[AUTH] Error updating profile:', error);
+      res.status(500).json({ error: 'Failed to update profile' });
     }
   });
 

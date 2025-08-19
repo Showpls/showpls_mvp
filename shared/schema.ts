@@ -82,6 +82,8 @@ export const users = pgTable("users", {
     precision: 30,
     scale: 0,
   }).default("0"),
+  // Home or preferred working location for distance checks
+  location: jsonb("location").$type<{ lat: number; lng: number; address?: string }>(),
   onboardingCompleted: boolean("onboarding_completed").default(false),
   lastActiveAt: timestamp("last_active_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
