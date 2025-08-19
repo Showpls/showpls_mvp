@@ -1,10 +1,9 @@
 import React from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from './ui/sheet';
 import { Card, CardContent } from './ui/card';
-import { MapPin, Clock, User, Wallet, Camera, Video, Radio } from 'lucide-react';
+import { MapPin, Clock, Wallet, Camera, Video, Radio } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Order } from '@shared/schema';
-import { Chat } from './Chat';
 import { OrderAcceptButton } from './OrderAcceptButton';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 
@@ -36,7 +35,6 @@ export const OrderDetailsSheet: React.FC<OrderDetailsSheetProps> = ({ order, isO
 
   if (!order) return null;
 
-  const canAccessChat = currentUser && (currentUser.id === order.requesterId || currentUser.id === order.providerId);
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
@@ -94,25 +92,7 @@ export const OrderDetailsSheet: React.FC<OrderDetailsSheetProps> = ({ order, isO
               </CardContent>
             </Card>
 
-            {/* Chat Section */}
-            {canAccessChat ? (
-              <div className="space-y-3">
-                <h3 className="font-semibold text-white flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Communication
-                </h3>
-                <Chat orderId={order.id} />
-              </div>
-            ) : (
-              <Card className="glass-panel border-white/20 bg-black/20">
-                <CardContent className="p-6 text-center">
-                  <div className="space-y-3">
-                    <User className="w-8 h-8 text-gray-400 mx-auto" />
-                    <p className="text-gray-400">Chat will be available once the order is accepted</p>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+            {/* Chat removed from this sheet */}
           </div>
         </div>
 
