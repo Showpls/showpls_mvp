@@ -199,8 +199,11 @@ export function setupEscrowRoutes(app: Express) {
 
       // Default: return two messages: deploy + fund
       const deployValueStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
+      const fundReserveStr = process.env.TON_ESCROW_FUND_RESERVE ?? '0.1';
       const { toNano } = await import('@ton/core');
       const deployAmount = toNano(deployValueStr).toString();
+      const fundReserve = toNano(fundReserveStr).toString();
+      const fundAmountWithReserve = (BigInt(fund.amountNano) + BigInt(fundReserve)).toString();
       const response = {
         success: true,
         escrowAddress: nonBounceAddr,
@@ -208,7 +211,7 @@ export function setupEscrowRoutes(app: Express) {
         fund: {
           messages: [
             { address: nonBounceAddr, amountNano: deployAmount, stateInit: fund.stateInit, bounce: false },
-            { address: bounceAddr, amountNano: fund.amountNano, bodyBase64: fund.bodyBase64, bounce: true },
+            { address: bounceAddr, amountNano: fundAmountWithReserve, bodyBase64: fund.bodyBase64, bounce: true },
           ]
         },
         status: updated.status
@@ -218,6 +221,8 @@ export function setupEscrowRoutes(app: Express) {
           orderId: order.id,
           deployAmount,
           fundAmount: fund.amountNano,
+          fundAmountWithReserve,
+          fundReserveStr,
         });
       } catch {}
       return res.json(response);
