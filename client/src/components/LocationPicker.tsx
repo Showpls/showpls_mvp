@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { useTranslation } from "react-i18next";
 import { MapPin, Crosshair, X, Check } from "lucide-react";
-import { mapService } from "@/lib/map";
+import { MapService } from "@/lib/map";
 import { locationService } from "@/lib/location";
 import 'mapbox-gl/dist/mapbox-gl.css';
 
@@ -23,6 +23,7 @@ export function LocationPicker({
 }: LocationPickerProps) {
     const { t } = useTranslation();
     const mapContainerRef = useRef<HTMLDivElement>(null);
+    const mapRef = useRef<MapService | null>(null);
     const [isMapInitialized, setIsMapInitialized] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address: string } | null>(
         initialLocation ? { lat: initialLocation.lat, lng: initialLocation.lng, address: initialLocation.address || '' } : null
@@ -32,19 +33,22 @@ export function LocationPicker({
 
     useEffect(() => {
         if (mapContainerRef.current && !isMapInitialized) {
+            if (!mapRef.current) {
+                mapRef.current = new MapService();
+            }
             const center: [number, number] = selectedLocation
                 ? [selectedLocation.lng, selectedLocation.lat]
                 : [37.6176, 55.7558]; // Default to Moscow
 
-            const map = mapService.initializeMap(mapContainerRef.current, center, 12);
+            const map = mapRef.current.initializeMap(mapContainerRef.current, center, 12);
             if (map) {
                 setIsMapInitialized(true);
 
                 const handleMapClick = async (e: mapboxgl.MapMouseEvent & { lngLat: mapboxgl.LngLat }) => {
                     const { lng, lat } = e.lngLat;
                     setSelectedLocation({ lat, lng, address: t('location.loadingAddress') });
-                    mapService.clearMarkers();
-                    mapService.addLocationMarker(lat, lng);
+                    mapRef.current?.clearMarkers();
+                    mapRef.current?.addLocationMarker(lat, lng);
 
                     setIsGeocoding(true);
                     try {
@@ -61,18 +65,17 @@ export function LocationPicker({
                 map.on('click', handleMapClick);
 
                 if (selectedLocation) {
-                    mapService.addLocationMarker(selectedLocation.lat, selectedLocation.lng);
+                    mapRef.current?.addLocationMarker(selectedLocation.lat, selectedLocation.lng);
                 }
             }
         }
 
         return () => {
             if (isMapInitialized) {
-                mapService.destroy();
-                setIsMapInitialized(false);
+                mapRef.current?.destroy();
             }
         };
-    }, [isMapInitialized, selectedLocation, t]);
+    }, [isMapInitialized, t]);
 
     const getCurrentLocation = async () => {
         setIsLoading(true);
@@ -82,10 +85,10 @@ export function LocationPicker({
             const newLocation = { lat: location.latitude, lng: location.longitude, address };
             setSelectedLocation(newLocation);
 
-            mapService.setCenter(location.longitude, location.latitude);
-            mapService.setZoom(15);
-            mapService.clearMarkers();
-            mapService.addLocationMarker(location.latitude, location.longitude);
+            mapRef.current?.setCenter(location.longitude, location.latitude);
+            mapRef.current?.setZoom(15);
+            mapRef.current?.clearMarkers();
+            mapRef.current?.addLocationMarker(location.latitude, location.longitude);
         } catch (error: any) {
             console.error('[LOCATION_PICKER] Error getting current location:', error);
             alert(error.message || t('location.getCurrentLocationError'));
