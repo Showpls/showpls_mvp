@@ -1,4 +1,4 @@
-import { Address, Cell, internal, beginCell, contractAddress, toNano, fromNano } from "@ton/core";
+import { Address, Cell, internal, beginCell, contractAddress, toNano, fromNano, storeStateInit } from "@ton/core";
 import { TonClient, WalletContractV4 } from "@ton/ton";
 import { mnemonicToPrivateKey } from "@ton/crypto";
 
@@ -267,7 +267,8 @@ export class TonService {
       return {
         // Use non-bounceable + testOnly for testnet deploy+fund
         address: addr.toString({ urlSafe: true, bounceable: false, testOnly: (process.env.TON_NETWORK || process.env.NODE_ENV) === 'testnet' }),
-        stateInit: beginCell().storeRef(codeCell).storeRef(dataCell).endCell().toBoc().toString('base64')
+        // Properly encode StateInit per TL-B (with present flags), not just two refs
+        stateInit: beginCell().store(storeStateInit({ code: codeCell, data: dataCell })).endCell().toBoc().toString('base64')
       };
     } catch (error) {
         console.error('[TON] Failed to create escrow contract:', error);

@@ -11,13 +11,15 @@ interface LocationPickerProps {
     onLocationSelect: (location: { lat: number; lng: number; address: string }) => void;
     onClose: () => void;
     className?: string;
+    hideCloseButton?: boolean;
 }
 
 export function LocationPicker({
     initialLocation,
     onLocationSelect,
     onClose,
-    className = ""
+    className = "",
+    hideCloseButton = false
 }: LocationPickerProps) {
     const { t } = useTranslation();
     const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -108,9 +110,11 @@ export function LocationPicker({
                     <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-brand-primary" />
                     {t('location.pickLocation')}
                 </h2>
-                <Button size="icon" variant="ghost" onClick={onClose} className="h-8 w-8 sm:h-9 sm:w-9">
-                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
-                </Button>
+                {!hideCloseButton && (
+                    <Button size="icon" variant="ghost" onClick={onClose} className="h-8 w-8 sm:h-9 sm:w-9">
+                        <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </Button>
+                )}
             </div>
 
             {/* Instructions */}

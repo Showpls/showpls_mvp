@@ -200,7 +200,18 @@
     "lightMode": "Светлая тема",
     "darkMode": "Темная тема",
     "loadingActivity": "Загрузка активности...",
-    "noRecentActivity": "Нет недавней активности."
+    "noRecentActivity": "Нет недавней активности.",
+    "welcome": "Добро пожаловать в Showpls",
+    "completeOnboarding": "Пожалуйста, выберите роль и укажите свою локацию, чтобы продолжить.",
+    "chooseRole": "Выберите роль",
+    "roleBuyer": "Покупатель",
+    "roleProvider": "Исполнитель",
+    "setLocation": "Укажите вашу локацию",
+    "locationNotSet": "Локация не выбрана",
+    "pickOnMap": "Выбрать на карте",
+    "clearLocation": "Очистить",
+    "saving": "Сохранение...",
+    "saveAndContinue": "Сохранить и продолжить"
   },
   "location": {
     "pickLocation": "Выберите место",

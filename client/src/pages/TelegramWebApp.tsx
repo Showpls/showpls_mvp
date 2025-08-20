@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { WalletConnect } from "@/components/WalletConnect";
 // import { CreateRequestForm } from "@/components/CreateRequestForm";
 import { MapView } from "@/components/MapView";
+import { LocationPicker } from "@/components/LocationPicker";
 import { OrderCard } from "@/components/OrderCard";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
@@ -39,6 +40,7 @@ export default function TelegramWebApp() {
     location: currentUser?.location ?? null as null | { lat: number; lng: number; address?: string },
   });
   const [saving, setSaving] = useState(false);
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
 
   const formatTON = (nanoTon: string | number): string => {
     const ton = Number(nanoTon) / 1e9;
@@ -194,44 +196,76 @@ export default function TelegramWebApp() {
         </div>
       </div>
 
-      {/* Onboarding Banner */}
+      {/* Onboarding Blocking Overlay */}
       {currentUser && (currentUser as any).onboardingCompleted === false && (
-        <div className="max-w-sm mx-auto px-4 mb-4">
-          <Card className="glass-panel border-brand-primary/30">
-            <CardContent className="p-4 space-y-3">
-              <h3 className="font-semibold">{t('twa.welcome') as any}</h3>
-              <div className="text-sm text-text-muted">{t('twa.completeOnboarding') as any}</div>
-              <div className="flex items-center justify-between p-2 rounded-md bg-panel/60">
-                <span className="text-sm">{onboarding.isProvider ? (t('twa.roleProvider') as any) : (t('twa.roleBuyer') as any)}</span>
-                <Button size="sm" variant="outline" onClick={() => setOnboarding(o => ({ ...o, isProvider: !o.isProvider }))}>
-                  {(t('twa.toggleRole') as any)}
-                </Button>
-              </div>
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="w-full max-w-md bg-background rounded-xl border border-brand-primary/30 shadow-xl">
+            <div className="p-4 space-y-4">
+              <h3 className="font-semibold text-lg">{String(t('twa.welcome') || 'Welcome to Showpls')}</h3>
+              <div className="text-sm text-text-muted">{String(t('twa.completeOnboarding') || 'Please choose your role and set your location to continue.')}</div>
+
               <div className="space-y-2">
-                <div className="text-sm">
-                  {onboarding.location ? (
-                    <span>{t('twa.locationSet') as any}: {onboarding.location.lat.toFixed(4)}, {onboarding.location.lng.toFixed(4)}</span>
-                  ) : (
-                    <span>{t('twa.locationNotSet') as any}</span>
+                <div className="text-xs text-text-muted">{String(t('twa.chooseRole') || 'Choose your role')}:</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <Button
+                    variant={onboarding.isProvider ? 'outline' : 'default'}
+                    className={onboarding.isProvider ? '' : 'bg-brand-primary'}
+                    onClick={() => setOnboarding(o => ({ ...o, isProvider: false }))}
+                  >
+                    {String(t('twa.roleBuyer') || 'Buyer')}
+                  </Button>
+                  <Button
+                    variant={onboarding.isProvider ? 'default' : 'outline'}
+                    className={onboarding.isProvider ? 'bg-brand-primary' : ''}
+                    onClick={() => setOnboarding(o => ({ ...o, isProvider: true }))}
+                  >
+                    {String(t('twa.roleProvider') || 'Seller')}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="text-xs text-text-muted">{String(t('twa.setLocation') || 'Set your location')}:</div>
+                {onboarding.location ? (
+                  <div className="p-2 rounded-md bg-panel/60 text-sm">
+                    <div className="font-medium">{onboarding.location.address || `${onboarding.location.lat.toFixed(4)}, ${onboarding.location.lng.toFixed(4)}`}</div>
+                    <div className="text-text-muted text-xs">{onboarding.location.lat.toFixed(4)}, {onboarding.location.lng.toFixed(4)}</div>
+                  </div>
+                ) : (
+                  <div className="text-sm text-text-muted">{String(t('twa.locationNotSet') || 'No location selected')}</div>
+                )}
+                <div className="flex gap-2">
+                  <Button size="sm" variant="secondary" onClick={() => setShowLocationPicker(true)}>
+                    <MapPin className="w-4 h-4 mr-2" /> {String(t('twa.pickOnMap') || 'Pick on map')}
+                  </Button>
+                  {onboarding.location && (
+                    <Button size="sm" variant="outline" onClick={() => setOnboarding(o => ({ ...o, location: null }))}>
+                      {String(t('twa.clearLocation') || 'Clear')}
+                    </Button>
                   )}
                 </div>
-                <div className="flex gap-2">
-                  <Button size="sm" variant="secondary" onClick={async () => {
-                    const loc = await getDeviceLocation();
-                    if (loc) setOnboarding(o => ({ ...o, location: loc }));
-                  }}>
-                    <MapPin className="w-4 h-4 mr-2" />{t('twa.useDeviceLocation') as any}
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => setOnboarding(o => ({ ...o, location: null }))}>
-                    {t('twa.clearLocation') as any}
-                  </Button>
-                </div>
               </div>
-              <Button disabled={saving} onClick={completeOnboarding} className="w-full">
-                {saving ? (t('twa.saving') as any) : (t('twa.saveAndContinue') as any)}
+
+              <Button
+                disabled={saving || !onboarding.location}
+                onClick={completeOnboarding}
+                className="w-full"
+              >
+                {saving ? String(t('twa.saving') || 'Saving...') : String(t('twa.saveAndContinue') || 'Save and continue')}
               </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+
+          {showLocationPicker && (
+            <LocationPicker
+              initialLocation={onboarding.location || undefined}
+              onLocationSelect={(loc) => {
+                setOnboarding(o => ({ ...o, location: loc }));
+              }}
+              onClose={() => setShowLocationPicker(false)}
+              hideCloseButton
+            />
+          )}
         </div>
       )}
 

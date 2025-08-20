@@ -200,7 +200,18 @@
     "lightMode": "Light Mode",
     "darkMode": "Dark Mode",
     "loadingActivity": "Loading activity...",
-    "noRecentActivity": "No recent activity to show."
+    "noRecentActivity": "No recent activity to show.",
+    "welcome": "Welcome to Showpls",
+    "completeOnboarding": "Please choose your role and set your location to continue.",
+    "chooseRole": "Choose your role",
+    "roleBuyer": "Buyer",
+    "roleProvider": "Seller",
+    "setLocation": "Set your location",
+    "locationNotSet": "No location selected",
+    "pickOnMap": "Pick on map",
+    "clearLocation": "Clear",
+    "saving": "Saving...",
+    "saveAndContinue": "Save and continue"
   },
   "location": {
     "pickLocation": "Pick Location",
