@@ -170,13 +170,18 @@ export function setupEscrowRoutes(app: Express) {
       // If env requests single-message deploy+fund, include stateInit on the funding message itself
       const singleMsg = process.env.TON_ESCROW_SINGLE_MSG === '1';
       if (singleMsg) {
+        // For single-message deploy+fund we must include deploy reserve on top of amount
+        const { toNano } = await import('@ton/core');
+        const deployValueStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
+        const deployAmount = toNano(deployValueStr).toString();
+        const totalAmount = (BigInt(fund.amountNano) + BigInt(deployAmount)).toString();
         const response = {
           success: true,
           escrowAddress: nonBounceAddr,
           escrowInitData: updated.escrowInitData,
           fund: {
             address: nonBounceAddr,
-            amountNano: fund.amountNano,
+            amountNano: totalAmount,
             bodyBase64: fund.bodyBase64,
             stateInit: fund.stateInit,
           },
@@ -185,7 +190,7 @@ export function setupEscrowRoutes(app: Express) {
         try {
           console.log('[ESCROW] create response (single deploy+fund)', {
             orderId: order.id,
-            amountNano: fund.amountNano,
+            amountNano: totalAmount,
             hasStateInit: !!fund.stateInit,
           });
         } catch {}
@@ -286,16 +291,21 @@ export function setupEscrowRoutes(app: Express) {
       if (fund.stateInit) {
         const singleMsg = process.env.TON_ESCROW_SINGLE_MSG === '1';
         if (singleMsg) {
+          // For single-message deploy+fund we must include deploy reserve on top of amount
+          const { toNano } = await import('@ton/core');
+          const deployValueStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
+          const deployAmount = toNano(deployValueStr).toString();
+          const totalAmount = (BigInt(fund.amountNano) + BigInt(deployAmount)).toString();
           const response = {
             address: formattedAddress,
-            amountNano: fund.amountNano,
+            amountNano: totalAmount,
             bodyBase64: fund.bodyBase64,
             stateInit: fund.stateInit,
           } as const;
           try {
             console.log('[ESCROW] prepare-fund response (single deploy+fund)', {
               orderId: order.id,
-              amountNano: fund.amountNano,
+              amountNano: totalAmount,
               hasStateInit: !!fund.stateInit,
             });
           } catch {}
