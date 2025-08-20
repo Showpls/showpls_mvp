@@ -318,14 +318,17 @@ export function setupEscrowRoutes(app: Express) {
         }
 
         const deployValueStr = process.env.TON_ESCROW_DEPLOY_RESERVE ?? '0.05';
+        const fundReserveStr = process.env.TON_ESCROW_FUND_RESERVE ?? '0.1';
         const { toNano } = await import('@ton/core');
         const deployAmount = toNano(deployValueStr).toString();
-        // IMPORTANT: Do not reduce the fund transfer. Contract checks msg_value of funding tx alone.
+        const fundReserve = toNano(fundReserveStr).toString();
+        const fundAmountWithReserve = (BigInt(fund.amountNano) + BigInt(fundReserve)).toString();
+        // Funding message must include amount + reserve to satisfy OP_FUND(msg_value >= amount + gasReserveMin)
         const formattedBounceAddr = Address.parse(fund.address).toString(addrBounce);
         const response = {
           messages: [
             { address: formattedAddress, amountNano: deployAmount, stateInit: fund.stateInit, bounce: false },
-            { address: formattedBounceAddr, amountNano: fund.amountNano, bodyBase64: fund.bodyBase64, bounce: true },
+            { address: formattedBounceAddr, amountNano: fundAmountWithReserve, bodyBase64: fund.bodyBase64, bounce: true },
           ]
         } as const;
         try {
@@ -333,6 +336,8 @@ export function setupEscrowRoutes(app: Express) {
             orderId: order.id,
             deployAmount,
             fundAmount: fund.amountNano,
+            fundAmountWithReserve,
+            fundReserveStr,
           });
         } catch {}
         return res.json(response);
