@@ -202,4 +202,101 @@ export function setupAuthRoutes(app: Express) {
       res.status(500).json({ error: 'Failed to update wallet' });
     }
   });
+
+  // Dev-only: simple browser login without Telegram initData
+  app.post('/api/auth/dev-login', async (req, res) => {
+    try {
+      const enable = process.env.ENABLE_DEV_AUTH === '1' || process.env.NODE_ENV !== 'production';
+      if (!enable) {
+        return res.status(403).json({ error: 'Dev auth disabled in production' });
+      }
+
+      const body = req.body as {
+        telegramId?: number | string;
+        username?: string;
+        first_name?: string;
+        last_name?: string;
+        is_premium?: boolean;
+        photo_url?: string;
+      };
+
+      const telegramId = Number(body.telegramId || Date.now());
+      const username = body.username || `devuser_${telegramId}`;
+
+      const { token, user } = await generateUserToken({
+        id: telegramId,
+        first_name: body.first_name || 'Dev',
+        last_name: body.last_name || 'User',
+        username,
+        language_code: 'en',
+        is_premium: !!body.is_premium,
+        photo_url: body.photo_url,
+      });
+
+      return res.json({ success: true, token, user });
+    } catch (error) {
+      console.error('[AUTH] dev-login error:', error);
+      res.status(500).json({ error: 'Failed to create dev token' });
+    }
+  });
+
+  // Dev-only: generate a signed Telegram initData to emulate Telegram header auth
+  app.post('/api/auth/dev-initdata', async (req, res) => {
+    try {
+      const enable = process.env.ENABLE_DEV_AUTH === '1' || process.env.NODE_ENV !== 'production';
+      if (!enable) {
+        return res.status(403).json({ error: 'Dev auth disabled in production' });
+      }
+
+      const botToken = process.env.TELEGRAM_BOT_TOKEN;
+      if (!botToken) {
+        return res.status(500).json({ error: 'Bot token not configured' });
+      }
+
+      const body = req.body as {
+        telegramId?: number | string;
+        username?: string;
+        first_name?: string;
+        last_name?: string;
+        is_premium?: boolean;
+        photo_url?: string;
+        chat_instance?: string;
+        chat_type?: string;
+        start_param?: string;
+      };
+
+      const tgUser = {
+        id: Number(body.telegramId || Date.now()),
+        first_name: body.first_name || 'Dev',
+        last_name: body.last_name || 'User',
+        username: body.username || undefined,
+        language_code: 'en',
+        is_premium: !!body.is_premium,
+        photo_url: body.photo_url,
+      } as any;
+
+      const auth_date = Math.floor(Date.now() / 1000).toString();
+      const params = new URLSearchParams();
+      params.set('user', JSON.stringify(tgUser));
+      if (body.chat_instance) params.set('chat_instance', String(body.chat_instance));
+      if (body.chat_type) params.set('chat_type', String(body.chat_type));
+      if (body.start_param) params.set('start_param', String(body.start_param));
+      params.set('auth_date', auth_date);
+
+      const base = Array.from(params.entries())
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([k, v]) => `${k}=${v}`)
+        .join('\n');
+
+      const secretKey = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();
+      const hash = crypto.createHmac('sha256', secretKey).update(base).digest('hex');
+      params.set('hash', hash);
+
+      const initData = params.toString();
+      return res.json({ success: true, initData, hint: 'Use as Authorization: Telegram <initData>' });
+    } catch (error) {
+      console.error('[AUTH] dev-initdata error:', error);
+      res.status(500).json({ error: 'Failed to generate initData' });
+    }
+  });
 }
