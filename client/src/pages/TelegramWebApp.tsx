@@ -181,7 +181,7 @@ export default function TelegramWebApp() {
       <div className="bg-[#090527] rounded-none h-16 px-3 mb-6">
         <div className="max-w-sm mx-auto flex items-center justify-between h-full">
           <div className="flex items-center">
-            <img src="/logo3.png" alt="Showpls"  className="block max-h-14 h-full object-contain mr-2 select-none" />
+            <img src="/logo3.png" alt="Showpls" className="block max-h-8 h-full object-contain mr-2 select-none" />
             <span className="text-white text-base font-semibold tracking-wide select-none">Showpls</span>
           </div>
           <div className="flex items-center space-x-2">
@@ -297,7 +297,7 @@ export default function TelegramWebApp() {
             </CardContent>
           </Card>
 
-        {/* Profile section removed; open profile from top-right button */}
+          {/* Profile section removed; open profile from top-right button */}
           <Card
             className="glass-panel border-brand-primary/20 hover:bg-brand-accent/10 transition-all cursor-pointer"
             onClick={() => window.location.href = '/map'}
