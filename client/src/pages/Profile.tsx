@@ -11,7 +11,7 @@ import { useTheme } from "next-themes";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getAuthToken } from "@/lib/auth";
 import { LocationPicker } from "@/components/LocationPicker";
-import { Plus, MapPin } from "lucide-react";
+import { MapPin, ShoppingCart, Store } from "lucide-react";
 
 interface PublicUserProfile {
   id: string;
@@ -157,7 +157,12 @@ export default function Profile() {
                       await updateProfile({ isProvider: !(currentUser?.isProvider ?? false) });
                       await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
                     }}>
-                      <Plus className="w-4 h-4" /> {currentUser?.isProvider ? String(t('twa.roleBuyer') || 'Buyer') : String(t('twa.roleProvider') || 'Provider')}
+                      {currentUser?.isProvider ? (
+                        <ShoppingCart className="w-4 h-4" />
+                      ) : (
+                        <Store className="w-4 h-4" />
+                      )}
+                      {currentUser?.isProvider ? String(t('twa.roleBuyer') || 'Buyer') : String(t('twa.roleProvider') || 'Provider')}
                     </Button>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">

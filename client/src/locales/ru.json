@@ -210,7 +210,7 @@
     "roleProviderHint": "Вы будете выполнять запросы и зарабатывать TON",
     "setLocation": "Укажите вашу локацию",
     "locationNotSet": "Локация не выбрана",
-    "pickOnMap": "Выбрать на карте",
+    "pickOnMap": "Выбрать",
     "clearLocation": "Очистить",
     "saving": "Сохранение...",
     "saveAndContinue": "Сохранить и продолжить"
@@ -273,7 +273,7 @@
     "confirmSwitch": "Вы уверены, что хотите сменить роль?",
     "switchToBuyer": "Переключить на Покупателя",
     "switchToProvider": "Переключить на Исполнителя",
-    "updateLocation": "Обновить локацию",
+    "updateLocation": "Локация",
     "ratingEligibilityHint": "Откройте этот профиль из конкретного чата, чтобы оценить пользователя по этому заказу."
   },
 

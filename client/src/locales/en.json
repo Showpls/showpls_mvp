@@ -210,7 +210,7 @@
     "roleProviderHint": "You will fulfill requests and earn TON",
     "setLocation": "Set your location",
     "locationNotSet": "No location selected",
-    "pickOnMap": "Pick on map",
+    "pickOnMap": "Pick",
     "clearLocation": "Clear",
     "saving": "Saving...",
     "saveAndContinue": "Save and continue"
@@ -341,7 +341,7 @@
     "confirmSwitch": "Are you sure you want to switch your role?",
     "switchToBuyer": "Switch to Buyer",
     "switchToProvider": "Switch to Provider",
-    "updateLocation": "Update Location",
+    "updateLocation": "Location",
     "ratingEligibilityHint": "Open this profile from a specific chat to rate this user for that order."
   },
   "createOrder": {
