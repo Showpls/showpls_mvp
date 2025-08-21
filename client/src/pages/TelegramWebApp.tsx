@@ -178,10 +178,10 @@ export default function TelegramWebApp() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="logo-header h-16 px-4 mb-6">
+      <div className="logo-header h-16 px-3 mb-6 overflow-hidden">
         <div className="max-w-sm mx-auto flex items-center justify-between h-full">
           <div className="flex items-center">
-            <img src="/logo.png" alt="Showpls" className="h-full w-auto mr-2 select-none" />
+            <img src="/logo2.png" alt="Showpls" className="block h-full w-auto max-h-full max-w-full object-contain mr-2 select-none shrink-0" />
           </div>
           <div className="flex items-center space-x-2">
             <WalletConnect />
