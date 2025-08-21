@@ -109,13 +109,6 @@
     background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
   }
   
-  /* Header background to match logo image background */
-  .logo-header {
-    @apply border border-brand-primary/20 rounded-none;
-    /* Solid background requested */
-    background: #040017;
-  }
-  
   .brand-gradient-text {
     background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
     -webkit-background-clip: text;
