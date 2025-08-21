@@ -285,7 +285,7 @@ export default function TelegramWebApp() {
       )}
 
       {/* Main TWA Content */}
-      <div className="max-w-sm mx-auto px-4 space-y-6">
+      <div className="max-w-sm mx-auto px-4 space-y-6 pb-10">
 
         {/* Quick Actions */}
         <div className="grid grid-cols-2 gap-4">
@@ -400,13 +400,35 @@ export default function TelegramWebApp() {
               const ordersToShow = showAllMyOrders ? allOrders : activeOrders;
 
               if (ordersToShow.length === 0) {
-                return <p className="text-text-muted text-sm">{showAllMyOrders ? t('twa.noOrders') : t('twa.noActiveOrders')}</p>;
+                return (
+                  <Card className="glass-panel border-brand-primary/20">
+                    <CardContent className="p-4 text-center space-y-2">
+                      <div className="w-10 h-10 mx-auto rounded-full bg-panel/60 flex items-center justify-center">
+                        <MessageSquare className="w-5 h-5 text-text-muted" />
+                      </div>
+                      <div className="text-sm text-text-muted">
+                        {showAllMyOrders ? String(t('twa.noOrders') || 'You have no orders yet.') : String(t('twa.noActiveOrders') || 'You have no active orders.')}
+                      </div>
+                      <div className="flex gap-2 justify-center">
+                        {currentUser?.isProvider ? (
+                          <Button size="sm" variant="outline" onClick={() => window.location.href = '/map'}>
+                            {String(t('twa.findRequests') || 'Find requests')}
+                          </Button>
+                        ) : (
+                          <Button size="sm" className="bg-brand-primary text-white" onClick={handleCreateRequest}>
+                            {String(t('twa.createOrder') || 'Create order')}
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
               }
 
               return (
                 <>
                   {ordersToShow.map((order: any) => (
-                    <div key={order.id} className="relative">
+                    <div key={order.id} className="relative mb-3 last:mb-0">
                       <OrderCard order={order} />
                     </div>
                   ))}
@@ -417,7 +439,25 @@ export default function TelegramWebApp() {
               );
             })()
           ) : (
-            <p className="text-text-muted text-sm">{t('twa.noOrders')}</p>
+            <Card className="glass-panel border-brand-primary/20">
+              <CardContent className="p-4 text-center space-y-2">
+                <div className="w-10 h-10 mx-auto rounded-full bg-panel/60 flex items-center justify-center">
+                  <MessageSquare className="w-5 h-5 text-text-muted" />
+                </div>
+                <div className="text-sm text-text-muted">{String(t('twa.noOrders') || 'You have no orders yet.')}</div>
+                <div className="flex gap-2 justify-center">
+                  {currentUser?.isProvider ? (
+                    <Button size="sm" variant="outline" onClick={() => window.location.href = '/map'}>
+                      {String(t('twa.findRequests') || 'Find requests')}
+                    </Button>
+                  ) : (
+                    <Button size="sm" className="bg-brand-primary text-white" onClick={handleCreateRequest}>
+                      {String(t('twa.createOrder') || 'Create order')}
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
       </div>

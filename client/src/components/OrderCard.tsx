@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useTonConnectUI } from "@tonconnect/ui-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Camera, Video, Radio, MessageSquare } from "lucide-react";
+import { Camera, Video, Radio, MessageSquare, MapPin } from "lucide-react";
 import type { OrderWithRelations } from "@shared/schema";
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -41,6 +41,7 @@ export function OrderCard({ order }: OrderCardProps) {
   const allowedChatStatuses = ['FUNDED', 'IN_PROGRESS', 'DELIVERED', 'APPROVED'] as const;
   const chatEnabled = allowedChatStatuses.includes(order.status as any);
   const isRequester = !!(user?.id && order.requesterId === user.id);
+  const statusLabel = t(`order.status.${String(order.status).toLowerCase()}`);
 
   const handleFundNow = async () => {
     setFundError(null);
@@ -158,53 +159,59 @@ export function OrderCard({ order }: OrderCardProps) {
   };
 
   return (
-    <Card className="glass-panel border-brand-primary/20 hover:bg-brand-primary/5 transition-all">
+    <Card className="glass-panel border-brand-primary/20 hover:border-brand-primary/40 hover:bg-brand-primary/5 transition-colors">
       <CardContent className="p-3">
-        <div className="grid grid-cols-[1fr_auto] gap-2">
-          {/* Left column: icon + title/status and chat button below */}
-          <div>
-            <div className="flex items-center">
-              <div className="w-10 h-10 bg-brand-primary/20 rounded-full flex items-center justify-center mr-3">
-                {getMediaIcon(order.mediaType)}
-              </div>
-              <div>
-                <div className="font-medium text-sm truncate w-40">{order.title}</div>
-                <div className="text-xs text-text-muted capitalize">
-                  {t(`order.status.${order.status.toLowerCase()}`)}
-                </div>
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center min-w-0">
+            <div className="w-10 h-10 bg-brand-primary/20 rounded-full flex items-center justify-center mr-3">
+              {getMediaIcon(order.mediaType)}
+            </div>
+            <div className="min-w-0">
+              <div className="font-medium text-sm truncate max-w-[12rem]">{order.title}</div>
+              <div className="mt-1">
+                <Badge variant="outline" className="text-[10px] px-2 py-0.5 border-brand-primary/40 text-text-muted capitalize">
+                  {statusLabel}
+                </Badge>
               </div>
             </div>
-            {isOrderActive && (
-              <div className="mt-2">
-                {chatEnabled ? (
-                  <Link href={`/chat/${order.id}`}>
-                    <Button size="sm" variant="outline" className="border-brand-primary/30">
-                      <MessageSquare className="w-4 h-4 mr-2" />
-                      {t('order.chat')}
-                    </Button>
-                  </Link>
-                ) : order.status === 'PENDING_FUNDING' && isRequester ? (
-                  <div className="space-y-1">
-                    {fundError && (
-                      <div className="text-[11px] text-red-400">{fundError}</div>
-                    )}
-                    <Button size="sm" onClick={handleFundNow} disabled={isFunding} className="bg-yellow-500 text-black hover:bg-yellow-600">
-                      {isFunding ? t('order.processing') || 'Processing…' : t('order.fundNow') || 'Fund Now'}
-                    </Button>
-                  </div>
-                ) : null}
-              </div>
-            )}
           </div>
-
-          {/* Right column: amount top-right and time bottom-right */}
-          <div className="flex flex-col items-end justify-between">
-            <div className="text-sm font-medium text-brand-accent">+{formatTON(order.budgetNanoTon)}</div>
+          <div className="text-right shrink-0">
+            <div className="text-sm font-semibold text-brand-accent">+{formatTON(order.budgetNanoTon)}</div>
             <div className="text-xs text-text-muted">
               {order.createdAt ? formatDistanceToNow(new Date(order.createdAt), { addSuffix: true, locale: i18n.language === 'ru' ? ru : undefined }) : ''}
             </div>
           </div>
         </div>
+
+        {/* Location (optional) */}
+        {Boolean((order as any)?.location?.address) && (
+          <div className="mt-2 flex items-center text-xs text-text-muted truncate">
+            <MapPin className="w-3 h-3 mr-1 opacity-70" />
+            <span className="truncate">{(order as any).location.address}</span>
+          </div>
+        )}
+
+        {/* Actions */}
+        {isOrderActive && (
+          <div className="mt-3 flex items-center justify-between">
+            <div className="text-[11px] text-red-400">{fundError || ''}</div>
+            <div className="ml-auto">
+              {chatEnabled ? (
+                <Link href={`/chat/${order.id}`}>
+                  <Button size="sm" variant="outline" className="border-brand-primary/30">
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    {t('order.chat')}
+                  </Button>
+                </Link>
+              ) : order.status === 'PENDING_FUNDING' && isRequester ? (
+                <Button size="sm" onClick={handleFundNow} disabled={isFunding} className="bg-yellow-500 text-black hover:bg-yellow-600">
+                  {isFunding ? t('order.processing') || 'Processing…' : t('order.fundNow') || 'Fund Now'}
+                </Button>
+              ) : null}
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
