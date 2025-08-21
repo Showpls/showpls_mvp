@@ -12,6 +12,7 @@ interface LocationPickerProps {
     onClose: () => void;
     className?: string;
     hideCloseButton?: boolean;
+    hideUseCurrentButton?: boolean;
 }
 
 export function LocationPicker({
@@ -19,7 +20,8 @@ export function LocationPicker({
     onLocationSelect,
     onClose,
     className = "",
-    hideCloseButton = false
+    hideCloseButton = false,
+    hideUseCurrentButton = false
 }: LocationPickerProps) {
     const { t } = useTranslation();
     const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -142,15 +144,17 @@ export function LocationPicker({
 
             {/* Bottom Controls Panel */}
             <div className="bg-panel border-t border-brand-primary/20 p-3 sm:p-4 space-y-3 sm:space-y-4">
-                <Button
-                    onClick={getCurrentLocation}
-                    disabled={isLoading}
-                    variant="outline"
-                    className="w-full h-10 sm:h-11 text-sm border-brand-primary/30 hover:bg-brand-primary/10"
-                >
-                    <Crosshair className="w-4 h-4 mr-2" />
-                    {t('location.useCurrentLocation')}
-                </Button>
+                {!hideUseCurrentButton && (
+                    <Button
+                        onClick={getCurrentLocation}
+                        disabled={isLoading}
+                        variant="outline"
+                        className="w-full h-10 sm:h-11 text-sm border-brand-primary/30 hover:bg-brand-primary/10"
+                    >
+                        <Crosshair className="w-4 h-4 mr-2" />
+                        {t('location.useCurrentLocation')}
+                    </Button>
+                )}
 
                 {selectedLocation && (
                     <div className="p-3 bg-panel/70 rounded-lg border border-brand-primary/20 text-left">

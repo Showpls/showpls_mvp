@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useParams, useLocation } from "wouter";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -10,6 +10,7 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useTheme } from "next-themes";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getAuthToken } from "@/lib/auth";
+import { LocationPicker } from "@/components/LocationPicker";
 
 interface PublicUserProfile {
   id: string;
@@ -30,6 +31,7 @@ export default function Profile() {
   const { currentUser } = useCurrentUser();
   const { theme, setTheme } = useTheme();
   const queryClient = useQueryClient();
+  const [showLocationPicker, setShowLocationPicker] = useState(false);
 
   const { data, isLoading, isError } = useQuery<PublicUserProfile>({
     queryKey: ["/api/users", id],
@@ -70,16 +72,7 @@ export default function Profile() {
     await res.json();
   };
 
-  const getDeviceLocation = async (): Promise<{ lat: number; lng: number } | null> => {
-    if (!('geolocation' in navigator)) return null;
-    return new Promise((resolve) => {
-      navigator.geolocation.getCurrentPosition(
-        (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => resolve(null),
-        { enableHighAccuracy: true, timeout: 8000 }
-      );
-    });
-  };
+  // Location selection handled via LocationPicker modal
 
   return (
     <div className="min-h-screen bg-bg-primary text-text-primary">
@@ -144,35 +137,32 @@ export default function Profile() {
             {isOwnProfile && (
               <Card className="glass-panel border-brand-primary/20">
                 <CardContent className="p-4 space-y-3">
-                  <div className="font-semibold mb-1">Settings</div>
+                  <div className="font-semibold mb-1">{t('profile.settings')}</div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
-                    <div className="text-sm">Language</div>
+                    <div className="text-sm">{t('profile.language')}</div>
                     <LanguageSwitcher />
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
-                    <div className="text-sm">Theme</div>
+                    <div className="text-sm">{t('profile.theme')}</div>
                     <Button size="sm" variant="outline" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                      {theme === 'dark' ? 'Light' : 'Dark'}
+                      {theme === 'dark' ? String(t('profile.light') || 'Light') : String(t('profile.dark') || 'Dark')}
                     </Button>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
-                    <div className="text-sm">Role</div>
+                    <div className="text-sm">{t('profile.role')}</div>
                     <Button size="sm" variant="outline" onClick={async () => {
-                      const confirmSwitch = window.confirm('Are you sure you want to switch your role?');
+                      const confirmSwitch = window.confirm(String(t('profile.confirmSwitch') || 'Are you sure you want to switch your role?'));
                       if (!confirmSwitch) return;
                       await updateProfile({ isProvider: !(currentUser?.isProvider ?? false) });
                       await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
                     }}>
-                      {currentUser?.isProvider ? 'Switch to Buyer' : 'Switch to Provider'}
+                      {currentUser?.isProvider ? String(t('profile.switchToBuyer') || 'Switch to Buyer') : String(t('profile.switchToProvider') || 'Switch to Provider')}
                     </Button>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
-                    <div className="text-sm">Update Location</div>
-                    <Button size="sm" variant="secondary" onClick={async () => {
-                      const loc = await getDeviceLocation();
-                      if (loc) await updateProfile({ location: loc });
-                    }}>
-                      Use Device Location
+                    <div className="text-sm">{t('profile.updateLocation')}</div>
+                    <Button size="sm" variant="secondary" onClick={() => setShowLocationPicker(true)}>
+                      {String(t('twa.pickOnMap') || 'Pick on map')}
                     </Button>
                   </div>
                 </CardContent>
@@ -201,6 +191,18 @@ export default function Profile() {
           </>
         )}
       </div>
+    {showLocationPicker && (
+      <LocationPicker
+        initialLocation={typeof data?.location === 'object' ? (data.location as any) : undefined}
+        onLocationSelect={async (loc) => {
+          await updateProfile({ location: loc });
+          setShowLocationPicker(false);
+          await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
+        }}
+        onClose={() => setShowLocationPicker(false)}
+        hideCloseButton
+      />
+    )}
     </div>
   );
 }

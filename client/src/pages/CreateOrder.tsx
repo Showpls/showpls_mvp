@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MapPin, Camera, Video, Smartphone, ArrowLeft, Map } from "lucide-react";
+import { Camera, Video, Smartphone, ArrowLeft, Map } from "lucide-react";
 import { Link } from "wouter";
 import { useTranslation } from "react-i18next";
 import { getAuthToken, bootstrapTelegramAuth } from "@/lib/auth";
@@ -176,29 +176,7 @@ export default function CreateOrder() {
     setConfirmOpen(true);
   };
 
-  const getLocationFromBrowser = async () => {
-    console.log('[CREATE_ORDER] Location button clicked');
-
-    try {
-      const location = await locationService.getCurrentLocation();
-      console.log('[CREATE_ORDER] Location received:', location);
-
-      // Get address from coordinates
-      const address = await locationService.getAddressFromCoordinates(location.latitude, location.longitude);
-
-      setOrderData({
-        ...orderData,
-        location: {
-          lat: location.latitude,
-          lng: location.longitude,
-          address: address,
-        }
-      });
-    } catch (e: any) {
-      console.error('[CREATE_ORDER] Location error:', e);
-      alert(e.message || t('createOrder.failedToGetLocation'));
-    }
-  };
+  // Removed direct browser current-location selection; use LocationPicker only
 
   const fillSampleData = () => {
     setOrderData({
@@ -319,17 +297,6 @@ export default function CreateOrder() {
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => {
-                      console.log('[CREATE_ORDER] Button clicked');
-                      getLocationFromBrowser();
-                    }}
-                    className="shrink-0"
-                  >
-                    <MapPin size={16} />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
                     onClick={() => setShowLocationPicker(true)}
                     className="shrink-0"
                   >
@@ -353,6 +320,7 @@ export default function CreateOrder() {
                     setShowLocationPicker(false);
                   }}
                   onClose={() => setShowLocationPicker(false)}
+                  hideUseCurrentButton
                 />
               )}
 

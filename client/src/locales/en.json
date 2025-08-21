@@ -331,7 +331,18 @@
     "location": "Location",
     "locationUnknown": "Location unknown",
     "rateUser": "Rate this user",
-    "ratingNote": "Only eligible users can submit ratings."
+    "ratingNote": "Only eligible users can submit ratings.",
+    "settings": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "role": "Role",
+    "confirmSwitch": "Are you sure you want to switch your role?",
+    "switchToBuyer": "Switch to Buyer",
+    "switchToProvider": "Switch to Provider",
+    "updateLocation": "Update Location",
+    "ratingEligibilityHint": "Open this profile from a specific chat to rate this user for that order."
   },
   "createOrder": {
     "title": "Create Order",
