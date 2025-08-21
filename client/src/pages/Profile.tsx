@@ -11,6 +11,7 @@ import { useTheme } from "next-themes";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getAuthToken } from "@/lib/auth";
 import { LocationPicker } from "@/components/LocationPicker";
+import { Plus, MapPin } from "lucide-react";
 
 interface PublicUserProfile {
   id: string;
@@ -150,19 +151,19 @@ export default function Profile() {
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
                     <div className="text-sm">{t('profile.role')}</div>
-                    <Button size="sm" variant="outline" onClick={async () => {
+                    <Button size="sm" variant="outline" className="flex items-center gap-2" onClick={async () => {
                       const confirmSwitch = window.confirm(String(t('profile.confirmSwitch') || 'Are you sure you want to switch your role?'));
                       if (!confirmSwitch) return;
                       await updateProfile({ isProvider: !(currentUser?.isProvider ?? false) });
                       await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
                     }}>
-                      {currentUser?.isProvider ? String(t('profile.switchToBuyer') || 'Switch to Buyer') : String(t('profile.switchToProvider') || 'Switch to Provider')}
+                      <Plus className="w-4 h-4" /> {currentUser?.isProvider ? String(t('twa.roleBuyer') || 'Buyer') : String(t('twa.roleProvider') || 'Provider')}
                     </Button>
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
                     <div className="text-sm">{t('profile.updateLocation')}</div>
-                    <Button size="sm" variant="secondary" onClick={() => setShowLocationPicker(true)}>
-                      {String(t('twa.pickOnMap') || 'Pick on map')}
+                    <Button size="sm" className="bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center gap-2" onClick={() => setShowLocationPicker(true)}>
+                      <MapPin className="w-4 h-4" /> {String(t('twa.pickOnMap') || 'Pick on map')}
                     </Button>
                   </div>
                 </CardContent>
@@ -201,6 +202,7 @@ export default function Profile() {
         }}
         onClose={() => setShowLocationPicker(false)}
         hideCloseButton
+        hideUseCurrentButton
       />
     )}
     </div>
