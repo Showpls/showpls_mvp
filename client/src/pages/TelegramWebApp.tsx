@@ -181,12 +181,8 @@ export default function TelegramWebApp() {
       <div className="glass-panel rounded-none h-16 px-3 mb-6">
         <div className="max-w-sm mx-auto flex items-center justify-between h-full">
           <div className="flex items-center gap-1">
-            <img src="/logo4.png" alt="Showpls" className="block max-h-8 h-full object-contain mr-2 select-none" />
-            <div>
-              <h2 className="text-white text-base font-semibold tracking-wide select-none">Showpls</h2>
-              <p className="text-white text-sm font-semibold tracking-wide select-none">Your eyes, everywhere.</p>
-            </div>
-          </div>
+            <img src="/logo4.png" alt="Showpls" className="block max-h-10 h-full object-contain mr-2 select-none" />
+            <h2 className="text-white text-base font-semibold tracking-wide select-none">Showpls</h2>          </div>
           <div className="flex items-center space-x-2">
             <WalletConnect />
             <Button
