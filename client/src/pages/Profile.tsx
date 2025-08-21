@@ -19,7 +19,7 @@ interface PublicUserProfile {
   rating?: number;
   totalOrders?: number;
   isProvider?: boolean;
-  location?: string;
+  location?: string | { lat: number; lng: number };
   photoUrl?: string;
 }
 
@@ -129,7 +129,13 @@ export default function Profile() {
                   </div>
                   <div className="glass-panel p-3 rounded-md">
                     <div className="text-text-muted">{t('profile.location')}</div>
-                    <div className="font-semibold">{data.location || t('profile.locationUnknown')}</div>
+                    <div className="font-semibold">
+                      {typeof data.location === 'string'
+                        ? data.location
+                        : data.location && typeof data.location === 'object'
+                          ? `${Number((data.location as any).lat).toFixed(5)}, ${Number((data.location as any).lng).toFixed(5)}`
+                          : t('profile.locationUnknown')}
+                    </div>
                   </div>
                 </div>
               </CardContent>
