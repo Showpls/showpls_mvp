@@ -221,7 +221,7 @@ export default function TelegramWebApp() {
                     type="button"
                     variant="outline"
                     aria-pressed={!onboarding.isProvider}
-                    className={`justify-center gap-2 border ${!onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-card border-brand-primary/30 hover:bg-card/80'}`}
+                    className={`justify-center gap-2 border transition-none ${!onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-card border-brand-primary/30'}`}
                     onClick={() => setOnboarding(o => ({ ...o, isProvider: false }))}
                   >
                     <ShoppingBag className="w-4 h-4" /> {String(t('twa.roleBuyer') || 'Buyer')}
@@ -230,7 +230,7 @@ export default function TelegramWebApp() {
                     type="button"
                     variant="outline"
                     aria-pressed={onboarding.isProvider}
-                    className={`justify-center gap-2 border ${onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-card border-brand-primary/30 hover:bg-card/80'}`}
+                    className={`justify-center gap-2 border transition-none ${onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-card border-brand-primary/30'}`}
                     onClick={() => setOnboarding(o => ({ ...o, isProvider: true }))}
                   >
                     <Camera className="w-4 h-4" /> {String(t('twa.roleProvider') || 'Seller')}
@@ -250,11 +250,8 @@ export default function TelegramWebApp() {
                   <div className="text-sm text-text-muted">{String(t('twa.locationNotSet') || 'No location selected')}</div>
                 )}
                 <div className="flex flex-wrap gap-2">
-                  <Button size="sm" variant="secondary" onClick={() => setShowLocationPicker(true)}>
+                  <Button size="sm" variant="default" className="w-full justify-center bg-brand-primary text-white" onClick={() => setShowLocationPicker(true)}>
                     <MapPin className="w-4 h-4 mr-2" /> {String(t('twa.pickOnMap') || 'Pick on map')}
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={setLocationFromDeviceLocal}>
-                    {String(t('twa.useDeviceLocation') || 'Use device location')}
                   </Button>
                   {onboarding.location && (
                     <Button size="sm" variant="outline" onClick={() => setOnboarding(o => ({ ...o, location: null }))}>
@@ -267,7 +264,7 @@ export default function TelegramWebApp() {
               <Button
                 disabled={saving || !onboarding.location}
                 onClick={completeOnboarding}
-                className="w-full"
+                className="w-full gradient-bg text-white mt-3"
               >
                 {saving ? String(t('twa.saving') || 'Saving...') : String(t('twa.saveAndContinue') || 'Save and continue')}
               </Button>

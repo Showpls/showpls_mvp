@@ -206,6 +206,8 @@
     "chooseRole": "Выберите роль",
     "roleBuyer": "Покупатель",
     "roleProvider": "Исполнитель",
+    "roleBuyerHint": "Вы будете создавать запросы и оплачивать в TON",
+    "roleProviderHint": "Вы будете выполнять запросы и зарабатывать TON",
     "setLocation": "Укажите вашу локацию",
     "locationNotSet": "Локация не выбрана",
     "pickOnMap": "Выбрать на карте",

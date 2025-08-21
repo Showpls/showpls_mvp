@@ -206,6 +206,8 @@
     "chooseRole": "Choose your role",
     "roleBuyer": "Buyer",
     "roleProvider": "Seller",
+    "roleBuyerHint": "You will create requests and pay in TON",
+    "roleProviderHint": "You will fulfill requests and earn TON",
     "setLocation": "Set your location",
     "locationNotSet": "No location selected",
     "pickOnMap": "Pick on map",
