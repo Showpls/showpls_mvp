@@ -9,7 +9,9 @@
     "realtimeTagline": "Realidad en tiempo real.",
     "subtitle": "Conéctate con proveedores locales para obtener fotos, videos y transmisiones en vivo desde cualquier ubicación mundial con pagos seguros de blockchain TON.",
     "openTelegram": "Abrir en Telegram",
-    "watchDemo": "Ver demo"
+    "watchDemo": "Ver demo",
+    "tryOnboarding": "Probar onboarding",
+    "browseTemplates": "Explorar plantillas"
   },
   "stats": {
     "coverage": "Cobertura global",
@@ -86,7 +88,31 @@
       "hour": "hace 1h"
     },
     "trySample": "Probar solicitud de muestra",
-    "yourOrders": "Tus órdenes"
+    "yourOrders": "Tus órdenes",
+    "myOrders": "Mis órdenes",
+    "myActiveOrders": "Mis órdenes activas",
+    "noActiveOrders": "No tienes órdenes activas.",
+    "showAllOrders": "Mostrar todas las órdenes",
+    "showActiveOrders": "Mostrar solo activas",
+    "noOrders": "Aún no has creado ninguna orden.",
+    "settings": "Configuración",
+    "lightMode": "Modo claro",
+    "darkMode": "Modo oscuro",
+    "loadingActivity": "Cargando actividad...",
+    "noRecentActivity": "No hay actividad reciente para mostrar.",
+    "welcome": "Bienvenido a Showpls",
+    "completeOnboarding": "Elige tu rol y establece tu ubicación para continuar.",
+    "chooseRole": "Elige tu rol",
+    "roleBuyer": "Comprador",
+    "roleProvider": "Vendedor",
+    "roleBuyerHint": "Crearás solicitudes y pagarás en TON",
+    "roleProviderHint": "Cumplirás solicitudes y ganarás TON",
+    "setLocation": "Establece tu ubicación",
+    "locationNotSet": "No se seleccionó ubicación",
+    "pickOnMap": "Elegir",
+    "clearLocation": "Borrar",
+    "saving": "Guardando...",
+    "saveAndContinue": "Guardar y continuar"
   },
   "createRequest": {
     "title": "Nueva solicitud",
@@ -107,9 +133,26 @@
     "live": "En vivo"
   },
   "map": {
+    "title": "Mapa de órdenes",
+    "filterPanel": {
+      "infoTitle": "Los filtros están disponibles directamente en el mapa",
+      "infoText": "Haz clic en el botón 'Filtros' en la esquina superior izquierda del mapa para personalizar tu búsqueda por tipo de contenido, radio y presupuesto.",
+      "closeButton": "Entendido"
+    },
     "interactive": "Mapa interactivo",
     "mapboxIntegration": "Integración Mapbox GL",
-    "nearMe": "Cerca de mí"
+    "nearMe": "Cerca de mí",
+    "searching": "Buscando...",
+    "found": "Encontrado",
+    "geoNotSupported": "La geolocalización no es compatible",
+    "telegramLocationDenied": "Permite acceso a la ubicación en Telegram para encontrar órdenes cercanas",
+    "telegramLocationError": "No se pudo obtener la ubicación a través de Telegram",
+    "locationDenied": "Acceso a la ubicación denegado. Permítelo en la configuración del navegador.",
+    "locationUnavailable": "Información de ubicación no disponible",
+    "locationTimeout": "Tiempo de espera de ubicación excedido",
+    "locationError": "No se pudo obtener tu ubicación",
+    "myLocation": "Mi ubicación",
+    "filters": "Filtros"
   },
   "order": {
     "status": {
@@ -119,16 +162,28 @@
       "delivered": "Entregado",
       "approved": "Aprobado",
       "disputed": "Disputado",
-      "refunded": "Reembolsado"
+      "refunded": "Reembolsado",
+      "pending_funding": "Pendiente de financiación"
     },
     "locationUnknown": "Ubicación desconocida",
+    "fundNow": "Financiar ahora",
+    "processing": "Procesando...",
+    "proccessing": "Procesando...",
     "chat": "Chat",
-    "accept": "Aceptar"
+    "accept": "Aceptar",
+    "accepting": "Aceptando...",
+    "mustBeProvider": "Solo los proveedores pueden aceptar órdenes",
+    "acceptConfirm": {
+      "title": "¿Aceptar esta orden?",
+      "body": "Te convertirás en el proveedor de esta orden y serás responsable de completarla.",
+      "confirm": "Aceptar"
+    }
   },
   "wallet": {
     "connect": "Conectar",
     "connecting": "Conectando...",
-    "connected": "Conectado"
+    "connected": "Conectado",
+    "disconnect": "Desconectar"
   },
   "chat": {
     "loading": "Cargando chat...",
@@ -138,7 +193,139 @@
     "mediaDelivered": "Medios entregados • Pendiente de aprobación",
     "approving": "Aprobando...",
     "approvePayment": "Aprobar y liberar pago",
-    "typeMessage": "Escribe un mensaje..."
+    "typeMessage": "Escribe un mensaje...",
+    "openDispute": "Abrir disputa",
+    "quickReplies": "Respuestas rápidas",
+    "customMessage": "Mensaje personalizado",
+    "categories": {
+      "status_update": "Estado",
+      "eta": "ETA",
+      "clarification": "Aclaración"
+    },
+    "connected": "Conectado",
+    "connecting": "Conectando..."
+  },
+
+  "createOrder": {
+    "title": "Crear orden",
+    "newContentRequest": "Nueva solicitud de contenido",
+    "fillSample": "Rellenar con muestra",
+    "orderTitle": "Título de la orden",
+    "orderTitlePlaceholder": "p. ej. Foto de la Torre Eiffel",
+    "description": "Descripción",
+    "descriptionPlaceholder": "Describe en detalle lo que necesitas...",
+    "contentType": "Tipo de contenido",
+    "photo": "Foto",
+    "video": "Video",
+    "liveStream": "Transmisión en vivo",
+    "location": "Ubicación",
+    "specifyAddress": "Especificar dirección",
+    "addressPlaceholder": "Dirección o descripción del lugar",
+    "coordinates": "Coordenadas: {{lat}}, {{lng}}",
+    "nearbyOrdersMap": "Mapa de órdenes cercanas",
+    "budget": "Presupuesto (TON)",
+    "creating": "Creando...",
+    "createOrder": "Crear orden",
+    "errorPrefix": "Error: {{message}}",
+    "fillTitleAndDescription": "Completa el título y la descripción de la orden",
+    "authRequired": "Autentícate vía Telegram WebApp e inténtalo de nuevo.",
+    "failedToCreate": "No se pudo crear la orden",
+    "failedToGetLocation": "No se pudo obtener tu ubicación",
+    "sampleTitle": "Fotos de la Plaza Roja",
+    "sampleDescription": "Se necesitan fotos recientes de la Plaza Roja con vista al Kremlin. Preferible al atardecer.",
+    "sampleAddress": "Plaza Roja, Moscú",
+    "insufficientBalance": "Saldo insuficiente. Saldo: {{balance}} TON, requerido: {{required}} TON.",
+    "balanceOk": "Saldo suficiente. Saldo: {{balance}} TON, requerido: {{required}} TON.",
+    "walletNotConnected": "Billetera TON no conectada"
+  },
+
+  "orderDetails": {
+    "budget": "Presupuesto",
+    "mediaType": "Tipo de medios",
+    "status": "Estado",
+    "location": "Ubicación",
+    "addressNotAvailable": "Dirección no disponible",
+    "acceptOrderToChat": "Acepta la orden para empezar a chatear con el cliente."
+  },
+
+  "dispute": {
+    "openTitle": "Abrir disputa",
+    "viewTitle": "Detalles de la disputa",
+    "warning": "Aviso importante",
+    "warningText": "Abrir una disputa pausará el pago en garantía e iniciará el proceso de arbitraje. Proporciona información detallada y evidencias.",
+    "reason": "Motivo de la disputa",
+    "reasonPlaceholder": "Describe el problema con esta orden en detalle...",
+    "reasonRequired": "Por favor, proporciona un motivo para la disputa",
+    "uploadEvidence": "Subir evidencias",
+    "evidenceHelp": "Sube fotos, videos o documentos que respalden tu caso",
+    "attachedEvidence": "Evidencia adjunta",
+    "pendingEvidence": "Evidencia pendiente",
+    "openDispute": "Abrir disputa",
+    "created": "Disputa creada",
+    "createdDescription": "Tu disputa ha sido abierta y el depósito ha sido pausado. Un árbitro revisará tu caso en 24-48 horas.",
+    "createError": "No se pudo crear la disputa. Inténtalo de nuevo.",
+    "details": "Detalles de la disputa",
+    "id": "ID de disputa",
+    "createdAt": "Creado el",
+    "evidence": "Evidencia",
+    "addEvidence": "Agregar evidencia",
+    "submitEvidence": "Enviar evidencia",
+    "evidenceAdded": "Evidencia agregada",
+    "evidenceAddedDescription": "Tu evidencia ha sido agregada al caso de disputa.",
+    "resolution": "Resolución",
+    "decision": "Decisión",
+    "statusOpen": "Abierta",
+    "statusInReview": "En revisión",
+    "statusResolved": "Resuelta",
+    "process": "Proceso de resolución de disputas",
+    "step1": "Disputa abierta - depósito pausado automáticamente",
+    "step2": "Ambas partes pueden presentar evidencia dentro de 24 horas",
+    "step3": "El árbitro revisa el caso y toma una decisión",
+    "step4": "El pago se libera o se reembolsa según la decisión"
+  },
+
+  "landing": {
+    "title": "SHOWPLS",
+    "subtitle": "Mercado global de contenido en tiempo real",
+    "description": "Solicita fotos, videos y transmisiones en vivo desde cualquier lugar del mundo con pagos seguros en la blockchain de TON",
+    "cta": "Comenzar ahora",
+    "promo": "Video promocional abajo ↓",
+    "videoDescription": "Demostración completa de la plataforma Showpls: desde la creación de órdenes hasta la entrega de contenido",
+    "stats": {
+      "countries": "Países disponibles",
+      "uptime": "Siempre funcionando",
+      "avgTime": "Tiempo promedio",
+      "success": "Órdenes exitosas"
+    },
+    "features": {
+      "instant": {
+        "title": "Resultados instantáneos",
+        "description": "Obtén contenido en minutos"
+      },
+      "secure": {
+        "title": "Pagos seguros",
+        "description": "Depósito en blockchain TON"
+      },
+      "global": {
+        "title": "Red global",
+        "description": "Cobertura mundial"
+      },
+      "quality": {
+        "title": "Calidad garantizada",
+        "description": "Contenido profesional"
+      }
+    },
+    "demo": {
+      "title": "Demostración en vivo",
+      "step1": "1. Crear solicitud",
+      "step2": "2. Establecer ubicación",
+      "step3": "3. Esperar proveedor",
+      "step4": "4. Recibir contenido",
+      "location": "Times Square, NYC",
+      "price": "0.5 TON",
+      "status": "¡Proveedor encontrado!",
+      "global": "Global"
+    }
   },
   "rating": {
     "title": "Califica este proveedor",
@@ -181,5 +368,138 @@
     "getFullDocument": "Obtener el documento completo",
     "fullDocumentText": "Descarga el libro blanco completo para especificaciones técnicas detalladas, modelo económico y hoja de ruta.",
     "downloadFullPdf": "Descargar libro blanco completo (PDF)"
-  }
+  },
+  "onboarding": {
+    "step": "Paso",
+    "welcome": {
+      "title": "Bienvenido a Showpls",
+      "description": "Obtén fotos, videos y transmisiones en vivo en tiempo real desde cualquier lugar del mundo. ¡Vamos a empezar!"
+    },
+    "wallet": {
+      "title": "Conecta tu billetera",
+      "description": "La conexión segura de la billetera TON permite pagos en garantía y transferencias instantáneas.",
+      "why": "¿Por qué conectar una billetera?",
+      "security": "Todos los pagos están asegurados mediante el sistema de garantía en la blockchain de TON"
+    },
+    "order": {
+      "title": "Prueba tu primer pedido",
+      "description": "Experimenta el flujo completo con una solicitud de muestra. ¡No se requiere pago!"
+    },
+    "chat": {
+      "title": "Comunicación en tiempo real",
+      "description": "Chatea directamente con proveedores, sigue el progreso y recibe actualizaciones al instante."
+    },
+    "sampleOrder": {
+      "benefits": "Beneficios del pedido de muestra:",
+      "benefit1": "Experimenta el flujo completo",
+      "benefit2": "Aprende el sistema de chat",
+      "benefit3": "No se requiere pago"
+    },
+    "tryDemo": "Probar pedido de demostración",
+    "getStarted": "Comenzar"
+  },
+  "quickReplies": {
+    "heading_to_location": "Yendo al lugar ahora",
+    "at_location": "Estoy en el lugar",
+    "taking_photos": "Tomando fotos ahora",
+    "almost_done": "Casi terminado",
+    "completed": "Tarea completada",
+    "eta_5_min": "ETA 5 minutos",
+    "eta_10_min": "ETA 10 minutos",
+    "eta_20_min": "ETA 20 minutos",
+    "running_late": "Voy con retraso, disculpa",
+    "show_price_tag": "Por favor, muestra claramente la etiqueta de precio",
+    "specific_angle": "¿Puedes tomar un ángulo específico?",
+    "better_lighting": "Se necesita mejor iluminación",
+    "confirm_location": "¿Puedes confirmar la ubicación exacta?"
+  },
+  "payment": {
+    "calculator": "Calculadora de pago",
+    "budget": "Presupuesto",
+    "tip": "Propina",
+    "optional": "opcional",
+    "milestonePayments": "Pagos por hitos",
+    "breakdown": "Desglose del pago",
+    "youPay": "Tú pagas",
+    "platformFee": "Comisión de la plataforma",
+    "providerReceives": "Proveedor recibe",
+    "total": "Total",
+    "milestoneBreakdown": "Desglose por hitos",
+    "atLocation": "En el lugar (33%)",
+    "draftContent": "Contenido borrador (33%)",
+    "finalDelivery": "Entrega final (34%)"
+  },
+  "tip": {
+    "sendTip": "Enviar propina",
+    "forExcellentService": "Por excelente servicio",
+    "quickAmounts": "Cantidades rápidas",
+    "customAmount": "Cantidad personalizada",
+    "message": "Mensaje",
+    "messagePlaceholder": "¡Gran trabajo, gracias!",
+    "total": "Total",
+    "send": "Enviar propina",
+    "sending": "Enviando...",
+    "cancel": "Cancelar"
+  },
+  "orderTemplates": {
+    "title": "Plantillas de órdenes",
+    "subtitle": "Inicio rápido con tipos de solicitud populares",
+    "search": "Buscar plantillas...",
+    "uses": "usos",
+    "noResults": "No se encontraron plantillas",
+    "noTemplates": "No hay plantillas disponibles"
+  },
+  "categories": {
+    "product": "Producto",
+    "property": "Propiedad",
+    "event": "Evento",
+    "nostalgia": "Nostalgia"
+  },
+  "common": {
+    "all": "Todos",
+    "skip": "Saltar",
+    "next": "Siguiente",
+    "enable": "Activar",
+    "disable": "Desactivar",
+    "cancel": "Cancelar",
+    "optional": "opcional",
+    "close": "Cerrar"
+  },
+  "location": {
+    "pickLocation": "Elegir ubicación",
+    "clickMap": "Haz clic en el mapa para seleccionar una ubicación",
+    "loadingAddress": "Cargando dirección...",
+    "addressError": "No se pudo determinar la dirección",
+    "getCurrentLocationError": "No se pudo obtener la ubicación actual",
+    "gettingLocation": "Obteniendo ubicación...",
+    "useCurrentLocation": "Usar ubicación actual",
+    "selectedAddress": "Dirección seleccionada",
+    "confirm": "Confirmar"
+  },
+  "profile": {
+    "loading": "Cargando perfil...",
+    "failedToLoad": "No se pudo cargar el perfil.",
+    "rating": "Calificación",
+    "provider": "Proveedor",
+    "totalOrders": "Órdenes totales",
+    "location": "Ubicación",
+    "locationUnknown": "Ubicación desconocida",
+    "rateUser": "Calificar a este usuario",
+    "ratingNote": "Solo los usuarios elegibles pueden enviar calificaciones.",
+    "settings": "Configuración",
+    "language": "Idioma",
+    "theme": "Tema",
+    "light": "Claro",
+    "dark": "Oscuro",
+    "role": "Rol",
+    "confirmSwitch": "¿Seguro que quieres cambiar tu rol?",
+    "switchToBuyer": "Cambiar a Comprador",
+    "switchToProvider": "Cambiar a Vendedor",
+    "updateLocation": "Ubicación",
+    "ratingEligibilityHint": "Abre este perfil desde un chat específico para calificar a este usuario por esa orden."
+  },
+  "error": "Error",
+  "cancel": "Cancelar",
+  "creating": "Creando...",
+  "uploading": "Subiendo..."
 }

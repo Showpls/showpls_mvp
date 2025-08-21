@@ -9,7 +9,9 @@
     "realtimeTagline": "الواقع في الوقت الفعلي.",
     "subtitle": "تواصل مع مقدمي الخدمات المحليين للحصول على صور وفيديوهات وبث مباشر من أي موقع حول العالم مع مدفوعات آمنة عبر بلوك تشين TON.",
     "openTelegram": "افتح في تيليجرام",
-    "watchDemo": "شاهد العرض التوضيحي"
+    "watchDemo": "شاهد العرض التوضيحي",
+    "tryOnboarding": "جرّب الإعداد السريع",
+    "browseTemplates": "استعراض القوالب"
   },
   "stats": {
     "coverage": "تغطية عالمية",
@@ -86,7 +88,31 @@
       "hour": "منذ ساعة"
     },
     "trySample": "جرب طلب عينة",
-    "yourOrders": "طلباتك"
+    "yourOrders": "طلباتك",
+    "myOrders": "طلباتي",
+    "myActiveOrders": "طلباتي النشطة",
+    "noActiveOrders": "لا توجد طلبات نشطة لديك.",
+    "showAllOrders": "عرض كل الطلبات",
+    "showActiveOrders": "عرض النشطة فقط",
+    "noOrders": "لم تنشئ أي طلب حتى الآن.",
+    "settings": "الإعدادات",
+    "lightMode": "وضع فاتح",
+    "darkMode": "وضع داكن",
+    "loadingActivity": "جاري تحميل النشاط...",
+    "noRecentActivity": "لا توجد نشاطات حديثة للعرض.",
+    "welcome": "مرحباً بك في Showpls",
+    "completeOnboarding": "اختر دورك وحدد موقعك للمتابعة.",
+    "chooseRole": "اختر دورك",
+    "roleBuyer": "مشتري",
+    "roleProvider": "مقدّم خدمة",
+    "roleBuyerHint": "ستقوم بإنشاء الطلبات والدفع بـ TON",
+    "roleProviderHint": "ستقوم بتنفيذ الطلبات وكسب TON",
+    "setLocation": "حدد موقعك",
+    "locationNotSet": "لم يتم تحديد موقع",
+    "pickOnMap": "اختيار",
+    "clearLocation": "مسح",
+    "saving": "جارٍ الحفظ...",
+    "saveAndContinue": "حفظ ومتابعة"
   },
   "createRequest": {
     "title": "طلب جديد",
@@ -107,9 +133,26 @@
     "live": "مباشر"
   },
   "map": {
+    "title": "خريطة الطلبات",
+    "filterPanel": {
+      "infoTitle": "المرشحات متاحة مباشرة على الخريطة",
+      "infoText": "اضغط على زر 'المرشحات' في الزاوية اليسرى العليا للخريطة لتخصيص بحثك حسب نوع المحتوى ونطاق البحث والميزانية.",
+      "closeButton": "حسناً"
+    },
     "interactive": "خريطة تفاعلية",
     "mapboxIntegration": "تكامل Mapbox GL",
-    "nearMe": "بالقرب مني"
+    "nearMe": "بالقرب مني",
+    "searching": "جارٍ البحث...",
+    "found": "تم العثور",
+    "geoNotSupported": "الموقع الجغرافي غير مدعوم",
+    "telegramLocationDenied": "يرجى السماح بالوصول إلى الموقع في تيليجرام للعثور على الطلبات القريبة",
+    "telegramLocationError": "تعذّر الحصول على الموقع عبر تيليجرام",
+    "locationDenied": "تم رفض الوصول إلى الموقع. فعّل الإذن من إعدادات المتصفح.",
+    "locationUnavailable": "معلومات الموقع غير متاحة",
+    "locationTimeout": "انتهت مهلة تحديد الموقع",
+    "locationError": "تعذّر الحصول على موقعك",
+    "myLocation": "موقعي",
+    "filters": "مرشحات"
   },
   "order": {
     "status": {
@@ -119,16 +162,28 @@
       "delivered": "تم التسليم",
       "approved": "تمت الموافقة",
       "disputed": "محل نزاع",
-      "refunded": "تم الاسترداد"
+      "refunded": "تم الاسترداد",
+      "pending_funding": "بانتظار التمويل"
     },
     "locationUnknown": "موقع غير معروف",
+    "fundNow": "موّل الآن",
+    "processing": "جارٍ المعالجة...",
+    "proccessing": "جارٍ المعالجة...",
     "chat": "دردشة",
-    "accept": "قبول"
+    "accept": "قبول",
+    "accepting": "جارٍ القبول...",
+    "mustBeProvider": "فقط مقدّمو الخدمات يمكنهم قبول الطلبات",
+    "acceptConfirm": {
+      "title": "قبول هذا الطلب؟",
+      "body": "ستصبح مقدّم الخدمة لهذا الطلب وستكون مسؤولاً عن إتمامه.",
+      "confirm": "قبول"
+    }
   },
   "wallet": {
     "connect": "اتصال",
     "connecting": "جاري الاتصال...",
-    "connected": "متصل"
+    "connected": "متصل",
+    "disconnect": "قطع الاتصال"
   },
   "chat": {
     "loading": "تحميل الدردشة...",
@@ -138,7 +193,247 @@
     "mediaDelivered": "تم تسليم الوسائط • في انتظار الموافقة",
     "approving": "الموافقة...",
     "approvePayment": "الموافقة وإطلاق الدفع",
-    "typeMessage": "اكتب رسالة..."
+    "typeMessage": "اكتب رسالة...",
+    "openDispute": "فتح نزاع",
+    "quickReplies": "ردود سريعة",
+    "customMessage": "رسالة مخصصة",
+    "categories": {
+      "status_update": "الحالة",
+      "eta": "الوقت المتوقع",
+      "clarification": "توضيح"
+    },
+    "connected": "متصل",
+    "connecting": "جاري الاتصال..."
+  },
+
+  "quickReplies": {
+    "heading_to_location": "متجه إلى الموقع الآن",
+    "at_location": "أنا في الموقع",
+    "taking_photos": "ألتقط الصور الآن",
+    "almost_done": "شارفت على الانتهاء",
+    "completed": "تم إنجاز المهمة",
+    "eta_5_min": "الوصول خلال 5 دقائق",
+    "eta_10_min": "الوصول خلال 10 دقائق",
+    "eta_20_min": "الوصول خلال 20 دقيقة",
+    "running_late": "سأتأخر قليلاً، المعذرة",
+    "show_price_tag": "يرجى إظهار بطاقة السعر بوضوح",
+    "specific_angle": "هل يمكنك أخذ زاوية محددة؟",
+    "better_lighting": "مطلوب إضاءة أفضل",
+    "confirm_location": "هل يمكنك تأكيد الموقع الدقيق؟"
+  },
+
+  "payment": {
+    "calculator": "حاسبة الدفع",
+    "budget": "الميزانية",
+    "tip": "بقشيش",
+    "optional": "اختياري",
+    "milestonePayments": "دفعات المراحل",
+    "breakdown": "تفصيل الدفع",
+    "youPay": "أنت تدفع",
+    "platformFee": "رسوم المنصة",
+    "providerReceives": "المقدّم يستلم",
+    "total": "الإجمالي",
+    "milestoneBreakdown": "تفصيل المراحل",
+    "atLocation": "في الموقع (33%)",
+    "draftContent": "محتوى أولي (33%)",
+    "finalDelivery": "التسليم النهائي (34%)"
+  },
+
+  "tip": {
+    "sendTip": "إرسال بقشيش",
+    "forExcellentService": "مقابل خدمة ممتازة",
+    "quickAmounts": "مبالغ سريعة",
+    "customAmount": "مبلغ مخصص",
+    "message": "رسالة",
+    "messagePlaceholder": "عمل رائع، شكراً!",
+    "total": "الإجمالي",
+    "send": "إرسال البقشيش",
+    "sending": "جارٍ الإرسال...",
+    "cancel": "إلغاء"
+  },
+
+  "orderTemplates": {
+    "title": "قوالب الطلبات",
+    "subtitle": "بدء سريع بأنواع الطلبات الشائعة",
+    "search": "البحث في القوالب...",
+    "uses": "استخدامات",
+    "noResults": "لا توجد قوالب مطابقة",
+    "noTemplates": "لا توجد قوالب متاحة"
+  },
+
+  "categories": {
+    "product": "منتج",
+    "property": "عقار",
+    "event": "فعالية",
+    "nostalgia": "نوستالجيا"
+  },
+
+  "common": {
+    "all": "الكل",
+    "skip": "تخطي",
+    "next": "التالي",
+    "enable": "تفعيل",
+    "disable": "تعطيل",
+    "cancel": "إلغاء",
+    "optional": "اختياري",
+    "close": "إغلاق"
+  },
+
+  "location": {
+    "pickLocation": "اختر الموقع",
+    "clickMap": "اضغط على الخريطة لتحديد موقع",
+    "loadingAddress": "جارٍ تحميل العنوان...",
+    "addressError": "تعذّر تحديد العنوان",
+    "getCurrentLocationError": "تعذّر الحصول على الموقع الحالي",
+    "gettingLocation": "جارٍ الحصول على الموقع...",
+    "useCurrentLocation": "استخدم موقعي الحالي",
+    "selectedAddress": "العنوان المحدد",
+    "confirm": "تأكيد"
+  },
+
+  "profile": {
+    "loading": "جارٍ تحميل الملف الشخصي...",
+    "failedToLoad": "فشل تحميل الملف الشخصي.",
+    "rating": "التقييم",
+    "provider": "مقدّم خدمة",
+    "totalOrders": "إجمالي الطلبات",
+    "location": "الموقع",
+    "locationUnknown": "موقع غير معروف",
+    "rateUser": "قيّم هذا المستخدم",
+    "ratingNote": "يمكن فقط للمستخدمين المؤهلين إرسال تقييمات.",
+    "settings": "الإعدادات",
+    "language": "اللغة",
+    "theme": "السمة",
+    "light": "فاتح",
+    "dark": "داكن",
+    "role": "الدور",
+    "confirmSwitch": "هل أنت متأكد من تبديل دورك؟",
+    "switchToBuyer": "التبديل إلى مشتري",
+    "switchToProvider": "التبديل إلى مقدّم",
+    "updateLocation": "الموقع",
+    "ratingEligibilityHint": "افتح هذا الملف من دردشة طلب محددة لتقييم هذا المستخدم لهذا الطلب."
+  },
+
+  "createOrder": {
+    "title": "إنشاء طلب",
+    "newContentRequest": "طلب محتوى جديد",
+    "fillSample": "تعبئة بالبيانات التجريبية",
+    "orderTitle": "عنوان الطلب",
+    "orderTitlePlaceholder": "مثلاً: صورة لبرج إيفل",
+    "description": "الوصف",
+    "descriptionPlaceholder": "صف بالتفصيل ما تحتاجه...",
+    "contentType": "نوع المحتوى",
+    "photo": "صورة",
+    "video": "فيديو",
+    "liveStream": "بث مباشر",
+    "location": "الموقع",
+    "specifyAddress": "تحديد العنوان",
+    "addressPlaceholder": "العنوان أو وصف المكان",
+    "coordinates": "الإحداثيات: {{lat}}, {{lng}}",
+    "nearbyOrdersMap": "خريطة الطلبات القريبة",
+    "budget": "الميزانية (TON)",
+    "creating": "إنشاء...",
+    "createOrder": "إنشاء الطلب",
+    "errorPrefix": "خطأ: {{message}}",
+    "fillTitleAndDescription": "أكمل عنوان ووصف الطلب",
+    "authRequired": "قم بالمصادقة عبر تطبيق تيليجرام على الويب ثم أعد المحاولة.",
+    "failedToCreate": "تعذّر إنشاء الطلب",
+    "failedToGetLocation": "تعذّر الحصول على موقعك",
+    "sampleTitle": "صور الساحة الحمراء",
+    "sampleDescription": "مطلوب صور حديثة للساحة الحمراء مع إطلالة على الكرملين. يُفضّل وقت الغروب.",
+    "sampleAddress": "الساحة الحمراء، موسكو",
+    "insufficientBalance": "رصيد غير كافٍ. الرصيد: {{balance}} TON، المطلوب: {{required}} TON.",
+    "balanceOk": "الرصيد كافٍ. الرصيد: {{balance}} TON، المطلوب: {{required}} TON.",
+    "walletNotConnected": "محفظة TON غير متصلة"
+  },
+
+  "orderDetails": {
+    "budget": "الميزانية",
+    "mediaType": "نوع الوسائط",
+    "status": "الحالة",
+    "location": "الموقع",
+    "addressNotAvailable": "العنوان غير متاح",
+    "acceptOrderToChat": "اقبل الطلب لبدء الدردشة مع العميل."
+  },
+
+  "dispute": {
+    "openTitle": "فتح نزاع",
+    "viewTitle": "تفاصيل النزاع",
+    "warning": "تنبيه مهم",
+    "warningText": "فتح نزاع سيؤدي إلى إيقاف أموال الضمان وبدء عملية التحكيم. يرجى تقديم معلومات مفصلة وأدلة.",
+    "reason": "سبب النزاع",
+    "reasonPlaceholder": "صف المشكلة في هذا الطلب بالتفصيل...",
+    "reasonRequired": "يرجى تقديم سبب للنزاع",
+    "uploadEvidence": "رفع الأدلة",
+    "evidenceHelp": "قم برفع صور أو فيديوهات أو مستندات تدعم قضيتك",
+    "attachedEvidence": "الأدلة المرفقة",
+    "pendingEvidence": "أدلة قيد الانتظار",
+    "openDispute": "فتح نزاع",
+    "created": "تم فتح النزاع",
+    "createdDescription": "تم فتح نزاعك وتم إيقاف الضمان مؤقتاً. سيقوم محكم بمراجعة قضيتك خلال 24-48 ساعة.",
+    "createError": "تعذّر فتح النزاع. حاول مرة أخرى.",
+    "details": "تفاصيل النزاع",
+    "id": "معرّف النزاع",
+    "createdAt": "تاريخ الإنشاء",
+    "evidence": "الأدلة",
+    "addEvidence": "إضافة أدلة",
+    "submitEvidence": "إرسال الأدلة",
+    "evidenceAdded": "تمت إضافة الأدلة",
+    "evidenceAddedDescription": "تمت إضافة أدلتك إلى قضية النزاع.",
+    "resolution": "الحل",
+    "decision": "القرار",
+    "statusOpen": "مفتوحة",
+    "statusInReview": "قيد المراجعة",
+    "statusResolved": "محلولة",
+    "process": "عملية حل النزاعات",
+    "step1": "فتح النزاع - إيقاف الضمان تلقائياً",
+    "step2": "يمكن للطرفين تقديم الأدلة خلال 24 ساعة",
+    "step3": "يقوم المحكم بمراجعة القضية واتخاذ قرار",
+    "step4": "يتم تحرير الدفع أو استرداده وفق القرار"
+  },
+
+  "landing": {
+    "title": "SHOWPLS",
+    "subtitle": "سوق عالمي للمحتوى في الوقت الفعلي",
+    "description": "اطلب صوراً وفيديوهات وبثاً مباشراً من أي مكان في العالم مع مدفوعات آمنة على بلوك تشين TON",
+    "cta": "ابدأ الآن",
+    "promo": "فيديو تعريفي في الأسفل ↓",
+    "videoDescription": "عرض كامل لمنصة Showpls: من إنشاء الطلبات حتى تسليم المحتوى",
+    "stats": {
+      "countries": "الدول المتاحة",
+      "uptime": "جاهزية دائمة",
+      "avgTime": "الوقت المتوسط",
+      "success": "طلبات ناجحة"
+    },
+    "features": {
+      "instant": {
+        "title": "نتائج فورية",
+        "description": "احصل على المحتوى خلال دقائق"
+      },
+      "secure": {
+        "title": "مدفوعات آمنة",
+        "description": "ضمان على بلوك تشين TON"
+      },
+      "global": {
+        "title": "شبكة عالمية",
+        "description": "تغطية حول العالم"
+      },
+      "quality": {
+        "title": "جودة مضمونة",
+        "description": "محتوى احترافي"
+      }
+    },
+    "demo": {
+      "title": "عرض حي",
+      "step1": "1. أنشئ طلباً",
+      "step2": "2. حدد الموقع",
+      "step3": "3. انتظر مقدّم الخدمة",
+      "step4": "4. استلم المحتوى",
+      "location": "تايمز سكوير، نيويورك",
+      "price": "0.5 TON",
+      "status": "تم العثور على مقدّم!",
+      "global": "عالمي"
+    }
   },
   "rating": {
     "title": "قيم هذا المقدم",
@@ -181,5 +476,9 @@
     "getFullDocument": "احصل على الوثيقة الكاملة",
     "fullDocumentText": "حمل الورقة البيضاء الكاملة للمواصفات التقنية التفصيلية والنموذج الاقتصادي وخريطة الطريق.",
     "downloadFullPdf": "تحميل الورقة البيضاء الكاملة (PDF)"
-  }
+  },
+  "error": "خطأ",
+  "cancel": "إلغاء",
+  "creating": "إنشاء...",
+  "uploading": "جاري الرفع..."
 }

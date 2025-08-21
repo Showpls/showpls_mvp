@@ -9,7 +9,9 @@
     "realtimeTagline": "实时现实。",
     "subtitle": "通过安全的TON区块链支付，与本地提供商联系，从世界任何地方获取实时照片、视频和直播。",
     "openTelegram": "在Telegram中打开",
-    "watchDemo": "观看演示"
+    "watchDemo": "观看演示",
+    "tryOnboarding": "试用新手引导",
+    "browseTemplates": "浏览模板"
   },
   "stats": {
     "coverage": "全球覆盖",
@@ -86,7 +88,31 @@
       "hour": "1小时前"
     },
     "trySample": "尝试示例请求",
-    "yourOrders": "您的订单"
+    "yourOrders": "您的订单",
+    "myOrders": "我的订单",
+    "myActiveOrders": "我的进行中订单",
+    "noActiveOrders": "你目前没有进行中的订单。",
+    "showAllOrders": "显示所有订单",
+    "showActiveOrders": "仅显示进行中",
+    "noOrders": "你还没有创建任何订单。",
+    "settings": "设置",
+    "lightMode": "浅色模式",
+    "darkMode": "深色模式",
+    "loadingActivity": "正在加载活动...",
+    "noRecentActivity": "暂无最近活动。",
+    "welcome": "欢迎使用 Showpls",
+    "completeOnboarding": "请选择你的角色并设定位置以继续。",
+    "chooseRole": "选择你的角色",
+    "roleBuyer": "买家",
+    "roleProvider": "服务者",
+    "roleBuyerHint": "你将创建请求并使用TON支付",
+    "roleProviderHint": "你将完成请求并赚取TON",
+    "setLocation": "设置位置",
+    "locationNotSet": "未选择位置",
+    "pickOnMap": "选择",
+    "clearLocation": "清除",
+    "saving": "正在保存...",
+    "saveAndContinue": "保存并继续"
   },
   "createRequest": {
     "title": "新请求",
@@ -107,9 +133,26 @@
     "live": "直播"
   },
   "map": {
+    "title": "订单地图",
+    "filterPanel": {
+      "infoTitle": "可直接在地图上使用筛选器",
+      "infoText": "点击地图左上角的“筛选器”按钮，可按内容类型、半径和预算自定义搜索。",
+      "closeButton": "知道了"
+    },
     "interactive": "交互式地图",
     "mapboxIntegration": "Mapbox GL集成",
-    "nearMe": "我附近"
+    "nearMe": "我附近",
+    "searching": "搜索中...",
+    "found": "已找到",
+    "geoNotSupported": "不支持地理定位",
+    "telegramLocationDenied": "请在Telegram中允许位置访问以查找附近订单",
+    "telegramLocationError": "无法通过Telegram获取位置",
+    "locationDenied": "位置访问被拒绝。请在浏览器设置中允许。",
+    "locationUnavailable": "位置信息不可用",
+    "locationTimeout": "定位超时",
+    "locationError": "无法获取你的位置",
+    "myLocation": "我的位置",
+    "filters": "筛选器"
   },
   "order": {
     "status": {
@@ -119,16 +162,28 @@
       "delivered": "已交付",
       "approved": "已批准",
       "disputed": "争议中",
-      "refunded": "已退款"
+      "refunded": "已退款",
+      "pending_funding": "待充值"
     },
     "locationUnknown": "位置未知",
+    "fundNow": "现在充值",
+    "processing": "处理中...",
+    "proccessing": "处理中...",
     "chat": "聊天",
-    "accept": "接受"
+    "accept": "接受",
+    "accepting": "正在接受...",
+    "mustBeProvider": "只有服务者可以接受订单",
+    "acceptConfirm": {
+      "title": "接受此订单？",
+      "body": "你将成为该订单的服务者，并负责完成该订单。",
+      "confirm": "接受"
+    }
   },
   "wallet": {
     "connect": "连接",
     "connecting": "连接中...",
-    "connected": "已连接"
+    "connected": "已连接",
+    "disconnect": "断开连接"
   },
   "chat": {
     "loading": "加载聊天中...",
@@ -138,7 +193,203 @@
     "mediaDelivered": "媒体已交付 • 等待批准",
     "approving": "批准中...",
     "approvePayment": "批准并释放付款",
-    "typeMessage": "输入消息..."
+    "typeMessage": "输入消息...",
+    "openDispute": "发起争议",
+    "quickReplies": "快速回复",
+    "customMessage": "自定义消息",
+    "categories": {
+      "status_update": "状态",
+      "eta": "预计到达",
+      "clarification": "澄清"
+    },
+    "connected": "已连接",
+    "connecting": "正在连接..."
+  },
+
+  "quickReplies": {
+    "heading_to_location": "正在前往地点",
+    "at_location": "我已到达地点",
+    "taking_photos": "正在拍照",
+    "almost_done": "快完成了",
+    "completed": "任务已完成",
+    "eta_5_min": "预计5分钟到达",
+    "eta_10_min": "预计10分钟到达",
+    "eta_20_min": "预计20分钟到达",
+    "running_late": "我会晚点到，不好意思",
+    "show_price_tag": "请清晰拍到价格标签",
+    "specific_angle": "可以拍一个特定角度吗？",
+    "better_lighting": "需要更好的光线",
+    "confirm_location": "可以确认准确位置吗？"
+  },
+
+  "payment": {
+    "calculator": "付款计算器",
+    "budget": "预算",
+    "tip": "小费",
+    "optional": "可选",
+    "milestonePayments": "里程碑付款",
+    "breakdown": "付款明细",
+    "youPay": "你支付",
+    "platformFee": "平台费",
+    "providerReceives": "服务者收到",
+    "total": "总计",
+    "milestoneBreakdown": "里程碑明细",
+    "atLocation": "到达地点 (33%)",
+    "draftContent": "初稿内容 (33%)",
+    "finalDelivery": "最终交付 (34%)"
+  },
+
+  "tip": {
+    "sendTip": "发送小费",
+    "forExcellentService": "优秀服务奖励",
+    "quickAmounts": "快速金额",
+    "customAmount": "自定义金额",
+    "message": "留言",
+    "messagePlaceholder": "干得漂亮，谢谢！",
+    "total": "总计",
+    "send": "发送小费",
+    "sending": "发送中...",
+    "cancel": "取消"
+  },
+
+  "orderTemplates": {
+    "title": "订单模板",
+    "subtitle": "用常见请求类型快速开始",
+    "search": "搜索模板...",
+    "uses": "次使用",
+    "noResults": "未找到模板",
+    "noTemplates": "暂无可用模板"
+  },
+
+  "categories": {
+    "product": "商品",
+    "property": "房产",
+    "event": "活动",
+    "nostalgia": "怀旧"
+  },
+
+  "common": {
+    "all": "全部",
+    "skip": "跳过",
+    "next": "下一步",
+    "enable": "启用",
+    "disable": "禁用",
+    "cancel": "取消",
+    "optional": "可选",
+    "close": "关闭"
+  },
+
+  "location": {
+    "pickLocation": "选择位置",
+    "clickMap": "点击地图选择位置",
+    "loadingAddress": "正在加载地址...",
+    "addressError": "无法确定地址",
+    "getCurrentLocationError": "无法获取当前位置",
+    "gettingLocation": "正在获取位置...",
+    "useCurrentLocation": "使用当前位置",
+    "selectedAddress": "已选地址",
+    "confirm": "确认"
+  },
+
+  "profile": {
+    "loading": "正在加载个人资料...",
+    "failedToLoad": "无法加载个人资料。",
+    "rating": "评分",
+    "provider": "服务者",
+    "totalOrders": "总订单数",
+    "location": "位置",
+    "locationUnknown": "位置未知",
+    "rateUser": "为此用户打分",
+    "ratingNote": "只有符合条件的用户可以提交评分。",
+    "settings": "设置",
+    "language": "语言",
+    "theme": "主题",
+    "light": "浅色",
+    "dark": "深色",
+    "role": "角色",
+    "confirmSwitch": "确定要切换角色吗？",
+    "switchToBuyer": "切换为买家",
+    "switchToProvider": "切换为服务者",
+    "updateLocation": "位置",
+    "ratingEligibilityHint": "请从具体订单的聊天中打开此资料，以便针对该订单为此用户评分。"
+  },
+
+  "createOrder": {
+    "title": "创建订单",
+    "newContentRequest": "新的内容请求",
+    "fillSample": "填充示例",
+    "orderTitle": "订单标题",
+    "orderTitlePlaceholder": "例如：埃菲尔铁塔照片",
+    "description": "描述",
+    "descriptionPlaceholder": "详细描述你的需求...",
+    "contentType": "内容类型",
+    "photo": "照片",
+    "video": "视频",
+    "liveStream": "直播",
+    "location": "位置",
+    "specifyAddress": "填写地址",
+    "addressPlaceholder": "地址或地点描述",
+    "coordinates": "坐标：{{lat}}, {{lng}}",
+    "nearbyOrdersMap": "附近订单地图",
+    "budget": "预算 (TON)",
+    "creating": "创建中...",
+    "createOrder": "创建订单",
+    "errorPrefix": "错误：{{message}}",
+    "fillTitleAndDescription": "请填写订单标题和描述",
+    "authRequired": "请通过Telegram网页应用完成认证后重试。",
+    "failedToCreate": "创建订单失败",
+    "failedToGetLocation": "无法获取你的位置",
+    "sampleTitle": "红场照片",
+    "sampleDescription": "需要红场的最新照片，可看到克里姆林宫。最好在傍晚时分。",
+    "sampleAddress": "红场，莫斯科",
+    "insufficientBalance": "余额不足。余额：{{balance}} TON，所需：{{required}} TON。",
+    "balanceOk": "余额充足。余额：{{balance}} TON，所需：{{required}} TON。",
+    "walletNotConnected": "TON钱包未连接"
+  },
+
+  "orderDetails": {
+    "budget": "预算",
+    "mediaType": "媒体类型",
+    "status": "状态",
+    "location": "位置",
+    "addressNotAvailable": "地址不可用",
+    "acceptOrderToChat": "接受订单后即可开始与买家聊天。"
+  },
+
+  "dispute": {
+    "openTitle": "发起争议",
+    "viewTitle": "争议详情",
+    "warning": "重要提示",
+    "warningText": "发起争议将暂停托管资金并启动仲裁流程。请提供详细信息与证据。",
+    "reason": "争议原因",
+    "reasonPlaceholder": "请详细描述此订单存在的问题...",
+    "reasonRequired": "请提供争议原因",
+    "uploadEvidence": "上传证据",
+    "evidenceHelp": "上传能支持你主张的照片、视频或文件",
+    "attachedEvidence": "已附加证据",
+    "pendingEvidence": "待提交证据",
+    "openDispute": "发起争议",
+    "created": "争议已创建",
+    "createdDescription": "你的争议已发起，托管资金已暂停。仲裁员将在24-48小时内审核你的案例。",
+    "createError": "无法创建争议，请重试。",
+    "details": "争议详情",
+    "id": "争议ID",
+    "createdAt": "创建时间",
+    "evidence": "证据",
+    "addEvidence": "添加证据",
+    "submitEvidence": "提交证据",
+    "evidenceAdded": "证据已添加",
+    "evidenceAddedDescription": "你的证据已添加到争议案件中。",
+    "resolution": "解决方案",
+    "decision": "裁决",
+    "statusOpen": "开放",
+    "statusInReview": "审核中",
+    "statusResolved": "已解决",
+    "process": "争议处理流程",
+    "step1": "争议发起——托管资金自动暂停",
+    "step2": "双方可在24小时内提交证据",
+    "step3": "仲裁员审核案件并作出裁决",
+    "step4": "根据裁决释放或退款"
   },
   "rating": {
     "title": "为此提供商评分",
@@ -146,6 +397,50 @@
     "submitting": "提交中...",
     "submitAndApprove": "提交评分并批准付款"
   },
+  "landing": {
+    "title": "SHOWPLS",
+    "subtitle": "全球实时内容市场",
+    "description": "从世界任何地方请求照片、视频和直播，并使用TON区块链进行安全支付",
+    "cta": "立即开始",
+    "promo": "下方为宣传视频 ↓",
+    "videoDescription": "Showpls平台完整演示：从创建订单到内容交付",
+    "stats": {
+      "countries": "覆盖国家",
+      "uptime": "持续在线",
+      "avgTime": "平均时长",
+      "success": "成功订单"
+    },
+    "features": {
+      "instant": {
+        "title": "即时结果",
+        "description": "几分钟内获得内容"
+      },
+      "secure": {
+        "title": "安全支付",
+        "description": "TON区块链托管"
+      },
+      "global": {
+        "title": "全球网络",
+        "description": "覆盖全球"
+      },
+      "quality": {
+        "title": "质量保障",
+        "description": "专业内容"
+      }
+    },
+    "demo": {
+      "title": "实时演示",
+      "step1": "1. 创建请求",
+      "step2": "2. 选择位置",
+      "step3": "3. 等待服务者",
+      "step4": "4. 接收内容",
+      "location": "纽约时代广场",
+      "price": "0.5 TON",
+      "status": "已找到服务者！",
+      "global": "全球"
+    }
+  },
+
   "whitepaper": {
     "back": "返回首页",
     "subtitle": "基于TON区块链的去中心化实时媒体市场",
@@ -181,5 +476,9 @@
     "getFullDocument": "获取完整文档",
     "fullDocumentText": "下载完整白皮书，获得详细的技术规格、经济模型和路线图。",
     "downloadFullPdf": "下载完整白皮书（PDF）"
-  }
+  },
+  "error": "错误",
+  "cancel": "取消",
+  "creating": "创建中...",
+  "uploading": "上传中..."
 }

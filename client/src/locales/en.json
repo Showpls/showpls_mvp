@@ -320,7 +320,16 @@
     "locationUnknown": "Location unknown",
     "rateUser": "Rate this user",
     "ratingNote": "Only eligible users can submit ratings.",
-    "ratingEligibilityHint": "Open this profile from a specific chat to rate this user for that order."
+    "ratingEligibilityHint": "Open this profile from a specific chat to rate this user for that order.",
+    "quickReplies": "Quick Replies",
+    "customMessage": "Custom message",
+    "categories": {
+      "status_update": "Status",
+      "eta": "ETA",
+      "clarification": "Clarification"
+    },
+    "connected": "Connected",
+    "connecting": "Connecting..."
   },
   "profile": {
     "loading": "Loading profile...",

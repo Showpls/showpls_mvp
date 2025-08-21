@@ -109,6 +109,16 @@
     background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
   }
   
+  /* Header background to match logo image background */
+  .logo-header {
+    @apply border border-brand-primary/20 rounded-none;
+    /* Deep navy with soft blue glow similar to the logo artwork */
+    background:
+      radial-gradient(1100px circle at 20% -200px, rgba(56, 97, 251, 0.22) 0%, rgba(56, 97, 251, 0.10) 35%, rgba(56, 97, 251, 0.06) 55%, transparent 70%),
+      radial-gradient(900px circle at 80% -150px, rgba(52, 211, 235, 0.18) 0%, rgba(52, 211, 235, 0.08) 40%, transparent 65%),
+      linear-gradient(180deg, #0b1228 0%, #090f22 60%, #070d1f 100%);
+  }
+  
   .brand-gradient-text {
     background: linear-gradient(135deg, var(--brand-primary) 0%, var(--brand-accent) 100%);
     -webkit-background-clip: text;

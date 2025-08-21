@@ -13,7 +13,6 @@ import { Link } from "wouter";
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
-  Eye,
   Plus,
   MapPin,
   Clock,
@@ -179,13 +178,10 @@ export default function TelegramWebApp() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="glass-panel p-4 mb-6">
+      <div className="logo-header p-4 mb-6">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
-            <div className="w-8 h-8 gradient-bg rounded-full flex items-center justify-center mr-3">
-              <Eye className="w-4 h-4 text-white" />
-            </div>
-            <span className="font-bold">Showpls</span>
+            <img src="/logo.png" alt="Showpls" className="h-8 w-auto mr-2 select-none" />
           </div>
           <div className="flex items-center space-x-2">
             <WalletConnect />
