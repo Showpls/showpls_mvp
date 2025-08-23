@@ -33,7 +33,7 @@ export default function Header() {
                 >
 
                     {/* Logo and title - Left side */}
-                    <a className="relative flex w-fit items-center gap-2 overflow-hidden lg:px-3" href="/">
+                    <a className="relative flex w-fit items-center gap-2 lg:px-3" href="/">
                         <img src="/logo4.png" className="h-7 w-7 sm:h-8 sm:w-8 lg:h-10 lg:w-10" alt="SHOWPLS" />
                         <h2 className="font-bold text-base sm:text-lg lg:text-xl text-foreground">SHOWPLS</h2>
                     </a>
