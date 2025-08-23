@@ -3,7 +3,7 @@ import { ArrowUpRightIcon } from "@phosphor-icons/react/dist/csr/ArrowUpRight";
 
 export default function FeaturesCTA() {
   return (
-    <section className="py-16">
+    <section className="py-12 md:py-16">
       <div className="mx-auto px-4 md:px-6">
         <div className="relative overflow-hidden rounded-2xl border border-border bg-card/80 p-8 md:p-10 bg-popover text-popover-foreground shadow-md">
           {/* background accents */}

@@ -37,7 +37,7 @@ export default function Footer() {
   return (
     <footer className="bg-background border-t border-border py-14 md:py-20">
       <div className="mx-auto max-w-7xl px-4 md:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
           {/* Brand */}
           <div className="col-span-1 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
@@ -55,9 +55,9 @@ export default function Footer() {
                   key={s.name}
                   href={s.href}
                   aria-label={s.name}
-                  className="inline-flex size-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
+                  className="inline-flex size-10 sm:size-9 items-center justify-center rounded-md border border-border text-muted-foreground hover:text-primary hover:border-primary/40 transition-colors"
                 >
-                  <s.icon size={16} />
+                  <s.icon size={18} className="sm:size-[16px]" />
                 </a>
               ))}
             </div>

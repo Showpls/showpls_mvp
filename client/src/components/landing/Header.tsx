@@ -4,14 +4,16 @@ import { Button } from "../ui/button";
 
 export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
 
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
+            if (isMenuOpen) setIsMenuOpen(false);
         };
         window.addEventListener('scroll', handleScroll);
         return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    }, [isMenuOpen]);
 
     const links = ["Readme", "Contact", "About", "Policy", "Demo"];
 
@@ -24,7 +26,7 @@ export default function Header() {
           lg:grid lg:grid-cols-[1fr_auto_1fr] lg:rounded-2xl lg:py-[0.4375rem] lg:pr-[0.4375rem]
           ${
                         isScrolled
-                            ? 'border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm'
+                            ? 'border-border bg-background shadow-xl :bg-background/60'
                             : 'border-transparent bg-transparent'
                     }
         `}
@@ -65,9 +67,10 @@ export default function Header() {
                         {/* Mobile menu button (visible on mobile only) */}
                         <button
                             className="relative size-6 lg:hidden ml-1 sm:ml-2"
-                            aria-expanded="false"
+                            aria-expanded={isMenuOpen}
                             aria-controls="mobile-menu"
                             aria-label="Menu"
+                            onClick={() => setIsMenuOpen((v) => !v)}
                         >
                             <svg
                                 className="-ml-2 -mt-2 size-10 text-muted-foreground"
@@ -83,6 +86,28 @@ export default function Header() {
                                 <path d="m 30,67 h 40 c 0,0 8.5,0.149796 8.5,-8.5 0,-8.649796 -8.5,-8.5 -8.5,-8.5 h -20 v 20"></path>
                             </svg>
                         </button>
+                    </div>
+                    {/* Mobile dropdown panel */}
+                    <div
+                        id="mobile-menu"
+                        className={`${isMenuOpen ? 'opacity-100 translate-y-0' : 'pointer-events-none opacity-0 -translate-y-1'} lg:hidden absolute left-2 right-2 top-full mt-2 z-50 rounded-md border border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-lg transition-all`}
+                        role="menu"
+                        aria-hidden={!isMenuOpen}
+                    >
+                        <ul className="p-1.5">
+                            {links.map((link, index) => (
+                                <li key={index}>
+                                    <a
+                                        className="block w-full rounded-[0.5rem] px-3 py-2 text-sm text-foreground/90 hover:bg-muted"
+                                        href={`/${link.toLowerCase()}`}
+                                        onClick={() => setIsMenuOpen(false)}
+                                        role="menuitem"
+                                    >
+                                        {link}
+                                    </a>
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
             </div>
