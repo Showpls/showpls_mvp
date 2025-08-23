@@ -53,12 +53,13 @@ export default function Header() {
                     </ul>
 
                     {/* Right side - Button and mobile menu */}
-                    <div className="col-start-3 flex w-full justify-end gap-2">
+                    <div className="col-start-3 flex w-full items-center justify-end gap-2">
                         {/* Start button */}
                         <a
                             target="_blank"
                             href="https://t.me/showplsbot"
-                            className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
+                            rel="noopener noreferrer"
+                            className="hidden md:inline-flex items-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
                         >
                             <TelegramLogoIcon size={16} />
                             Start
@@ -66,14 +67,14 @@ export default function Header() {
 
                         {/* Mobile menu button (visible on mobile only) */}
                         <button
-                            className="relative size-6 lg:hidden ml-1 sm:ml-2"
+                            className="relative size-9 lg:hidden ml-1 sm:ml-2 flex items-center justify-center"
                             aria-expanded={isMenuOpen}
                             aria-controls="mobile-menu"
                             aria-label="Menu"
                             onClick={() => setIsMenuOpen((v) => !v)}
                         >
                             <svg
-                                className="-ml-2 -mt-2 size-10 text-muted-foreground"
+                                className="size-7 text-muted-foreground"
                                 viewBox="0 0 24 24"
                                 width="24"
                                 xmlns="http://www.w3.org/2000/svg"
@@ -101,6 +102,7 @@ export default function Header() {
                                 <a
                                     href="https://t.me/showplsbot"
                                     target="_blank"
+                                    rel="noopener noreferrer"
                                     className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                                     onClick={() => setIsMenuOpen(false)}
                                     role="menuitem"
