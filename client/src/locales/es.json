@@ -125,9 +125,19 @@
     "selectLocation": "Toca para seleccionar ubicación",
     "creating": "Creando...",
     "createAndFund": "Crear y financiar",
-    "sample": "Muestra"
+    "sample": "Muestra",
+    "confirm": {
+      "title": "¿Crear esta orden?",
+      "body": "Crearás la orden ahora. Una vez que un proveedor la acepte, podrás financiar el depósito para continuar.",
+      "confirm": "Crear orden"
+    }
   },
   "mediaType": {
+    "photo": "Foto",
+    "video": "Video",
+    "live": "En vivo"
+  },
+  "mediaTypes": {
     "photo": "Foto",
     "video": "Video",
     "live": "En vivo"
@@ -203,7 +213,16 @@
       "clarification": "Aclaración"
     },
     "connected": "Conectado",
-    "connecting": "Conectando..."
+    "connecting": "Conectando...",
+    "failedToLoad": "Failed to load profile.",
+    "rating": "Rating",
+    "provider": "Provider",
+    "totalOrders": "Total Orders",
+    "location": "Location",
+    "locationUnknown": "Location unknown",
+    "rateUser": "Rate this user",
+    "ratingNote": "Only eligible users can submit ratings.",
+    "ratingEligibilityHint": "Open this profile from a specific chat to rate this user for that order."
   },
 
   "createOrder": {
@@ -325,8 +344,84 @@
       "price": "0.5 TON",
       "status": "¡Proveedor encontrado!",
       "global": "Global"
+    },
+    "featuresSection": {
+      "header": {
+        "title": "Powerful Features",
+        "subtitle": "Everything you need to get real-time content from anywhere"
+      },
+      "cta": {
+        "title": "Ready to get started?",
+        "subtitle": "Open Showpls in Telegram and create your first request.",
+        "button": "Open in Telegram"
+      },
+      "grid": {
+        "realTime": {
+          "title": "Real-time",
+          "description": "Get photos, videos, and live streams in minutes",
+          "highlight": "Instant delivery"
+        },
+        "globalNetwork": {
+          "title": "Global network",
+          "description": "Verified providers in cities worldwide",
+          "highlight": "Worldwide coverage"
+        },
+        "verified": {
+          "title": "Verified providers",
+          "description": "Secure escrow and reputation ensure quality",
+          "highlight": "Trust and safety"
+        }
+      }
+    },
+    "footer": {
+      "categories": {
+        "product": "Product",
+        "resources": "Resources",
+        "company": "Company"
+      },
+      "links": {
+        "howItWorks": "How it works",
+        "useCases": "Use cases",
+        "pricing": "Pricing",
+        "mobileApp": "Mobile App",
+        "documentation": "Documentation",
+        "api": "API",
+        "support": "Support",
+        "community": "Community",
+        "about": "About",
+        "careers": "Careers",
+        "contact": "Contact",
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "cookies": "Cookies"
+      },
+      "brandDescription": "Real-time global content marketplace powered by TON blockchain escrow.",
+      "altLogo": "Showpls logo",
+      "copyright": "© {{year}} Showpls. All rights reserved."
+    },
+    "header": {
+      "links": {
+        "readme": "Readme",
+        "contact": "Contact",
+        "about": "About",
+        "policy": "Policy",
+        "demo": "Demo"
+      },
+      "cta": {
+        "start": "Start"
+      },
+      "aria": {
+        "menu": "Menu",
+        "toggleTheme": "Toggle theme"
+      },
+      "themeTooltip": {
+        "light": "Light mode",
+        "dark": "Dark mode",
+        "system": "System theme"
+      }
     }
-  },
+  }
+,
   "rating": {
     "title": "Califica este proveedor",
     "commentPlaceholder": "¡Excelentes fotos, entrega rápida!",

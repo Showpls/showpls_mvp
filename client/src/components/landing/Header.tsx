@@ -1,10 +1,17 @@
 import { useState, useEffect } from "react";
 import { TelegramLogoIcon } from "@phosphor-icons/react/dist/csr/TelegramLogo";
 import { Button } from "../ui/button";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useTheme } from "next-themes";
+import { Moon, Sun, Laptop } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function Header() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const { resolvedTheme, setTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -15,20 +22,29 @@ export default function Header() {
         return () => window.removeEventListener('scroll', handleScroll);
     }, [isMenuOpen]);
 
-    const links = ["Readme", "Contact", "About", "Policy", "Demo"];
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const links = [
+        { key: "readme", href: "/readme" },
+        { key: "contact", href: "/contact" },
+        { key: "about", href: "/about" },
+        { key: "policy", href: "/policy" },
+        { key: "demo", href: "/demo" },
+    ] as const;
 
     return (
-        <nav className="fixed top-3 z-40 w-full sm:top-4 lg:top-6">
+        <nav className="fixed z-40 w-full top-1 md:top-4 lg:top-6">
             <div className="container box-border mx-auto max-w-7xl px-4 md:px-6">
                 <div
                     className={`relative flex h-14 sm:h-16 w-full items-center justify-between rounded-lg border px-2 py-1.5 
           transition-[box-shadow,background-color,border-color] duration-300 motion-reduce:transition-none 
           lg:grid lg:grid-cols-[1fr_auto_1fr] lg:rounded-2xl lg:py-[0.4375rem] lg:pr-[0.4375rem]
-          ${
-                        isScrolled
+          ${isScrolled
                             ? 'border-border bg-background shadow-xl :bg-background/60'
                             : 'border-transparent bg-transparent'
-                    }
+                        }
         `}
                 >
 
@@ -39,14 +55,14 @@ export default function Header() {
                     </a>
 
                     {/* Navigation links - Center (hidden on mobile) */}
-                    <ul className="col-start-2 gap-5 px-2 font-medium text-muted-foreground xl:gap-6 hidden lg:flex">
+                    <ul className="col-sta rt-2 gap-5 px-2 font-medium text-muted-foreground xl:gap-6 hidden lg:flex">
                         {links.map((link, index) => (
                             <li key={index}>
                                 <a
                                     className="transition-colors duration-300 p-2 hover:text-foreground hover:bg-muted rounded-md motion-reduce:transition-none cursor-pointer"
-                                    href={`/${link.toLowerCase()}`}
+                                    href={link.href}
                                 >
-                                    {link}
+                                    {t(`landing.header.links.${link.key}`)}
                                 </a>
                             </li>
                         ))}
@@ -54,6 +70,39 @@ export default function Header() {
 
                     {/* Right side - Button and mobile menu */}
                     <div className="col-start-3 flex w-full items-center justify-end gap-2">
+                        {/* Language picker */}
+                        <div className="hidden md:flex items-center">
+                            <LanguageSwitcher />
+                        </div>
+
+                        {/* Theme toggle: dark -> light -> system */}
+                        {mounted && (
+                            <button
+                                type="button"
+                                className="inline-flex size-9 items-center justify-center rounded-md border border-transparent hover:bg-muted text-foreground"
+                                aria-label={t("landing.header.aria.toggleTheme")}
+                                onClick={() => {
+                                    if (resolvedTheme === 'dark') setTheme('light');
+                                    else setTheme('dark');
+                                }}
+                                title={
+                                    resolvedTheme === 'dark'
+                                        ? t('landing.header.themeTooltip.light')
+                                        : resolvedTheme === 'light'
+                                            ? t('landing.header.themeTooltip.system')
+                                            : t('landing.header.themeTooltip.dark')
+                                }
+
+                            >
+                                {resolvedTheme === 'dark' ? (
+                                    <Moon className="h-4 w-4" />
+                                ) : resolvedTheme === 'light' ? (
+                                    <Sun className="h-4 w-4" />
+                                ) : (
+                                    <Laptop className="h-4 w-4" />
+                                )}
+                            </button>
+                        )}
                         {/* Start button */}
                         <a
                             target="_blank"
@@ -62,7 +111,7 @@ export default function Header() {
                             className="hidden md:inline-flex items-center gap-2 rounded-md bg-primary px-4 py-3 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:pointer-events-none disabled:opacity-50"
                         >
                             <TelegramLogoIcon size={16} />
-                            Start
+                            {t("landing.header.cta.start")}
                         </a>
 
                         {/* Mobile menu button (visible on mobile only) */}
@@ -70,7 +119,7 @@ export default function Header() {
                             className="relative size-9 lg:hidden ml-1 sm:ml-2 flex items-center justify-center"
                             aria-expanded={isMenuOpen}
                             aria-controls="mobile-menu"
-                            aria-label="Menu"
+                            aria-label={t("landing.header.aria.menu")}
                             onClick={() => setIsMenuOpen((v) => !v)}
                         >
                             <svg
@@ -108,18 +157,18 @@ export default function Header() {
                                     role="menuitem"
                                 >
                                     <TelegramLogoIcon size={14} />
-                                    Start
+                                    {t("landing.header.cta.start")}
                                 </a>
                             </li>
                             {links.map((link, index) => (
                                 <li key={index}>
                                     <a
                                         className="block w-full rounded-[0.5rem] px-3 py-2 text-sm text-foreground/90 hover:bg-muted"
-                                        href={`/${link.toLowerCase()}`}
+                                        href={link.href}
                                         onClick={() => setIsMenuOpen(false)}
                                         role="menuitem"
                                     >
-                                        {link}
+                                        {t(`landing.header.links.${link.key}`)}
                                     </a>
                                 </li>
                             ))}

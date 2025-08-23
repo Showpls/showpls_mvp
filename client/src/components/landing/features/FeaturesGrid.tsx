@@ -2,26 +2,28 @@ import { ClockIcon } from "@phosphor-icons/react/dist/csr/Clock";
 import { GlobeHemisphereWestIcon } from "@phosphor-icons/react/dist/csr/GlobeHemisphereWest";
 import { ShieldCheckIcon } from "@phosphor-icons/react/dist/csr/ShieldCheck";
 import FeatureCard from "./FeatureCard";
+import { useTranslation } from "react-i18next";
 
 export default function FeaturesGrid() {
+  const { t } = useTranslation();
   const features = [
     {
       icon: <ClockIcon size={26} />,
-      title: "Real-time",
-      description: "Get instant visual verification from people worldwide",
-      highlight: "Median response under 5 mins",
+      title: t("landing.featuresSection.grid.realTime.title"),
+      description: t("landing.featuresSection.grid.realTime.description"),
+      highlight: t("landing.featuresSection.grid.realTime.highlight"),
     },
     {
       icon: <GlobeHemisphereWestIcon size={26} />,
-      title: "Global Network",
-      description: "Connect with local reporters in any city",
-      highlight: "190+ countries covered",
+      title: t("landing.featuresSection.grid.globalNetwork.title"),
+      description: t("landing.featuresSection.grid.globalNetwork.description"),
+      highlight: t("landing.featuresSection.grid.globalNetwork.highlight"),
     },
     {
       icon: <ShieldCheckIcon size={26} />,
-      title: "Verified",
-      description: "Trusted community with ratings and reviews",
-      highlight: "Geo + reputation backed",
+      title: t("landing.featuresSection.grid.verified.title"),
+      description: t("landing.featuresSection.grid.verified.description"),
+      highlight: t("landing.featuresSection.grid.verified.highlight"),
     },
   ];
 

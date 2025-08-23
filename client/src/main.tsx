@@ -7,10 +7,8 @@ import { TonConnectUIProvider } from "@tonconnect/ui-react";
 
 createRoot(document.getElementById("root")!).render(
   <TonConnectUIProvider manifestUrl={`${window.location.origin}/tonconnect-manifest.json`}>
-    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-      <RadixThemeProvider>
-        <App />
-      </RadixThemeProvider>
+    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <App />
     </ThemeProvider>
   </TonConnectUIProvider>
 );

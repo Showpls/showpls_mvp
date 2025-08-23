@@ -125,9 +125,19 @@
     "selectLocation": "انقر لاختيار الموقع",
     "creating": "إنشاء...",
     "createAndFund": "إنشاء وتمويل",
-    "sample": "عينة"
+    "sample": "عينة",
+    "confirm": {
+      "title": "إنشاء هذا الطلب؟",
+      "body": "ستقوم بإنشاء الطلب الآن. بمجرد قبول مقدّم الخدمة له، ستتمكن من تمويل الضمان للمتابعة.",
+      "confirm": "إنشاء الطلب"
+    }
   },
   "mediaType": {
+    "photo": "صورة",
+    "video": "فيديو",
+    "live": "مباشر"
+  },
+  "mediaTypes": {
     "photo": "صورة",
     "video": "فيديو",
     "live": "مباشر"
@@ -203,7 +213,16 @@
       "clarification": "توضيح"
     },
     "connected": "متصل",
-    "connecting": "جاري الاتصال..."
+    "connecting": "جاري الاتصال...",
+    "failedToLoad": "Failed to load profile.",
+    "rating": "Rating",
+    "provider": "Provider",
+    "totalOrders": "Total Orders",
+    "location": "Location",
+    "locationUnknown": "Location unknown",
+    "rateUser": "Rate this user",
+    "ratingNote": "Only eligible users can submit ratings.",
+    "ratingEligibilityHint": "Open this profile from a specific chat to rate this user for that order."
   },
 
   "quickReplies": {
@@ -433,6 +452,81 @@
       "price": "0.5 TON",
       "status": "تم العثور على مقدّم!",
       "global": "عالمي"
+    },
+    "featuresSection": {
+      "header": {
+        "title": "Powerful Features",
+        "subtitle": "Everything you need to get real-time content from anywhere"
+      },
+      "cta": {
+        "title": "Ready to get started?",
+        "subtitle": "Open Showpls in Telegram and create your first request.",
+        "button": "Open in Telegram"
+      },
+      "grid": {
+        "realTime": {
+          "title": "Real-time",
+          "description": "Get photos, videos, and live streams in minutes",
+          "highlight": "Instant delivery"
+        },
+        "globalNetwork": {
+          "title": "Global network",
+          "description": "Verified providers in cities worldwide",
+          "highlight": "Worldwide coverage"
+        },
+        "verified": {
+          "title": "Verified providers",
+          "description": "Secure escrow and reputation ensure quality",
+          "highlight": "Trust and safety"
+        }
+      }
+    },
+    "footer": {
+      "categories": {
+        "product": "Product",
+        "resources": "Resources",
+        "company": "Company"
+      },
+      "links": {
+        "howItWorks": "How it works",
+        "useCases": "Use cases",
+        "pricing": "Pricing",
+        "mobileApp": "Mobile App",
+        "documentation": "Documentation",
+        "api": "API",
+        "support": "Support",
+        "community": "Community",
+        "about": "About",
+        "careers": "Careers",
+        "contact": "Contact",
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "cookies": "Cookies"
+      },
+      "brandDescription": "Real-time global content marketplace powered by TON blockchain escrow.",
+      "altLogo": "Showpls logo",
+      "copyright": "© {{year}} Showpls. All rights reserved."
+    },
+    "header": {
+      "links": {
+        "readme": "Readme",
+        "contact": "Contact",
+        "about": "About",
+        "policy": "Policy",
+        "demo": "Demo"
+      },
+      "cta": {
+        "start": "Start"
+      },
+      "aria": {
+        "menu": "Menu",
+        "toggleTheme": "Toggle theme"
+      },
+      "themeTooltip": {
+        "light": "Light mode",
+        "dark": "Dark mode",
+        "system": "System theme"
+      }
     }
   },
   "rating": {
@@ -480,5 +574,34 @@
   "error": "خطأ",
   "cancel": "إلغاء",
   "creating": "إنشاء...",
-  "uploading": "جاري الرفع..."
+  "uploading": "جاري الرفع...",
+  "onboarding": {
+    "step": "Step",
+    "welcome": {
+      "title": "Welcome to Showpls",
+      "description": "Get real-time photos, videos, and live streams from anywhere in the world. Let's get you started!"
+    },
+    "wallet": {
+      "title": "Connect Your Wallet",
+      "description": "Secure TON wallet connection enables safe escrow payments and instant transfers.",
+      "why": "Why connect a wallet?",
+      "security": "All payments are secured through TON blockchain escrow system"
+    },
+    "order": {
+      "title": "Try Your First Order",
+      "description": "Experience the full flow with a sample request. No payment required!"
+    },
+    "chat": {
+      "title": "Real-time Communication",
+      "description": "Chat directly with providers, track progress, and receive instant updates."
+    },
+    "sampleOrder": {
+      "benefits": "Sample Order Benefits:",
+      "benefit1": "Experience the complete workflow",
+      "benefit2": "Learn the chat system",
+      "benefit3": "No payment required"
+    },
+    "tryDemo": "Try Demo Order",
+    "getStarted": "Get Started"
+  }
 }

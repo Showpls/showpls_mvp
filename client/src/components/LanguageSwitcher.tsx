@@ -26,7 +26,7 @@ export function LanguageSwitcher() {
 
   return (
     <Select value={currentLanguage} onValueChange={handleLanguageChange}>
-      <SelectTrigger className="w-auto bg-panel border-brand-primary/30 text-text-primary">
+      <SelectTrigger className="w-auto bg-background border border-border text-foreground">
         <SelectValue>
           <div className="flex items-center space-x-2">
             <Globe className="w-4 h-4" />
@@ -35,16 +35,16 @@ export function LanguageSwitcher() {
           </div>
         </SelectValue>
       </SelectTrigger>
-      <SelectContent className="bg-panel border-brand-primary/30">
+      <SelectContent className="bg-popover text-popover-foreground border border-border">
         {languages.map((language) => (
           <SelectItem 
             key={language.code} 
             value={language.code}
-            className="text-text-primary focus:bg-brand-primary/20 focus:text-text-primary cursor-pointer"
+            className="text-foreground focus:bg-accent focus:text-accent-foreground cursor-pointer"
           >
             <div className="flex items-center space-x-2">
               <span>{language.label}</span>
-              <span className="text-text-muted text-sm">({language.name})</span>
+              <span className="text-muted-foreground text-sm">({language.name})</span>
             </div>
           </SelectItem>
         ))}

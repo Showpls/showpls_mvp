@@ -106,6 +106,8 @@
     "chat": "Chat"
   },
   "hero": {
+    "seeCta": "I want to see",
+    "showCta": "I can show",
     "tagline": "Your Eyes, Everywhere.",
     "realtimeTagline": "Reality in real-time.",
     "subtitle": "Connect with local providers to get live photos, videos, and streams from any location worldwide with secure TON blockchain payments.",
@@ -505,6 +507,81 @@
       "price": "0.5 TON",
       "status": "Provider found!",
       "global": "Global"
+    },
+    "featuresSection": {
+      "header": {
+        "title": "Powerful Features",
+        "subtitle": "Everything you need to get real-time content from anywhere"
+      },
+      "cta": {
+        "title": "Ready to get started?",
+        "subtitle": "Open Showpls in Telegram and create your first request.",
+        "button": "Open in Telegram"
+      },
+      "grid": {
+        "realTime": {
+          "title": "Real-time",
+          "description": "Get photos, videos, and live streams in minutes",
+          "highlight": "Instant delivery"
+        },
+        "globalNetwork": {
+          "title": "Global network",
+          "description": "Verified providers in cities worldwide",
+          "highlight": "Worldwide coverage"
+        },
+        "verified": {
+          "title": "Verified providers",
+          "description": "Secure escrow and reputation ensure quality",
+          "highlight": "Trust and safety"
+        }
+      }
+    },
+    "footer": {
+      "categories": {
+        "product": "Product",
+        "resources": "Resources",
+        "company": "Company"
+      },
+      "links": {
+        "howItWorks": "How it works",
+        "useCases": "Use cases",
+        "pricing": "Pricing",
+        "mobileApp": "Mobile App",
+        "documentation": "Documentation",
+        "api": "API",
+        "support": "Support",
+        "community": "Community",
+        "about": "About",
+        "careers": "Careers",
+        "contact": "Contact",
+        "privacy": "Privacy",
+        "terms": "Terms",
+        "cookies": "Cookies"
+      },
+      "brandDescription": "Real-time global content marketplace powered by TON blockchain escrow.",
+      "altLogo": "Showpls logo",
+      "copyright": "© {{year}} Showpls. All rights reserved."
+    },
+    "header": {
+      "links": {
+        "readme": "Readme",
+        "contact": "Contact",
+        "about": "About",
+        "policy": "Policy",
+        "demo": "Demo"
+      },
+      "cta": {
+        "start": "Start"
+      },
+      "aria": {
+        "menu": "Menu",
+        "toggleTheme": "Toggle theme"
+      },
+      "themeTooltip": {
+        "light": "Light mode",
+        "dark": "Dark mode",
+        "system": "System theme"
+      }
     }
   }
 }
