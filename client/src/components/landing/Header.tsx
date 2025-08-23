@@ -16,15 +16,15 @@ export default function Header() {
     const links = ["Readme", "Contact", "About", "Policy", "Demo"];
 
     return (
-        <nav className="fixed top-4 z-40 w-full lg:top-6">
+        <nav className="fixed top-3 z-40 w-full sm:top-4 lg:top-6">
             <div className="container box-border mx-auto max-w-7xl px-4 md:px-6">
                 <div
-                    className={`relative flex h-16 w-full items-center justify-between rounded-lg border px-2 py-1.5 
+                    className={`relative flex h-14 sm:h-16 w-full items-center justify-between rounded-lg border px-2 py-1.5 
           transition-[box-shadow,background-color,border-color] duration-300 motion-reduce:transition-none 
           lg:grid lg:grid-cols-[1fr_auto_1fr] lg:rounded-2xl lg:py-[0.4375rem] lg:pr-[0.4375rem]
           ${
                         isScrolled
-                            ? 'border-border bg-background shadow-xl :bg-background/60 shadow-sm'
+                            ? 'border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm'
                             : 'border-transparent bg-transparent'
                     }
         `}
@@ -32,8 +32,8 @@ export default function Header() {
 
                     {/* Logo and title - Left side */}
                     <a className="relative flex w-fit items-center gap-2 overflow-hidden lg:px-3" href="/">
-                        <img src="/logo4.png" className="h-8 w-8 lg:h-10 lg:w-10" alt="SHOWPLS" />
-                        <h2 className="font-bold text-lg lg:text-xl text-foreground">SHOWPLS</h2>
+                        <img src="/logo4.png" className="h-7 w-7 sm:h-8 sm:w-8 lg:h-10 lg:w-10" alt="SHOWPLS" />
+                        <h2 className="font-bold text-base sm:text-lg lg:text-xl text-foreground">SHOWPLS</h2>
                     </a>
 
                     {/* Navigation links - Center (hidden on mobile) */}
@@ -64,7 +64,7 @@ export default function Header() {
 
                         {/* Mobile menu button (visible on mobile only) */}
                         <button
-                            className="relative size-6 lg:hidden ml-2"
+                            className="relative size-6 lg:hidden ml-1 sm:ml-2"
                             aria-expanded="false"
                             aria-controls="mobile-menu"
                             aria-label="Menu"

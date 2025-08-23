@@ -17,13 +17,13 @@ export default function HeroSection() {
     };
 
     return (
-        <section className="container-full min-h-[40rem] md:h-svh md:max-h-[min(80rem,300vw)] md:min-h-[48rem] px-4 pb-0 pt-24 text-foreground md:px-6 md:pb-0 lg:pt-28">
+        <section className="container-full min-h-[40rem] md:h-svh md:max-h-[min(80rem,300vw)] md:min-h-[48rem] px-4 pb-0 pt-20 text-foreground md:px-6 md:pb-0 lg:pt-28">
             <div className="relative h-full w-full rounded-2xl overflow-hidden border bg-card">
-                <div className="relative h-full flex items-center">
+                <div className="relative h-full flex flex-col lg:flex-row items-center">
                     <img className="rounded-lg z-0 absolute left-0 top-0 h-full w-full object-cover opacity-20" src="/grainy4.jpg" />
-                    <div className="w-full lg:w-1/2 z-10 flex flex-col justify-center px-8 md:px-12 lg:px-16">
+                    <div className="w-full lg:w-1/2 z-10 flex flex-col justify-center px-6 md:px-12 lg:px-16 py-10 md:py-12">
                         <div className="mb-4">
-                            <h1 className="text-[clamp(3.625rem,_1.6250rem_+_8.3333vw,_7rem)] font-semibold leading-[0.95] tracking-tight text-balance">
+                            <h1 className="text-[clamp(2.5rem,_1.4rem_+_6vw,_6rem)] font-semibold leading-[0.95] tracking-tight text-balance">
                                 Your Eyes Anywhere
                             </h1>
                         </div>
@@ -34,7 +34,7 @@ export default function HeroSection() {
                             </p>
                         </div>
 
-                        <div className="flex flex-col gap-4 md:flex-row">
+                        <div className="flex flex-col gap-3 sm:gap-4 md:flex-row">
                             <Button size="lg" className="flex items-center gap-2 bg-primary text-primary-foreground hover:bg-primary/90">
                                 <EyeIcon />
                                 I want to see
@@ -47,7 +47,7 @@ export default function HeroSection() {
                         </div>
                     </div>
 
-                    <div className="z-10 w-full lg:w-1/2 p-8 md:p-12">
+                    <div className="z-10 w-full lg:w-1/2 p-6 md:p-12 mt-6 lg:mt-0">
                         <div className="relative w-full aspect-video rounded-xl overflow-hidden shadow-2xl">
                             <ReactPlayer
                                 src="/videos/showpls-demo-en.mp4"

@@ -26,7 +26,7 @@ export default function FeaturesGrid() {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 md:gap-8 xl:gap-10">
       {features.map((f, i) => (
         <FeatureCard
           key={i}

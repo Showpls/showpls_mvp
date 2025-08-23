@@ -10,9 +10,9 @@ interface FeatureCardProps {
 export default function FeatureCard({ icon, title, description, highlight }: FeatureCardProps) {
   return (
     <div className="group relative h-full">
-      {/* glow */}
-      <div className="pointer-events-none absolute inset-0 rounded-2xl opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-100 bg-gradient-to-br from-primary/20 via-transparent to-transparent" />
-      <div className="relative h-full rounded-2xl border border-border/80 bg-secondary p-6 md:p-7 transition-all duration-300 hover:border-primary/30 hover:shadow-xl hover:-translate-y-0.5 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+      {/* glow (desktop only) */}
+      <div className="pointer-events-none absolute inset-0 hidden rounded-2xl opacity-0 blur-xl transition-opacity duration-300 md:block md:group-hover:opacity-100 bg-gradient-to-br from-primary/20 via-transparent to-transparent" />
+      <div className="relative h-full rounded-2xl border border-border/80 bg-secondary p-5 md:p-7 transition-all duration-300 md:hover:border-primary/30 md:hover:shadow-xl md:hover:-translate-y-0.5">
         <div className="flex items-center gap-4 mb-4">
           <div className="flex size-11 items-center justify-center rounded-xl bg-gradient-to-br from-primary/15 to-primary/5 text-primary ring-1 ring-primary/20">
             {icon}
