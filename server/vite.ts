@@ -18,6 +18,7 @@ export function log(message: string, source = "express") {
 export async function setupVite(app: Express, server: Server) {
   // Dynamic imports to avoid bundling Vite dependencies in production
   const { createServer: createViteServer, createLogger } = await import("vite");
+  const { default: react } = await import("@vitejs/plugin-react");
   
   const viteLogger = createLogger();
   
@@ -27,9 +28,9 @@ export async function setupVite(app: Express, server: Server) {
     allowedHosts: true as const,
   };
 
-  // Inline vite config to avoid importing vite.config.js which has dev dependencies
+  // Inline vite config (with React) to avoid importing vite.config.js directly
   const vite = await createViteServer({
-    plugins: [],
+    plugins: [react()],
     resolve: {
       alias: {
         "@": path.resolve(import.meta.dirname, "..", "client", "src"),

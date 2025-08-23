@@ -149,7 +149,7 @@ export default function Chat() {
     onMessage: (data) => {
       if (data.type === 'chat_message' && data.message) {
         // Minimal logging for diagnostics
-        if (process.env.NODE_ENV !== 'production') {
+        if (!import.meta.env.PROD) {
           console.debug('[WS] chat_message received', data.message);
         }
         queryClient.setQueryData(['/api/orders', orderId, 'messages'], (old: ChatMessageType[] | undefined) => [

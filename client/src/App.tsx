@@ -1,8 +1,6 @@
 import { Switch, Route } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
-import { Toaster } from "@/components/ui/toaster";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { I18nextProvider } from "react-i18next";
 import i18n from "./lib/i18n";
 import NewLanding from "./pages/NewLanding";
@@ -14,11 +12,12 @@ import MapPage from "./pages/MapPage";
 import NotFound from "@/pages/not-found";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Profile from "./pages/Profile";
+import ModernLanding from "./pages/NewLanding";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={NewLanding} />
+      <Route path="/" component={ModernLanding} />
       <Route path="/twa" component={TelegramWebApp} />
       <Route path="/create-order" component={CreateOrder} />
       <Route path="/map" component={MapPage} />
@@ -38,12 +37,9 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <I18nextProvider i18n={i18n}>
-          <TooltipProvider>
-            <div className="min-h-screen bg-bg-primary text-text-primary">
-              <Toaster />
-              <Router />
-            </div>
-          </TooltipProvider>
+        <div>
+          <Router />
+        </div>
       </I18nextProvider>
     </QueryClientProvider>
   );

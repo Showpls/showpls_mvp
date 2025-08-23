@@ -171,7 +171,7 @@ function getTelegramAuthData() {
     }
     
     // For development/testing, return mock data
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       return {
         id: 'demo_user_123',
         username: 'demo_user',

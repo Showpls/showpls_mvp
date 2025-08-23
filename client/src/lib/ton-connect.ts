@@ -141,7 +141,7 @@ class TonConnectService {
         return window.Telegram.WebApp.initDataUnsafe.user;
       }
 
-      if (process.env.NODE_ENV === "development") {
+      if (import.meta.env.DEV) {
         return {
           id: "demo_user_123",
           username: "demo_user",

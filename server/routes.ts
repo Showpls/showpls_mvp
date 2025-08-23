@@ -655,16 +655,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     });
   }
 
-  // Serve static files from public directory FIRST
-  app.use(express.static("public", {
-    setHeaders: (res, path) => {
-      if (path.endsWith('.html')) {
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        res.setHeader('Pragma', 'no-cache');
-        res.setHeader('Expires', '0');
+  // Serve static files from public directory FIRST (production only)
+  if (process.env.NODE_ENV === 'production') {
+    app.use(express.static("public", {
+      setHeaders: (res, path) => {
+        if (path.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+          res.setHeader('Pragma', 'no-cache');
+          res.setHeader('Expires', '0');
+        }
       }
-    }
-  }));
+    }));
+  }
 
   // Serve uploaded files
   // This enables accessing files uploaded via /api/upload at /uploads/<filename>
@@ -672,19 +674,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   // This should be last - catch-all for SPA routing
   app.get('*', (req, res, next) => {
-    // Skip API routes
+    // Always skip API routes
     if (req.path.startsWith('/api/')) {
       return next();
     }
-    // Skip static files (they should be handled by express.static above)
-    if (req.path.match(/\.(html|js|css|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot)$/)) {
-      return next();
-    }
-    // For development, let Vite handle it
+    // In development, let Vite middleware handle all non-API routes
     if (process.env.NODE_ENV === 'development') {
       return next();
     }
-    // For production, serve the SPA
+    // In production, serve the built SPA
     res.sendFile(path.resolve('./public/index.html'));
   });
 
