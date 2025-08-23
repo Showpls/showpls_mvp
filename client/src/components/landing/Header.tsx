@@ -74,27 +74,41 @@ export default function Header() {
                         >
                             <svg
                                 className="-ml-2 -mt-2 size-10 text-muted-foreground"
-                                viewBox="0 0 100 100"
+                                viewBox="0 0 24 24"
                                 width="24"
                                 xmlns="http://www.w3.org/2000/svg"
-                                strokeWidth="5.5"
+                                strokeWidth="2.2"
                                 fill="none"
                                 stroke="currentColor"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
                             >
-                                <path d="m 70,33 h -40 c 0,0 -8.5,-0.149796 -8.5,8.5 0,8.649796 8.5,8.5 8.5,8.5 h 20 v -20"></path>
-                                <path d="m 70,50 h -40"></path>
-                                <path d="m 30,67 h 40 c 0,0 8.5,0.149796 8.5,-8.5 0,-8.649796 -8.5,-8.5 -8.5,-8.5 h -20 v 20"></path>
+                                <path d="M4 6h16" />
+                                <path d="M4 12h16" />
+                                <path d="M4 18h16" />
                             </svg>
                         </button>
                     </div>
                     {/* Mobile dropdown panel */}
                     <div
                         id="mobile-menu"
-                        className={`${isMenuOpen ? 'opacity-100 translate-y-0' : 'pointer-events-none opacity-0 -translate-y-1'} lg:hidden absolute left-2 right-2 top-full mt-2 z-50 rounded-md border border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80 shadow-lg transition-all`}
+                        className={`${isMenuOpen ? 'opacity-100 translate-y-0' : 'pointer-events-none opacity-0 -translate-y-1'} lg:hidden absolute left-2 right-2 top-full mt-2 z-50 rounded-md border border-border bg-background shadow-lg transition-all`}
                         role="menu"
                         aria-hidden={!isMenuOpen}
                     >
                         <ul className="p-1.5">
+                            <li className="p-1">
+                                <a
+                                    href="https://t.me/showplsbot"
+                                    target="_blank"
+                                    className="flex w-full items-center justify-center gap-2 rounded-md bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                                    onClick={() => setIsMenuOpen(false)}
+                                    role="menuitem"
+                                >
+                                    <TelegramLogoIcon size={14} />
+                                    Start
+                                </a>
+                            </li>
                             {links.map((link, index) => (
                                 <li key={index}>
                                     <a
