@@ -4,26 +4,42 @@
 @tailwind components;
 @tailwind utilities;
 
+a:hover,
+button:hover {
+  cursor: pointer;
+}
+
 :root {
-  --background: oklch(0.9842 0.0034 247.8575);
-  --foreground: oklch(0.2795 0.0368 260.031);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.2795 0.0368 260.031);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.2795 0.0368 260.031);
-  --primary: oklch(0.5854 0.2041 277.1173);
-  --primary-foreground: oklch(1 0 0);
-  --secondary: oklch(0.9276 0.0058 264.5313);
-  --secondary-foreground: oklch(0.3729 0.0306 259.7328);
-  --muted: oklch(0.967 0.0029 264.5419);
-  --muted-foreground: oklch(0.551 0.0234 264.3637);
-  --accent: oklch(0.9299 0.0334 272.7879);
-  --accent-foreground: oklch(0.3729 0.0306 259.7328);
+  /* 1. Background white; foreground black (light mode) */
+  --background: #ffffff;
+  --foreground: #090909;
+
+  /* 3 & 4. Card colors (light mode) */
+  --card: oklch(80.9% 0.105 251.813); /* tailwind blue 300 */
+  --card-foreground: oklch(50% 0.134 242.749); /* tailwind sky 700 */
+
+  /* 5. Primary same as card (tailwind blue 300) */
+  --primary: oklch(80.9% 0.105 251.813);
+  --primary-foreground: #090909; /* keep readable on light background */
+
+  /* 6. Secondary emerald 300 */
+  --secondary: oklch(84.5% 0.143 164.978);
+  --secondary-foreground: #090909;
+
+  /* 7. Muted: 43.9% gray */
+  --muted: oklch(43.9% 0 0);
+  --muted-foreground: var(--foreground);
+
+  /* The rest of your colors remain unchanged unless you want to update them too */
+  --popover: var(--card);
+  --popover-foreground: var(--card-foreground);
   --destructive: oklch(0.6368 0.2078 25.3313);
-  --destructive-foreground: oklch(1 0 0);
+  --destructive-foreground: #ffffff;
   --border: oklch(0.8717 0.0093 258.3382);
-  --input: oklch(0.8717 0.0093 258.3382);
-  --ring: oklch(0.5854 0.2041 277.1173);
+  --input: var(--border);
+  --ring: var(--primary);
+
+  /* Rest unused colours */
   --chart-1: oklch(0.5854 0.2041 277.1173);
   --chart-2: oklch(0.5106 0.2301 276.9656);
   --chart-3: oklch(0.4568 0.2146 277.0229);
@@ -37,7 +53,7 @@
   --sidebar-accent-foreground: oklch(0.3729 0.0306 259.7328);
   --sidebar-border: oklch(0.8717 0.0093 258.3382);
   --sidebar-ring: oklch(0.5854 0.2041 277.1173);
-  --font-sans: Gantari, ui-sans-serif, sans-serif, system-ui;
+  --font-sans: "Space Grotesk", sans-serif;
   --font-serif: Merriweather, serif;
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.5rem;
@@ -59,25 +75,36 @@
 }
 
 .dark {
-  --background: oklch(0.2077 0.0398 265.7549);
-  --foreground: oklch(0.9288 0.0126 255.5078);
-  --card: oklch(0.2795 0.0368 260.031);
-  --card-foreground: oklch(0.9288 0.0126 255.5078);
-  --popover: oklch(0.2795 0.0368 260.031);
-  --popover-foreground: oklch(0.9288 0.0126 255.5078);
-  --primary: oklch(0.6801 0.1583 276.9349);
-  --primary-foreground: oklch(0.2077 0.0398 265.7549);
-  --secondary: oklch(0.3351 0.0331 260.912);
-  --secondary-foreground: oklch(0.8717 0.0093 258.3382);
-  --muted: oklch(0.2795 0.0368 260.031);
-  --muted-foreground: oklch(0.7137 0.0192 261.3246);
-  --accent: oklch(0.3729 0.0306 259.7328);
-  --accent-foreground: oklch(0.8717 0.0093 258.3382);
+  /* 1. Background #090909; foreground white (dark mode) */
+  --background: #090909;
+  --foreground: #ffffff;
+
+  /* 3 & 4. Card same values as light (not inverted unless desired) */
+  --card: oklch(80.9% 0.105 251.813);
+  --card-foreground: oklch(50% 0.134 242.749);
+
+  /* 5. Primary same (tailwind blue 300) */
+  --primary: oklch(80.9% 0.105 251.813);
+  --primary-foreground: #090909;
+
+  /* 6. Secondary emerald 300 */
+  --secondary: oklch(84.5% 0.143 164.978);
+  --secondary-foreground: #090909;
+
+  /* 7. Muted: 87% gray on dark */
+  --muted: oklch(87% 0 0);
+  --muted-foreground: var(--foreground);
+
+  /* Other colors can inherit or stay same as before if they don’t need inversion */
+  --popover: var(--card);
+  --popover-foreground: var(--card-foreground);
   --destructive: oklch(0.6368 0.2078 25.3313);
-  --destructive-foreground: oklch(0.2077 0.0398 265.7549);
+  --destructive-foreground: #ffffff;
   --border: oklch(0.4461 0.0263 256.8018);
-  --input: oklch(0.4461 0.0263 256.8018);
-  --ring: oklch(0.6801 0.1583 276.9349);
+  --input: var(--border);
+  --ring: var(--primary);
+
+  /* Rest unused colours */
   --chart-1: oklch(0.6801 0.1583 276.9349);
   --chart-2: oklch(0.5854 0.2041 277.1173);
   --chart-3: oklch(0.5106 0.2301 276.9656);
@@ -91,7 +118,7 @@
   --sidebar-accent-foreground: oklch(0.8717 0.0093 258.3382);
   --sidebar-border: oklch(0.4461 0.0263 256.8018);
   --sidebar-ring: oklch(0.6801 0.1583 276.9349);
-  --font-sans: Gantari, ui-sans-serif, sans-serif, system-ui;
+  --font-sans: "Space Grotesk", sans-serif;
   --font-serif: Merriweather, serif;
   --font-mono: JetBrains Mono, monospace;
   --radius: 0.5rem;
