@@ -26,6 +26,17 @@ button:hover {
   --secondary: oklch(84.5% 0.143 164.978);
   --secondary-foreground: #090909;
 
+  /* Accent for gradients and emphasis */
+  --accent: #a78bfa; /* tailwind purple-400 */
+  --accent-foreground: #090909;
+
+  /* Panel surface (used for glass-panel bg) */
+  --panel: var(--background);
+
+  /* Brand aliases (keep backward compatibility) */
+  --brand-primary: var(--primary);
+  --brand-accent: var(--accent);
+
   /* 7. Muted: 43.9% gray */
   --muted: oklch(43.9% 0 0);
   --muted-foreground: var(--foreground);
@@ -95,6 +106,17 @@ button:hover {
   --muted: oklch(87% 0 0);
   --muted-foreground: var(--foreground);
 
+  /* Accent for gradients and emphasis */
+  --accent: #8b5cf6; /* tailwind purple-500 for dark */
+  --accent-foreground: #090909;
+
+  /* Panel surface (used for glass-panel bg) */
+  --panel: var(--background);
+
+  /* Brand aliases (keep backward compatibility) */
+  --brand-primary: var(--primary);
+  --brand-accent: var(--accent);
+
   /* Other colors can inherit or stay same as before if they don’t need inversion */
   --popover: var(--card);
   --popover-foreground: var(--card-foreground);
@@ -150,6 +172,9 @@ button:hover {
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
+  --color-panel: var(--panel);
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-accent: var(--brand-accent);
   --color-accent: var(--accent);
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
@@ -239,11 +264,11 @@ button:hover {
 
   /* Mapbox custom styles */
   .mapboxgl-popup-content {
-    @apply bg-white rounded-lg shadow-lg border-0;
+    @apply bg-background text-foreground rounded-lg shadow-lg border border-border;
   }
 
   .mapboxgl-popup-close-button {
-    @apply text-gray-600 hover:text-gray-800;
+    @apply text-foreground hover:text-foreground/80;
   }
 
   .order-marker {
@@ -255,11 +280,11 @@ button:hover {
   }
 
   .mapboxgl-ctrl-group {
-    @apply bg-white/90 backdrop-blur-sm border-white/20;
+    @apply bg-background/90 backdrop-blur-sm border-border;
   }
 
   .mapboxgl-ctrl-group button {
-    @apply text-gray-800 hover:bg-gray-100;
+    @apply text-foreground hover:bg-foreground/10;
   }
 }
 

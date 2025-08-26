@@ -34,21 +34,21 @@ export default function MapPage() {
     };
 
     return (
-        <div className="h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex flex-col">
+        <div className="h-screen bg-bg-primary text-text-primary flex flex-col">
             {/* Header */}
             <div className="glass-panel p-4">
                 <div className="max-w-6xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href="/twa">
-                            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+                            <Button variant="ghost" size="icon" className="text-text-primary hover:bg-text-primary/10">
                                 <ArrowLeft size={20} />
                             </Button>
                         </Link>
                         <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 gradient-bg rounded-full flex items-center justify-center">
+                            <div className="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center">
                                 <MapPin className="w-4 h-4 text-white" />
                             </div>
-                            <h1 className="text-xl font-bold text-white">{t('map.title') || 'Карта заказов'}</h1>
+                            <h1 className="text-xl font-bold text-text-primary">{t('map.title') || 'Карта заказов'}</h1>
                         </div>
                     </div>
 

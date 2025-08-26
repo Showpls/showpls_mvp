@@ -177,18 +177,18 @@ export default function TelegramWebApp() {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-bg-primary text-text-primary">
       <div className="glass-panel rounded-none h-16 px-3 mb-6">
         <div className="max-w-sm mx-auto flex items-center justify-between h-full">
           <div className="flex items-center gap-1">
             <img src="/logo4.png" alt="Showpls" className="block max-h-10 h-full object-contain mr-2 select-none" />
-            <h2 className="text-white text-base font-semibold tracking-wide select-none">Showpls</h2>          </div>
+            <h2 className="text-text-primary text-base font-semibold tracking-wide select-none">Showpls</h2>          </div>
           <div className="flex items-center space-x-2">
             <WalletConnect />
             <Button
               variant="outline"
               size="sm"
-              className="bg-card border-brand-primary/30 w-9 h-9 p-2"
+              className="bg-panel border-brand-primary/30 w-9 h-9 p-2"
               onClick={() => {
                 if (currentUser?.id) {
                   window.location.href = `/profile/${currentUser.id}`;
@@ -205,7 +205,7 @@ export default function TelegramWebApp() {
       {/* Onboarding Blocking Overlay */}
       {currentUser && (currentUser as any).onboardingCompleted === false && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-background rounded-xl border border-brand-primary/30 shadow-xl">
+          <div className="w-full max-w-md bg-panel rounded-xl border border-brand-primary/30 shadow-xl">
             <div className="p-4 space-y-4">
               <h3 className="font-semibold text-lg">{String(t('twa.welcome') || 'Welcome to Showpls')}</h3>
               <div className="text-sm text-text-muted">{String(t('twa.completeOnboarding') || 'Please choose your role and set your location to continue.')}</div>
@@ -217,7 +217,7 @@ export default function TelegramWebApp() {
                     type="button"
                     variant="outline"
                     aria-pressed={!onboarding.isProvider}
-                    className={`justify-center gap-2 border transition-none ${!onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-card border-brand-primary/30'}`}
+                    className={`justify-center gap-2 border transition-none ${!onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-panel border-brand-primary/30'}`}
                     onClick={() => setOnboarding(o => ({ ...o, isProvider: false }))}
                   >
                     <ShoppingBag className="w-4 h-4" /> {String(t('twa.roleBuyer') || 'Buyer')}
@@ -226,7 +226,7 @@ export default function TelegramWebApp() {
                     type="button"
                     variant="outline"
                     aria-pressed={onboarding.isProvider}
-                    className={`justify-center gap-2 border transition-none ${onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-card border-brand-primary/30'}`}
+                    className={`justify-center gap-2 border transition-none ${onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-panel border-brand-primary/30'}`}
                     onClick={() => setOnboarding(o => ({ ...o, isProvider: true }))}
                   >
                     <Camera className="w-4 h-4" /> {String(t('twa.roleProvider') || 'Seller')}
@@ -260,7 +260,7 @@ export default function TelegramWebApp() {
               <Button
                 disabled={saving || !onboarding.location}
                 onClick={completeOnboarding}
-                className="w-full gradient-bg text-white mt-3"
+                className="w-full bg-brand-primary text-white mt-3"
               >
                 {saving ? String(t('twa.saving') || 'Saving...') : String(t('twa.saveAndContinue') || 'Save and continue')}
               </Button>

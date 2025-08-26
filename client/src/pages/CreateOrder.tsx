@@ -190,21 +190,21 @@ export default function CreateOrder() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4">
+    <div className="min-h-screen bg-bg-primary text-text-primary p-4">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4 text-white">
+        <div className="flex items-center gap-4 text-text-primary">
           <Link href="/twa">
-            <Button variant="ghost" size="icon" className="text-white hover:bg-white/10">
+            <Button variant="ghost" size="icon" className="text-text-primary hover:bg-text-primary/10">
               <ArrowLeft size={20} />
             </Button>
           </Link>
           <h1 className="text-2xl font-bold">{t('createOrder.title')}</h1>
         </div>
 
-        <Card className="glass-panel border-white/20">
+        <Card className="glass-panel border-brand-primary/20">
           <CardHeader>
-            <CardTitle className="text-white flex items-center gap-2">
+            <CardTitle className="text-text-primary flex items-center gap-2">
               <Camera size={24} />
               {t('createOrder.newContentRequest')}
             </CardTitle>
@@ -223,42 +223,42 @@ export default function CreateOrder() {
 
               {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-white">{t('createOrder.orderTitle')}</Label>
+                <Label htmlFor="title" className="text-text-primary">{t('createOrder.orderTitle')}</Label>
                 <Input
                   id="title"
                   value={orderData.title}
                   onChange={(e) => setOrderData({ ...orderData, title: e.target.value })}
                   placeholder={t('createOrder.orderTitlePlaceholder')}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                  className="bg-panel/60 border-brand-primary/30 text-text-primary placeholder:text-text-muted"
                 />
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-white">{t('createOrder.description')}</Label>
+                <Label htmlFor="description" className="text-text-primary">{t('createOrder.description')}</Label>
                 <Textarea
                   id="description"
                   value={orderData.description}
                   onChange={(e) => setOrderData({ ...orderData, description: e.target.value })}
                   placeholder={t('createOrder.descriptionPlaceholder')}
                   rows={4}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                  className="bg-panel/60 border-brand-primary/30 text-text-primary placeholder:text-text-muted"
                 />
               </div>
 
               {/* Media Type */}
               <div className="space-y-2">
-                <Label className="text-white">{t('createOrder.contentType')}</Label>
+                <Label className="text-text-primary">{t('createOrder.contentType')}</Label>
                 <Select
                   value={orderData.mediaType}
                   onValueChange={(value: 'photo' | 'video' | 'live') =>
                     setOrderData({ ...orderData, mediaType: value })
                   }
                 >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectTrigger className="bg-panel/60 border-brand-primary/30 text-text-primary">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800/95 border-slate-700 text-white">
+                  <SelectContent className="bg-panel border-brand-primary/30 text-text-primary">
                     <SelectItem value="photo">
                       <div className="flex items-center gap-2">
                         <Camera size={16} />
@@ -283,7 +283,7 @@ export default function CreateOrder() {
 
               {/* Location */}
               <div className="space-y-2">
-                <Label className="text-white">{t('createOrder.location')}</Label>
+                <Label className="text-text-primary">{t('createOrder.location')}</Label>
                 <div className="flex gap-2">
                   <Input
                     value={orderData.location.address || t('createOrder.specifyAddress')}
@@ -292,7 +292,7 @@ export default function CreateOrder() {
                       location: { ...orderData.location, address: e.target.value }
                     })}
                     placeholder={t('createOrder.addressPlaceholder')}
-                    className="bg-white/10 border-white/20 text-white placeholder:text-white/60"
+                    className="bg-panel/60 border-brand-primary/30 text-text-primary placeholder:text-text-muted"
                   />
                   <Button
                     type="button"
@@ -303,7 +303,7 @@ export default function CreateOrder() {
                     <Map size={16} />
                   </Button>
                 </div>
-                <div className="text-sm text-white/60">
+                <div className="text-sm text-text-muted">
                   {t('createOrder.coordinates', { lat: orderData.location.lat.toFixed(4), lng: orderData.location.lng.toFixed(4) })}
                 </div>
               </div>
@@ -327,7 +327,7 @@ export default function CreateOrder() {
               {/* Interactive Map for nearby orders */}
               {showMap && (
                 <div className="space-y-2">
-                  <Label className="text-white">{t('createOrder.nearbyOrdersMap')}</Label>
+                  <Label className="text-text-primary">{t('createOrder.nearbyOrdersMap')}</Label>
                   <InteractiveMap
                     onOrderClick={(order) => {
                       console.log('Nearby order clicked:', order);
@@ -342,15 +342,15 @@ export default function CreateOrder() {
 
               {/* Budget */}
               <div className="space-y-2">
-                <Label htmlFor="budget" className="text-white">{t('createOrder.budget')}</Label>
+                <Label htmlFor="budget" className="text-text-primary">{t('createOrder.budget')}</Label>
                 <Select
                   value={orderData.budgetNanoTon}
                   onValueChange={(value) => setOrderData({ ...orderData, budgetNanoTon: value })}
                 >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectTrigger className="bg-panel/60 border-brand-primary/30 text-text-primary">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-slate-800/95 border-slate-700 text-white">
+                  <SelectContent className="bg-panel border-brand-primary/30 text-text-primary">
                     <SelectItem value="1000000000">1 TON</SelectItem>
                     <SelectItem value="2500000000">2.5 TON</SelectItem>
                     <SelectItem value="5000000000">5 TON</SelectItem>
@@ -363,7 +363,7 @@ export default function CreateOrder() {
               {/* Submit Button */}
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                className="w-full bg-brand-primary text-white hover:bg-brand-primary/90"
                 disabled={createOrderMutation.isPending}
               >
                 {createOrderMutation.isPending ? t('createOrder.creating') : t('createOrder.createOrder')}
@@ -373,11 +373,11 @@ export default function CreateOrder() {
               <AlertDialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <AlertDialog.Portal>
                   <AlertDialog.Overlay className="fixed inset-0 bg-black/60 z-[1000]" />
-                  <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 p-4 shadow-xl z-[1001]">
-                    <AlertDialog.Title className="font-semibold mb-2 text-slate-900 dark:text-white">
+                  <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm rounded-lg bg-panel text-text-primary border border-brand-primary/30 p-4 shadow-xl z-[1001]">
+                    <AlertDialog.Title className="font-semibold mb-2 text-text-primary">
                       {t('createRequest.confirm.title')}
                     </AlertDialog.Title>
-                    <AlertDialog.Description className="text-sm text-slate-600 dark:text-slate-300 mb-4">
+                    <AlertDialog.Description className="text-sm text-text-muted mb-4">
                       {t('createRequest.confirm.body')}
                       {balanceInfo?.sufficient && (
                         <div className="mt-2 text-xs">
@@ -393,7 +393,7 @@ export default function CreateOrder() {
                         <Button variant="outline">{t('common.cancel')}</Button>
                       </AlertDialog.Cancel>
                       <AlertDialog.Action asChild>
-                        <Button onClick={() => createOrderMutation.mutate(orderData)} className="bg-blue-600 hover:bg-blue-700 text-white">
+                        <Button onClick={() => createOrderMutation.mutate(orderData)} className="bg-brand-primary hover:bg-brand-primary/90 text-white">
                           {t('createRequest.confirm.confirm')}
                         </Button>
                       </AlertDialog.Action>

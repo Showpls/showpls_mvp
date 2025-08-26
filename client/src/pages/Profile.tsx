@@ -80,7 +80,7 @@ export default function Profile() {
       <div className="glass-panel p-4 mb-6 sticky top-0 z-40">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
-            <Button variant="ghost" size="sm" className="mr-2" onClick={() => setLocation('/twa')}>
+            <Button variant="ghost" size="sm" className="mr-2 text-text-primary hover:bg-text-primary/10" onClick={() => setLocation('/twa')}>
               ←
             </Button>
             <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center mr-3">
@@ -139,17 +139,17 @@ export default function Profile() {
               <Card className="glass-panel border-brand-primary/20">
                 <CardContent className="p-4 space-y-3">
                   <div className="font-semibold mb-1">{t('profile.settings')}</div>
-                  <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
+                  <div className="flex items-center justify-between p-2 rounded-md bg-panel">
                     <div className="text-sm">{t('profile.language')}</div>
                     <LanguageSwitcher />
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
+                  <div className="flex items-center justify-between p-2 rounded-md bg-panel">
                     <div className="text-sm">{t('profile.theme')}</div>
                     <Button size="sm" variant="outline" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
                       {theme === 'dark' ? String(t('profile.light') || 'Light') : String(t('profile.dark') || 'Dark')}
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
+                  <div className="flex items-center justify-between p-2 rounded-md bg-panel">
                     <div className="text-sm">{t('profile.role')}</div>
                     <Button size="sm" variant="outline" className="flex items-center gap-2" onClick={async () => {
                       const confirmSwitch = window.confirm(String(t('profile.confirmSwitch') || 'Are you sure you want to switch your role?'));
@@ -165,7 +165,7 @@ export default function Profile() {
                       {currentUser?.isProvider ? String(t('twa.roleBuyer') || 'Buyer') : String(t('twa.roleProvider') || 'Provider')}
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded-md bg-panel/50">
+                  <div className="flex items-center justify-between p-2 rounded-md bg-panel">
                     <div className="text-sm">{t('profile.updateLocation')}</div>
                     <Button size="sm" className="bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center gap-2" onClick={() => setShowLocationPicker(true)}>
                       <MapPin className="w-4 h-4" /> {String(t('twa.pickOnMap') || 'Pick on map')}
