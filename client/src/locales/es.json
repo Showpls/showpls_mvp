@@ -1,17 +1,54 @@
 {
+  "header": {
+    "title": "SHOWPLS",
+    "home": "Inicio",
+    "features": "Características",
+    "about": "Acerca de",
+    "start": "Comenzar"
+  },
+  "hero": {
+    "title": "Tus ojos en todas partes",
+    "subtitle": "Obtén verificación visual en tiempo real de personas alrededor del mundo. Solicita fotos, videos o transmisiones en vivo de cualquier lugar, producto o evento.",
+    "seeButton": "Quiero ver",
+    "showButton": "Puedo mostrar"
+  },
+  "earnSection": {
+    "earnText": "Gana dinero real con la blockchain de TON",
+    "anywhereText": "Desde cualquier parte del mundo"
+  },
+  "features": {
+    "title": "¿Por qué usar ShowPls?",
+    "subtitle": "Obtén verificación visual instantánea de personas en todo el mundo",
+    "realTimePayments": "Pagos en tiempo real",
+    "realTimeDescription": "Obtén verificación visual instantánea de personas en todo el mundo",
+    "globalNetwork": "Red global",
+    "globalDescription": "Conéctate con reporteros locales en cualquier ciudad, cualquier lugar, en cualquier momento",
+    "telegramWallet": "Billetera Telegram TON",
+    "walletDescription": "Los pagos se realizan a través de la billetera integrada de Telegram, con la criptomoneda moderna Ton",
+    "verifiedCommunity": "Comunidad verificada",
+    "verifiedDescription": "Comunidad confiable con calificaciones y reseñas, construye reputación para mejores resultados",
+    "startNow": "Comenzar ahora"
+  },
+  "testimonials": {
+    "title": "Testimonios",
+    "subtitle": "¡La mejor experiencia de mi vida!",
+    "testimonialText": "Hay muchas variaciones de pasajes de Lorem Ipsum disponibles, pero la mayoría ha sufrido alteraciones en alguna forma, por humor inyectado o palabras aleatorizadas que no parecen ni siquiera ligeramente creíbles."
+  },
+  "cta": {
+    "title": "¿Listo para comenzar?",
+    "subtitle": "Solo abre el bot de Showpls en la aplicación de Telegram y todo estará listo para usar"
+  },
+  "footer": {
+    "description": "Mercado global de contenido en tiempo real impulsado por el depósito en garantía de la blockchain TON.",
+    "copyright": "© 2025 Showpls. Todos los derechos reservados.",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "cookies": "Cookies"
+  },
   "nav": {
     "landing": "Inicio",
     "webapp": "Aplicación Web",
     "chat": "Chat"
-  },
-  "hero": {
-    "tagline": "Tus ojos, en todas partes.",
-    "realtimeTagline": "Realidad en tiempo real.",
-    "subtitle": "Conéctate con proveedores locales para obtener fotos, videos y transmisiones en vivo desde cualquier ubicación mundial con pagos seguros de blockchain TON.",
-    "openTelegram": "Abrir en Telegram",
-    "watchDemo": "Ver demo",
-    "tryOnboarding": "Probar onboarding",
-    "browseTemplates": "Explorar plantillas"
   },
   "stats": {
     "coverage": "Cobertura global",
@@ -60,17 +97,6 @@
     "feature2": "Micropagos instantáneos",
     "feature3": "Accesibilidad global",
     "whitepaper": "Descargar libro blanco"
-  },
-  "footer": {
-    "product": "Producto",
-    "howItWorks": "Cómo funciona",
-    "pricing": "Precios",
-    "api": "API",
-    "support": "Soporte",
-    "help": "Centro de ayuda",
-    "contact": "Contáctanos",
-    "status": "Estado",
-    "rights": "Todos los derechos reservados."
   },
   "twa": {
     "demoMode": "Modo demo activo",
@@ -420,8 +446,7 @@
         "system": "System theme"
       }
     }
-  }
-,
+  },
   "rating": {
     "title": "Califica este proveedor",
     "commentPlaceholder": "¡Excelentes fotos, entrega rápida!",

@@ -1,4 +1,50 @@
 {
+  "header": {
+    "title": "SHOWPLS",
+    "home": "Home",
+    "features": "Features",
+    "about": "About",
+    "start": "Start"
+  },
+  "hero": {
+    "title": "Your Eyes Everywhere",
+    "subtitle": "Get real-time visual verification from people around the world. Request photos, videos, or live streams of any place, product, or event.",
+    "seeButton": "I want to see",
+    "showButton": "I can show"
+  },
+  "earnSection": {
+    "earnText": "Earn real money with TON blockchain",
+    "anywhereText": "From anywhere in the world"
+  },
+  "features": {
+    "title": "Why use ShowPls?",
+    "subtitle": "Get instant visual verification from people worldwide",
+    "realTimePayments": "Real-Time Payments",
+    "realTimeDescription": "Get instant visual verification from people worldwide",
+    "globalNetwork": "Global Network",
+    "globalDescription": "Connect with local reporters in any city, any place, any time",
+    "telegramWallet": "Telegram TON Wallet",
+    "walletDescription": "Payments are made via Telegram built-in wallet, with Ton modern cryptocurrency",
+    "verifiedCommunity": "Verified Community",
+    "verifiedDescription": "Trusted community with ratings and reviews, build reputation for better results",
+    "startNow": "Start now"
+  },
+  "testimonials": {
+    "title": "Testimonials",
+    "subtitle": "Greatest experience in my life!",
+    "testimonialText": "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable."
+  },
+  "cta": {
+    "title": "Ready to start?",
+    "subtitle": "Just open the Showpls Bot in telegram app and everything is ready to go"
+  },
+  "footer": {
+    "description": "Real-time global content marketplace powered by TON blockchain escrow.",
+    "copyright": "© 2025 Showpls. All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "cookies": "Cookies"
+  },
   "onboarding": {
     "step": "Step",
     "welcome": {
@@ -105,17 +151,6 @@
     "webapp": "Web App",
     "chat": "Chat"
   },
-  "hero": {
-    "seeCta": "I want to see",
-    "showCta": "I can show",
-    "tagline": "Your Eyes, Everywhere.",
-    "realtimeTagline": "Reality in real-time.",
-    "subtitle": "Connect with local providers to get live photos, videos, and streams from any location worldwide with secure TON blockchain payments.",
-    "openTelegram": "Open in Telegram",
-    "watchDemo": "Watch Demo",
-    "tryOnboarding": "Try Onboarding",
-    "browseTemplates": "Browse Templates"
-  },
   "stats": {
     "coverage": "Global Coverage",
     "countries": "Countries",
@@ -163,17 +198,6 @@
     "feature2": "Instant micropayments",
     "feature3": "Global accessibility",
     "whitepaper": "Download Whitepaper"
-  },
-  "footer": {
-    "product": "Product",
-    "howItWorks": "How it works",
-    "pricing": "Pricing",
-    "api": "API",
-    "support": "Support",
-    "help": "Help Center",
-    "contact": "Contact Us",
-    "status": "Status",
-    "rights": "All rights reserved."
   },
   "twa": {
     "demoMode": "Demo Mode Active",
@@ -475,7 +499,7 @@
     "videoDescription": "Complete Showpls platform demonstration: from order creation to content delivery",
     "stats": {
       "countries": "Countries Available",
-      "uptime": "Always Working", 
+      "uptime": "Always Working",
       "avgTime": "Average Time",
       "success": "Successful Orders"
     },
@@ -485,7 +509,7 @@
         "description": "Get content in minutes"
       },
       "secure": {
-        "title": "Secure Payments", 
+        "title": "Secure Payments",
         "description": "TON blockchain escrow"
       },
       "global": {
@@ -500,7 +524,7 @@
     "demo": {
       "title": "Live Demo",
       "step1": "1. Create Request",
-      "step2": "2. Set Location", 
+      "step2": "2. Set Location",
       "step3": "3. Wait for Provider",
       "step4": "4. Receive Content",
       "location": "Times Square, NYC",

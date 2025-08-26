@@ -36,23 +36,51 @@ import {
   GlobeIcon,
   WalletIcon,
   SealCheckIcon as VerifiedIcon,
-  ArrowFatLeftIcon as ArrowFatLeft
+  ArrowFatLeftIcon as ArrowFatLeft,
+  CaretDownIcon
 } from "@phosphor-icons/react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useTheme } from "next-themes";
+import { ArrowElbowDownLeftIcon, WebcamIcon } from "@phosphor-icons/react/dist/ssr";
+import { useTranslation } from "react-i18next";
+
+const languages = [
+  { code: 'en', label: '🇺🇸 EN', name: 'English' },
+  { code: 'ru', label: '🇷🇺 RU', name: 'Русский' },
+  { code: 'es', label: '🇪🇸 ES', name: 'Español' },
+  { code: 'zh', label: '🇨🇳 ZH', name: '中文' },
+  { code: 'ar', label: '🇸🇦 AR', name: 'العربية' },
+];
 
 function NewLanding() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const isMobile = useIsMobile();
+  const [videoDropdownOpen, setVideoDropdownOpen] = React.useState(false);
+  const [headerDropdownOpen, setHeaderDropdownOpen] = React.useState(false);
+  const [videoLanguage, setVideoLanguage] = React.useState('en');
+  const { isMobile, isTablet } = useIsMobile();
   const { theme, setTheme } = useTheme();
+  const { t, i18n } = useTranslation();
+  const [currentLanguage, setCurrentLanguage] = React.useState(i18n.language || 'en');
+
+  const handleLanguageChange = (languageCode: string) => {
+    setCurrentLanguage(languageCode);
+    i18n.changeLanguage(languageCode);
+    localStorage.setItem('showpls-language', languageCode);
+    setHeaderDropdownOpen(false);
+  };
+
+  const handleVideoLanguageChange = (languageCode: string) => {
+    setVideoLanguage(languageCode);
+    setVideoDropdownOpen(false);
+  };
 
   return (
-    <div className="flex overflow-hidden flex-col items-center pt-6 md:pt-14 min-h-screen px-8 md:px-12 lg:px-20 bg-background text-foreground">
+    <div className="flex overflow-hidden flex-col items-center pt-6 md:pt-10 min-h-screen px-4 md:px-8 lg:px-12 xl:px-20 bg-background text-foreground">
 
       {/* Header */}
       <header className="flex justify-between items-center w-full py-4">
-        <div className="flex items-center gap-4">
-          <div className="bg-secondary rounded-xl p-1">
+        <div className="flex items-center gap-3 md:gap-4">
+          <div className="bg-emerald-600 rounded-xl p-1">
             <img
               src="/logo4.png"
               alt="SHOWPLS"
@@ -61,19 +89,17 @@ function NewLanding() {
               className="rounded-xl"
             />
           </div>
-          <div className="text-2xl md:text-3xl font-bold">SHOWPLS</div>
+          <div className="text-2xl md:text-3xl font-bold">{t('header.title')}</div>
         </div>
 
         {isMobile ? (
           <>
-            <Button
-              variant="ghost"
-              size="icon"
+            <button
               onClick={() => setIsMobileMenuOpen(true)}
               className="md:hidden transition-colors duration-300 text-foreground"
             >
               <ListIcon size={36} />
-            </Button>
+            </button>
 
             {isMobileMenuOpen && (
               <div className="fixed inset-0 z-50 p-8 flex flex-col bg-background">
@@ -82,274 +108,430 @@ function NewLanding() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setIsMobileMenuOpen(false)}
-                    className="transition-colors duration-300 text-foreground"
+                    className="transition-colors duration-300 text-foreground hover:transform hover:-translate-y-1 transition-transform duration-200"
                   >
                     <XIcon size={36} />
                   </Button>
                 </div>
 
-                <nav className="flex flex-col gap-6 text-2xl font-medium">
-                  <div>Home</div>
-                  <div>Features</div>
-                  <div>About</div>
+                <nav className="flex flex-col items-baseline gap-6 text-2xl font-medium">
+                  <a>{t('header.home')}</a>
+                  <a>{t('header.features')}</a>
+                  <a>{t('header.about')}</a>
 
-                  <div className="flex gap-6 mt-8">
-                    <Button variant="ghost" size="icon" className="transition-colors duration-300 text-foreground">
-                      <TranslateIcon size={36} />
-                    </Button>
-                    <Button variant="ghost" size="icon" className="transition-colors duration-300" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                      {theme === 'dark' ? <SunIcon size={36} /> : <MoonIcon size={36} />}
-                    </Button>
+                  <div className="flex gap-6">
+                    <button className="transition-colors duration-300 hover:transform hover:-translate-y-1 transition-transform duration-200" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                      {theme === 'dark' ? <SunIcon size={26} /> : <MoonIcon size={26} />}
+                    </button>
+
+                    {/* Mobile Language Dropdown */}
+                    <div className="relative">
+                      <button
+                        className="transition-colors duration-300 text-foreground flex items-center gap-1 hover:transform hover:-translate-y-1 transition-transform duration-200"
+                        onClick={() => setHeaderDropdownOpen(!headerDropdownOpen)}
+                      >
+                        <TranslateIcon size={26} />
+                        <CaretDownIcon size={16} />
+                      </button>
+
+                      {headerDropdownOpen && (
+                        <div className="absolute left-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
+                          <div className="py-1">
+                            {languages.map((language) => (
+                              <button
+                                key={language.code}
+                                onClick={() => handleLanguageChange(language.code)}
+                                className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                              >
+                                {language.label} {language.name}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <Button className="flex gap-2.5 px-3 py-3 rounded-3xl transition-colors duration-300 bg-secondary text-secondary-foreground">
+                  <button className="flex items-center gap-2.5 px-4 py-1 rounded-3xl transition-colors duration-300 bg-secondary text-secondary-foreground hover:transform hover:-translate-y-1 transition-transform duration-200">
                     <TelegramLogoIcon size={24} />
-                    Start
-                  </Button>
+                    {t('header.start')}
+                  </button>
                 </nav>
               </div>
             )}
           </>
         ) : (
-          <div className="flex items-center gap-6 text-lg font-medium">
-            <div>Home</div>
-            <div>Features</div>
-            <div>About</div>
+          <div className="flex items-center gap-3 md:gap-4 lg:gap-6 text-base md:text-lg font-medium">
+            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-transform duration-200">{t('header.home')}</a>
+            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-transform duration-200">{t('header.features')}</a>
+            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-transform duration-200">{t('header.about')}</a>
 
-            <div className="flex items-center gap-4">
-              <Button variant="ghost" size="icon" className="transition-colors duration-300 text-foreground">
-                <TranslateIcon size={36} />
-              </Button>
-              <Button variant="ghost" size="icon" className="transition-colors duration-300" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                {theme === 'dark' ? <SunIcon size={36} /> : <MoonIcon size={36} />}
-              </Button>
+            <button className="transition-colors duration-300 hover:transform hover:-translate-y-1 transition-transform duration-200" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+              {theme === 'dark' ? <SunIcon size={24} /> : <MoonIcon size={24} />}
+            </button>
 
-              <Button className="flex gap-2.5 px-3 py-3 rounded-3xl transition-colors duration-300 bg-secondary text-secondary-foreground">
-                <TelegramLogoIcon size={24} />
-                Start
-              </Button>
+            {/* Desktop Language Dropdown */}
+            <div className="relative">
+              <button
+                className="transition-colors duration-300 text-foreground flex items-center gap-1 hover:transform hover:-translate-y-1 transition-transform duration-200"
+                onClick={() => setHeaderDropdownOpen(!headerDropdownOpen)}
+              >
+                <TranslateIcon size={24} />
+                <CaretDownIcon size={16} />
+              </button>
+
+              {headerDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-50">
+                  <div className="py-1">
+                    {languages.map((language) => (
+                      <button
+                        key={language.code}
+                        onClick={() => handleLanguageChange(language.code)}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                      >
+                        {language.label} {language.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
+
+            <button className="flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-opacity duration-300 bg-secondary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-transform duration-200">
+              <TelegramLogoIcon size={20} />
+              {t('header.start')}
+            </button>
+
           </div>
         )}
       </header>
 
-      {/* Hero Section */}
-      <section className="mt-10 md:mt-14 w-full">
-        <div className="flex flex-col md:flex-row gap-8 md:gap-12">
+      {/* Hero Section - Tablet Optimization */}
+      <section className="mt-8 md:mt-12 lg:mt-14 w-full">
+        <div className="flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-12">
           <div className="w-full md:w-[46%]">
-            <h1 className="text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold leading-tight md:leading-[100px]">
-              Your Eyes <br />
-              Everywhere
+            <h1 className="text-center lg:text-left text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight md:leading-[80px] lg:leading-[100px]">
+              {t('hero.title')}
             </h1>
-            <p className="mt-4 md:mt-7 text-lg md:text-xl leading-relaxed text-muted-foreground">
-              Get real-time visual verification from people around the
-              world. Request photos, videos, or live streams of any place,
-              product, or event.
+            <p className="text-center lg:text-left mt-3 md:mt-5 lg:mt-7 text-base md:text-lg lg:text-xl leading-relaxed text-muted-foreground">
+              {t('hero.subtitle')}
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 mt-8 md:mt-12">
-              <Button className="flex gap-2 px-4 py-3 rounded-3xl transition-colors duration-300 bg-primary text-primary-foreground">
-                <EyeIcon size={24} />
-                I want to see
-              </Button>
-              <Button variant="outline" className="flex gap-2 px-4 py-3 rounded-3xl border-2 transition-colors duration-300 border-primary text-card-foreground">
-                <EyeIcon size={24} />
-                I can show
-              </Button>
+            <div className="flex flex-row gap-2 md:gap-3 lg:gap-4 mt-6 md:mt-8 lg:mt-12 font-medium items-center justify-center lg:justify-normal">
+              <button className="flex items-center gap-2 px-2 md:px-3 py-2 rounded-3xl transition-all duration-150 bg-primary text-primary-foreground hover:opacity-75 hover:transform hover:-translate-y-1">
+                <EyeIcon size={20} />
+                {t('hero.seeButton')}
+              </button>
+              <button className="flex items-center gap-2 px-[7px] md:px-[11px] py-[7px] rounded-3xl border-2 transition-all duration-150 border-primary text-card-foreground dark:text-primary hover:bg-primary hover:text-black hover:dark:text-black  hover:transform hover:-translate-y-1">
+                <WebcamIcon size={20} />
+                {t('hero.showButton')}
+              </button>
             </div>
           </div>
-          <div className="w-full md:w-[54%] mt-6 md:mt-0">
-            <div className="w-full rounded-2xl aspect-video shadow-lg overflow-hidden">
+          <div className="w-full md:w-[54%] mt-6 md:mt-0 relative">
+            <div className="w-full rounded-2xl shadow-lg overflow-hidden">
               <video
+                key={videoLanguage} // This forces re-render when language changes
                 className="w-full h-full rounded-2xl"
                 controls
                 autoPlay
                 muted
                 style={{ borderColor: 'var(--border)' }}
               >
-                <source src="/showpls-demo-en.mp4" type="video/mp4" />
+                <source src={`/videos/showpls-demo-${videoLanguage}.mp4`} type="video/mp4" />
                 Your browser does not support the video tag.
               </video>
+            </div>
+
+            {/* Video Language Selector */}
+            <div className="absolute top-2 right-2">
+              <button
+                onClick={() => setVideoDropdownOpen(!videoDropdownOpen)}
+                className="bg-background/90 hover:bg-background text-foreground rounded-full p-2 transition-colors duration-200 flex items-center justify-center shadow-md hover:transform hover:-translate-y-1 transition-transform duration-200"
+              >
+                <TranslateIcon size={20} />
+              </button>
+
+              {videoDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-32 rounded-md shadow-lg bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 z-10">
+                  <div className="py-1">
+                    <button
+                      onClick={() => handleVideoLanguageChange('en')}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      🇺🇸 English
+                    </button>
+                    <button
+                      onClick={() => handleVideoLanguageChange('ru')}
+                      className="block w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"
+                    >
+                      🇷🇺 Русский
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </section>
 
       <section className="mt-20 md:mt-40 w-full">
-        <div className="flex flex-col lg:flex-row items-center gap-8 md:gap-12">
-          {/* LEFT IMAGE */}
-          <div className="w-full lg:w-[27%]">
-            <div className="relative w-full rounded-2xl overflow-hidden shadow-lg aspect-[0.7]">
-              <img
-                src="/cameraMan.jpg"
-                alt="Camera man"
-                className="w-full h-full object-cover max-h-[400px] md:max-h-none"
-              />
-              <div className="absolute inset-0 pointer-events-none" aria-hidden />
+        {!isMobile && !isTablet ? (
+          /* DESKTOP LAYOUT - Fixed height issue */
+          <div className="relative flex items-stretch justify-between gap-8">
+            {/* LEFT IMAGE - flexible, allowed to shrink/grow */}
+            <div className="flex-shrink-0 basis-[22%] max-w-[340px] min-w-[160px]">
+              <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-lg">
+                <img src="/cameraMan.jpg" alt="Camera man" className="w-full h-full object-cover" />
+              </div>
             </div>
-          </div>
 
-          {/* CENTER CONTENT */}
-          <div className="w-full lg:w-[46%] relative flex flex-col items-center gap-12 md:gap-20">
-            {/* top row */}
-            <div className="flex items-center gap-6 md:gap-8 z-10">
-              <div className="flex items-center justify-center">
-                <ArrowFatLeft weight="fill" size={36} />
+            {/* CENTER CONTENT - vertically centered */}
+            <div className="flex-1 flex flex-col justify-center items-center relative py-8">
+              {/* Top row (right aligned) */}
+              <div className="w-full flex justify-end">
+                <div className="flex items-center gap-6 lg:gap-10">
+                  <div className="hidden lg:block">
+                    <ArrowFatLeft weight="fill" size={64} className="text-black dark:text-white" />
+                  </div>
+                  <div className="text-right text-2xl md:text-3xl lg:text-4xl font-bold leading-tight max-w-[56ch]">
+                    {t('earnSection.earnText')}
+                  </div>
+                </div>
               </div>
 
-              <div className="text-center md:text-left">
-                <div className="text-2xl md:text-3xl font-bold">
-                  Earn real money
-                  <br className="md:hidden" /> <span>with TON blockchain</span>
+              {/* Squiggly - container reserves vertical space so it isn't purely floating */}
+              <div className="w-full py-8 md:py-10">
+                <div className="relative w-full" style={{ height: '5rem' }}>
+                  <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full">
+                    {theme === "light" ? (
+                      <img
+                        src="/squigglyLine.webp"
+                        alt=""
+                        className="mx-auto w-full max-w-[420px] md:max-w-[520px] rotate-[24deg] select-none"
+                        aria-hidden
+                      />
+                    ) : (
+                      <img
+                        src="/squigglyLineDarkMode.png"
+                        alt=""
+                        className="mx-auto w-full max-w-[420px] md:max-w-[520px] rotate-[24deg] select-none"
+                        aria-hidden
+                      />
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Bottom row (left aligned) */}
+              <div className="w-full flex justify-start mt-4">
+                <div className="flex items-center gap-6 lg:gap-10">
+                  <div className="text-left text-2xl md:text-3xl lg:text-4xl font-bold leading-tight max-w-[56ch]">
+                    {t('earnSection.anywhereText')}
+                  </div>
+                  <div className="hidden lg:block">
+                    <ArrowFatLeft
+                      weight="fill"
+                      size={64}
+                      className="text-black dark:text-white transform scale-x-[-1]"
+                    />
+                  </div>
                 </div>
               </div>
             </div>
 
-            {/* squiggly line */}
-            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-0">
-              <img
-                src="/squigglyLine.webp"
-                alt=""
-                className="pointer-events-none w-[260px] max-w-[60%] mx-auto rotate-[24deg]"
-                aria-hidden
-              />
-            </div>
-
-            {/* bottom (mirrored) row */}
-            <div className="flex items-center gap-6 md:gap-8 z-10">
-              <div className="text-center md:text-right">
-                <div className="text-2xl md:text-3xl font-bold">
-                  From anywhere
-                  <br className="md:hidden" /> <span>in the world</span>
-                </div>
-              </div>
-
-              <div className="flex items-center justify-center">
-                <div className="transform scale-x-[-1]">
-                  <ArrowFatLeft weight="fill" size={36} />
+            {/* RIGHT STACKED IMAGES - flexible */}
+            <div className="flex-shrink-0 basis-[22%] max-w-[340px] min-w-[160px]">
+              <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg">
+                <div className="grid grid-rows-3 h-full">
+                  <div className="w-full h-full overflow-hidden">
+                    <img src="/newYork.jpg" alt="New York" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-full h-full overflow-hidden">
+                    <img src="/london.jpg" alt="London" className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-full h-full overflow-hidden">
+                    <img src="/china.jpg" alt="China" className="w-full h-full object-cover" />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+        ) : (
+          /* MOBILE / TABLET LAYOUT (camera left, text+arrow right [column centered], squiggly below, reversed bottom row with stacked images on right) */
+          <div className="relative w-full max-w-5xl mx-auto">
+            <div className="flex items-center gap-4 w-full">
+              {/* LEFT: cameraMan */}
+              <div className="flex-shrink-0 w-1/2 max-w-[260px] min-w-[120px] h-72 md:h-96">
+                <div className="relative w-full h-full rounded-2xl overflow-hidden shadow-lg">
+                  <img src="/cameraMan.jpg" alt="Camera man" className="w-full h-full object-cover" />
+                </div>
+              </div>
 
-          {/* RIGHT STACKED IMAGES */}
-          <div className="w-full lg:w-[27%]">
-            <div className="w-full rounded-2xl overflow-hidden shadow-lg grid grid-rows-3 h-[min(60vh,720px)]">
-              <div className="w-full h-full">
-                <img
-                  src="/china.jpg"
-                  alt="China"
-                  className="w-full h-full object-cover max-h-[133px] md:max-h-none"
-                />
+              {/* RIGHT: text above arrow, centered column */}
+              <div className="flex-1 flex flex-col items-center justify-center gap-3">
+                <div className={`font-bold text-center leading-tight ${isTablet ? 'text-3xl md:text-5xl' : 'text-2xl'}`}>
+                  {t('earnSection.earnText')}
+                </div>
+                <div>
+                  <ArrowElbowDownLeftIcon
+                    weight="fill"
+                    size={isTablet ? 96 : 74}
+                    className="text-black dark:text-white"
+                  />
+                </div>
               </div>
-              <div className="w-full h-full">
-                <img
-                  src="/newYork.jpg"
-                  alt="New York"
-                  className="w-full h-full object-cover max-h-[133px] md:max-h-none"
-                />
+            </div>
+
+            {/* Squiggly reserved space below the top row */}
+            <div className="relative w-full mt-4 md:mt-6">
+              <div className="h-24 md:h-32 w-full relative">
+                <div className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full">
+                  {theme === "light" ? (
+                    <img
+                      src="/squigglyLine.webp"
+                      alt=""
+                      className="mx-auto w-full max-w-[420px] md:max-w-[540px] rotate-[24deg] select-none"
+                      aria-hidden
+                    />
+                  ) : (
+                    <img
+                      src="/squigglyLineDarkMode.png"
+                      alt=""
+                      className="mx-auto w-full max-w-[420px] md:max-w-[540px] rotate-[24deg] select-none"
+                      aria-hidden
+                    />
+                  )}
+                </div>
               </div>
-              <div className="w-full h-full">
-                <img
-                  src="/london.jpg"
-                  alt="London"
-                  className="w-full h-full object-cover max-h-[133px] md:max-h-none"
-                />
+            </div>
+
+            {/* BOTTOM ROW: reversed - text+arrow left (centered column), stacked images right with same height as cameraMan */}
+            <div className="mt-4 md:mt-6 flex items-center gap-4 w-full">
+              {/* left: text over arrow, centered */}
+              <div className="flex-1 flex flex-col items-center justify-center gap-3">
+                <div className={`font-bold text-center leading-tight ${isTablet ? 'text-3xl md:text-5xl' : 'text-2xl'}`}>
+                  {t('earnSection.anywhereText')}
+                </div>
+                <div>
+                  <ArrowElbowDownLeftIcon
+                    weight="fill"
+                    size={isTablet ? 96 : 74}
+                    className="text-black dark:text-white transform scale-x-[-1]"
+                  />
+                </div>
+              </div>
+
+              {/* right: stacked images - same height as cameraMan */}
+              <div className="flex-shrink-0 w-1/2 max-w-[260px] min-w-[120px] h-72 md:h-96">
+                <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg">
+                  <div className="grid grid-rows-3 h-full">
+                    <div className="overflow-hidden h-full">
+                      <img src="/newYork.jpg" alt="New York" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="overflow-hidden h-full">
+                      <img src="/london.jpg" alt="London" className="w-full h-full object-cover" />
+                    </div>
+                    <div className="overflow-hidden h-full">
+                      <img src="/china.jpg" alt="China" className="w-full h-full object-cover" />
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        )}
       </section>
 
       {/* Why use ShowPls? Section */}
       <section className="mt-20 md:mt-40 w-full">
-        <div className="flex flex-col md:flex-row justify-between items-start gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
           <div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">Why use ShowPls?</h2>
-            <p className="mt-2 text-base md:text-lg text-muted-foreground">
-              Get instant visual verification from people worldwide
+            <h2 className="text-center lg:text-left text-3xl md:text-4xl lg:text-5xl font-bold">{t('features.title')}</h2>
+            <p className="text-center lg:text-left mt-2 text-base md:text-lg text-muted-foreground">
+              {t('features.subtitle')}
             </p>
           </div>
-          <Button className="flex gap-2 px-6 py-3 rounded-3xl transition-colors duration-300 bg-secondary text-secondary-foreground">
+          <button className="font-medium flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-opacity duration-300 bg-secondary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-transform duration-200">
             <TelegramLogoIcon size={24} />
-            Start
-          </Button>
+            {t('header.start')}
+          </button>
         </div>
 
         {/* Features Cards Section */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-card-foreground border-none">
+          <Card className="bg-card-foreground dark:bg-primary border-none">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div>
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-primary">
-                  <LightningIcon size={32} className="text-primary-foreground" />
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center">
+                  <LightningIcon size={48} className="text-white dark:text-black" />
                 </div>
-                <CardTitle className="mt-6 text-2xl md:text-3xl text-white">
-                  Real-Time Payments
+                <CardTitle className="mt-6 text-2xl md:text-3xl text-white dark:text-black">
+                  {t('features.realTimePayments')}
                 </CardTitle>
-                <p className="mt-4 text-white/90 font-medium">
-                  Get instant visual verification from people worldwide
+                <p className="mt-4 text-white dark:text-black font-medium">
+                  {t('features.realTimeDescription')}
                 </p>
               </div>
-              <Button className="mt-8 rounded-3xl transition-colors duration-300 w-fit bg-primary text-primary-foreground">
-                Start now
-              </Button>
+              <button className="mt-8 bg-primary dark:bg-card-foreground px-4 py-1 font-medium rounded-3xl transition-opacity duration-150 w-fit text-black dark:text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                {t('features.startNow')}
+              </button>
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-none">
+          <Card className="bg-card dark:bg-card-foreground border-none">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div>
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-primary">
-                  <GlobeIcon size={32} className="text-primary-foreground" />
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center">
+                  <GlobeIcon size={48} className="dark:text-white text-black" />
                 </div>
-                <CardTitle className="mt-6 text-2xl md:text-3xl">
-                  Global Network
+                <CardTitle className="mt-6 text-2xl md:text-3xl dark:text-white text-black">
+                  {t('features.globalNetwork')}
                 </CardTitle>
                 <p className="mt-4 text-muted-foreground font-medium">
-                  Connect with local reporters in any city, any place, any time
+                  {t('features.globalDescription')}
                 </p>
               </div>
-              <Button className="mt-8 rounded-3xl transition-colors duration-300 w-fit bg-card-foreground text-white">
-                Start now
-              </Button>
+              <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                {t('features.startNow')}
+              </button>
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-none">
+          <Card className="bg-card dark:bg-card-foreground border-none">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div>
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-primary">
-                  <WalletIcon size={32} className="text-primary-foreground" />
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center">
+                  <WalletIcon size={48} className="dark:text-white text-black" />
                 </div>
-                <CardTitle className="mt-6 text-2xl md:text-3xl">
-                  Telegram TON Wallet
+                <CardTitle className="mt-6 text-2xl md:text-3xl dark:text-white text-black">
+                  {t('features.telegramWallet')}
                 </CardTitle>
                 <p className="mt-4 text-muted-foreground font-medium">
-                  Payments are made via Telegram built-in wallet, with Ton modern cryptocurrency
+                  {t('features.walletDescription')}
                 </p>
               </div>
-              <Button className="mt-8 rounded-3xl transition-colors duration-300 w-fit bg-card-foreground text-white">
-                Start now
-              </Button>
+              <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                {t('features.startNow')}
+              </button>
             </CardContent>
           </Card>
 
-          <Card className="bg-card border-none">
+          <Card className="bg-card dark:bg-card-foreground border-none">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div>
-                <div className="w-14 h-14 rounded-xl flex items-center justify-center bg-primary">
-                  <VerifiedIcon size={32} className="text-primary-foreground" />
+                <div className="w-14 h-14 rounded-xl flex items-center justify-center">
+                  <VerifiedIcon size={48} className="dark:text-white text-black" />
                 </div>
-                <CardTitle className="mt-6 text-2xl md:text-3xl">
-                  Verified Community
+                <CardTitle className="mt-6 text-2xl md:text-3xl dark:text-white text-black">
+                  {t('features.verifiedCommunity')}
                 </CardTitle>
                 <p className="mt-4 text-muted-foreground font-medium">
-                  Trusted community with ratings and reviews, build reputation for better results
+                  {t('features.verifiedDescription')}
                 </p>
               </div>
-              <Button className="mt-8 rounded-3xl transition-colors duration-300 w-fit bg-card-foreground text-white">
-                Start now
-              </Button>
+              <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                {t('features.startNow')}
+              </button>
             </CardContent>
           </Card>
         </div>
@@ -357,21 +539,18 @@ function NewLanding() {
 
       {/* Testimonials Section */}
       <section className="mt-20 md:mt-40 w-full">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">Testimonials</h2>
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">{t('testimonials.title')}</h2>
 
         <div className="mt-12 flex flex-col lg:flex-row gap-8 md:gap-12 items-center">
           <div className="w-full lg:w-[66%]">
-            <h3 className="text-2xl md:text-3xl font-bold">Greatest experience in my life!</h3>
+            <h3 className="text-2xl md:text-3xl font-bold">{t('testimonials.subtitle')}</h3>
             <div className="flex gap-1 mt-4">
               {[...Array(5)].map((_, i) => (
                 <StarIcon key={i} weight="fill" size={21} className="text-yellow-400" />
               ))}
             </div>
             <p className="mt-8 text-lg md:text-xl text-muted-foreground">
-              There are many variations of passages of Lorem Ipsum available,
-              but the majority have suffered alteration in some form, by
-              injected humour, or randomised words which don't look even
-              slightly believable.
+              {t('testimonials.testimonialText')}
             </p>
           </div>
 
@@ -380,7 +559,7 @@ function NewLanding() {
               <div className="flex justify-between items-center">
                 <div>
                   <div className="text-xl font-medium text-secondary-foreground">Dimon Oshparennyy</div>
-                  <div className="text-muted-foreground">CEO of Filming Studio</div>
+                  <div className="text-black">CEO of Filming Studio</div>
                 </div>
                 <div className="w-12 h-12 rounded-full flex items-center justify-center bg-muted text-background">
                   <UsersIcon size={24} />
@@ -392,7 +571,7 @@ function NewLanding() {
               <div className="flex justify-between items-center">
                 <div>
                   <div className="text-xl font-medium text-secondary-foreground">Danila Bogrov</div>
-                  <div className="text-muted-foreground">Youtube Content Creator</div>
+                  <div className="text-black">Youtube Content Creator</div>
                 </div>
                 <div className="w-12 h-12 rounded-full flex items-center justify-center bg-muted text-background">
                   <UsersIcon size={24} />
@@ -404,7 +583,7 @@ function NewLanding() {
               <div className="flex justify-between items-center">
                 <div>
                   <div className="text-xl font-medium text-secondary-foreground">Sasha Belii</div>
-                  <div className="text-muted-foreground">Professional Photographer</div>
+                  <div className="text-black">Professional Photographer</div>
                 </div>
                 <div className="w-12 h-12 rounded-full flex items-center justify-center bg-muted text-background">
                   <UsersIcon size={24} />
@@ -416,15 +595,15 @@ function NewLanding() {
       </section>
 
       {/* Call to Action */}
-      <section className="mt-20 md:mt-40 text-center">
-        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">Ready to start?</h2>
-        <p className="mt-4 text-lg md:text-xl max-w-2xl mx-auto text-muted-foreground">
-          Just open the Showpls Bot in telegram app and everything is ready to go
+      <section className="mt-20 md:mt-40 flex flex-col items-center text-center gap-6">
+        <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">{t('cta.title')}</h2>
+        <p className="text-lg md:text-xl text-muted-foreground">
+          {t('cta.subtitle')}
         </p>
-        <Button className="mt-6 flex gap-2 mx-auto px-6 py-3 rounded-3xl transition-colors duration-300 bg-primary text-primary-foreground">
+        <button className="font-medium flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-opacity duration-300 bg-primary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-transform duration-200">
           <TelegramLogoIcon size={24} />
-          Start
-        </Button>
+          {t('header.start')}
+        </button>
       </section>
 
       {/* Footer */}
@@ -432,7 +611,7 @@ function NewLanding() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-secondary">
+              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-emerald-600">
                 <img
                   src="/logo4.png"
                   alt="SHOWPLS"
@@ -444,27 +623,27 @@ function NewLanding() {
               <div className="text-2xl font-bold">Showpls</div>
             </div>
             <p className="max-w-xs text-muted-foreground">
-              Real-time global content marketplace powered by TON blockchain escrow.
+              {t('footer.description')}
             </p>
             <div className="flex gap-4">
-              <Button variant="ghost" size="icon" className="w-10 h-10 transition-colors duration-300 bg-muted text-background">
+              <Button variant="ghost" size="icon" className="w-10 h-10 transition-colors duration-300 bg-muted text-background hover:transform hover:-translate-y-1 transition-transform duration-200">
                 <TranslateIcon size={20} />
               </Button>
-              <Button variant="ghost" size="icon" className="w-10 h-10 transition-colors duration-300 bg-muted text-background">
+              <Button variant="ghost" size="icon" className="w-10 h-10 transition-colors duration-300 bg-muted text-background hover:transform hover:-translate-y-1 transition-transform duration-200">
                 <UsersIcon size={20} />
               </Button>
-              <Button variant="ghost" size="icon" className="w-10 h-10 transition-colors duration-300 bg-muted text-background">
+              <Button variant="ghost" size="icon" className="w-10 h-10 transition-colors duration-300 bg-muted text-background hover:transform hover:-translate-y-1 transition-transform duration-200">
                 <ShieldIcon size={20} />
               </Button>
             </div>
           </div>
 
           <div className="flex flex-col md:flex-row gap-4 md:gap-16 text-muted-foreground">
-            <div>© 2025 Showpls. All rights reserved.</div>
+            <div>{t('footer.copyright')}</div>
             <div className="flex gap-4 md:gap-6">
-              <span>Privacy</span>
-              <span>Terms</span>
-              <span>Cookies</span>
+              <span>{t('footer.privacy')}</span>
+              <span>{t('footer.terms')}</span>
+              <span>{t('footer.cookies')}</span>
             </div>
           </div>
         </div>

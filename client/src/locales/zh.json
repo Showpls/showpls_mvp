@@ -1,17 +1,54 @@
 {
+  "header": {
+    "title": "SHOWPLS",
+    "home": "首页",
+    "features": "功能",
+    "about": "关于",
+    "start": "开始"
+  },
+  "hero": {
+    "title": "您的眼睛无处不在",
+    "subtitle": "从世界各地的人们那里获得实时视觉验证。请求任何地点、产品或活动的照片、视频或直播流。",
+    "seeButton": "我想看",
+    "showButton": "我可以展示"
+  },
+  "earnSection": {
+    "earnText": "通过TON区块链赚取真实货币",
+    "anywhereText": "来自世界任何地方"
+  },
+  "features": {
+    "title": "为什么使用ShowPls？",
+    "subtitle": "从世界各地的人们那里获得即时视觉验证",
+    "realTimePayments": "实时支付",
+    "realTimeDescription": "从世界各地的人们那里获得即时视觉验证",
+    "globalNetwork": "全球网络",
+    "globalDescription": "在任何城市、任何地点、任何时间与当地记者联系",
+    "telegramWallet": "Telegram TON钱包",
+    "walletDescription": "通过Telegram内置钱包使用现代加密货币Ton进行支付",
+    "verifiedCommunity": "验证社区",
+    "verifiedDescription": "值得信赖的社区，拥有评分和评论，建立声誉以获得更好的结果",
+    "startNow": "立即开始"
+  },
+  "testimonials": {
+    "title": " testimonials",
+    "subtitle": "我一生中最棒的经历！",
+    "testimonialText": "Lorem Ipsum的段落有很多变体，但大多数都在某种程度上遭到了改变，通过注入幽默或随机化的词语，这些词语看起来甚至不太可信。"
+  },
+  "cta": {
+    "title": "准备好开始了吗？",
+    "subtitle": "只需在Telegram应用中打开Showpls机器人，一切就都准备好了"
+  },
+  "footer": {
+    "description": "由TON区块链托管支持的实时全球内容市场。",
+    "copyright": "© 2025 Showpls。保留所有权利。",
+    "privacy": "隐私",
+    "terms": "条款",
+    "cookies": "Cookies"
+  },
   "nav": {
     "landing": "首页",
     "webapp": "网页应用",
     "chat": "聊天"
-  },
-  "hero": {
-    "tagline": "您的眼睛，无处不在。",
-    "realtimeTagline": "实时现实。",
-    "subtitle": "通过安全的TON区块链支付，与本地提供商联系，从世界任何地方获取实时照片、视频和直播。",
-    "openTelegram": "在Telegram中打开",
-    "watchDemo": "观看演示",
-    "tryOnboarding": "试用新手引导",
-    "browseTemplates": "浏览模板"
   },
   "stats": {
     "coverage": "全球覆盖",
@@ -60,17 +97,6 @@
     "feature2": "即时微支付",
     "feature3": "全球可访问",
     "whitepaper": "下载白皮书"
-  },
-  "footer": {
-    "product": "产品",
-    "howItWorks": "工作原理",
-    "pricing": "价格",
-    "api": "API",
-    "support": "支持",
-    "help": "帮助中心",
-    "contact": "联系我们",
-    "status": "状态",
-    "rights": "版权所有。"
   },
   "twa": {
     "demoMode": "演示模式已激活",

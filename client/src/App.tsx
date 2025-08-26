@@ -13,6 +13,7 @@ import NotFound from "@/pages/not-found";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Profile from "./pages/Profile";
 import ModernLanding from "./pages/NewLanding";
+import FeaturesLanding from "./pages/FeaturesLanding";
 
 function Router() {
   return (
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/create-order" component={CreateOrder} />
       <Route path="/map" component={MapPage} />
       <Route path="/profile/:id" component={Profile} />
+      <Route path="/features" component={FeaturesLanding} />
       <Route path="/chat/:orderId">
         <ErrorBoundary>
           <Chat />
