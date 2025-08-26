@@ -197,10 +197,12 @@ function NewLanding() {
               )}
             </div>
 
-            <button className="flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-opacity duration-300 bg-secondary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-transform duration-200">
-              <TelegramLogoIcon size={20} />
-              {t('header.start')}
-            </button>
+            <a href="https://t.me/showplsbot" target="_blank">
+              <button className="flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-opacity duration-300 bg-secondary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-transform duration-200">
+                <TelegramLogoIcon size={20} />
+                {t('header.start')}
+              </button>
+            </a>
 
           </div>
         )}
@@ -217,14 +219,18 @@ function NewLanding() {
               {t('hero.subtitle')}
             </p>
             <div className="flex flex-row gap-2 md:gap-3 lg:gap-4 mt-6 md:mt-8 lg:mt-12 font-medium items-center justify-center lg:justify-normal">
+            <a href="https://t.me/showplsbot" target="_blank">
               <button className="flex items-center gap-2 px-2 md:px-3 py-2 rounded-3xl transition-all duration-150 bg-primary text-primary-foreground hover:opacity-75 hover:transform hover:-translate-y-1">
                 <EyeIcon size={20} />
                 {t('hero.seeButton')}
               </button>
-              <button className="flex items-center gap-2 px-[7px] md:px-[11px] py-[7px] rounded-3xl border-2 transition-all duration-150 border-primary text-card-foreground dark:text-primary hover:bg-primary hover:text-black hover:dark:text-black  hover:transform hover:-translate-y-1">
-                <WebcamIcon size={20} />
-                {t('hero.showButton')}
-              </button>
+            </a>
+              <a href="https://t.me/showplsbot" target="_blank">
+                <button className="flex items-center gap-2 px-[7px] md:px-[11px] py-[7px] rounded-3xl border-2 transition-all duration-150 border-primary text-card-foreground dark:text-primary hover:bg-primary hover:text-black hover:dark:text-black  hover:transform hover:-translate-y-1">
+                  <WebcamIcon size={20} />
+                  {t('hero.showButton')}
+                </button>
+              </a>
             </div>
           </div>
           <div className="w-full md:w-[54%] mt-6 md:mt-0 relative">
@@ -451,10 +457,12 @@ function NewLanding() {
               {t('features.subtitle')}
             </p>
           </div>
-          <button className="font-medium flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-opacity duration-300 bg-secondary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-transform duration-200">
-            <TelegramLogoIcon size={24} />
-            {t('header.start')}
-          </button>
+          <a href="https://t.me/showplsbot" target="_blank">
+            <button className="font-medium flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-opacity duration-300 bg-secondary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-transform duration-200">
+              <TelegramLogoIcon size={24} />
+              {t('header.start')}
+            </button>
+          </a>
         </div>
 
         {/* Features Cards Section */}
@@ -472,9 +480,11 @@ function NewLanding() {
                   {t('features.realTimeDescription')}
                 </p>
               </div>
-              <button className="mt-8 bg-primary dark:bg-card-foreground px-4 py-1 font-medium rounded-3xl transition-opacity duration-150 w-fit text-black dark:text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
-                {t('features.startNow')}
-              </button>
+              <a href="https://t.me/showplsbot" target="_blank">
+                <button className="mt-8 bg-primary dark:bg-card-foreground px-4 py-1 font-medium rounded-3xl transition-opacity duration-150 w-fit text-black dark:text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                  {t('features.startNow')}
+                </button>
+              </a>
             </CardContent>
           </Card>
 
@@ -491,9 +501,11 @@ function NewLanding() {
                   {t('features.globalDescription')}
                 </p>
               </div>
-              <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
-                {t('features.startNow')}
-              </button>
+              <a href="https://t.me/showplsbot" target="_blank">
+                <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                  {t('features.startNow')}
+                </button>
+              </a>
             </CardContent>
           </Card>
 
@@ -510,9 +522,11 @@ function NewLanding() {
                   {t('features.walletDescription')}
                 </p>
               </div>
-              <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
-                {t('features.startNow')}
-              </button>
+              <a href="https://t.me/showplsbot" target="_blank">
+                <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                  {t('features.startNow')}
+                </button>
+              </a>
             </CardContent>
           </Card>
 
@@ -529,9 +543,11 @@ function NewLanding() {
                   {t('features.verifiedDescription')}
                 </p>
               </div>
-              <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
-                {t('features.startNow')}
-              </button>
+              <a href="https://t.me/showplsbot" target="_blank">
+                <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                  {t('features.startNow')}
+                </button>
+              </a>
             </CardContent>
           </Card>
         </div>
@@ -600,10 +616,12 @@ function NewLanding() {
         <p className="text-lg md:text-xl text-muted-foreground">
           {t('cta.subtitle')}
         </p>
-        <button className="font-medium flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-opacity duration-300 bg-primary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-transform duration-200">
-          <TelegramLogoIcon size={24} />
-          {t('header.start')}
-        </button>
+        <a href="https://t.me/showplsbot" target="_blank">
+          <button className="font-medium flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-opacity duration-300 bg-primary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-transform duration-200">
+            <TelegramLogoIcon size={24} />
+            {t('header.start')}
+          </button>
+        </a>
       </section>
 
       {/* Footer */}
