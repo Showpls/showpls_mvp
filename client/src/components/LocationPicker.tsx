@@ -109,7 +109,7 @@ export function LocationPicker({
     };
 
     return (
-        <div className={`fixed inset-0 bg-foreground opacity-90 backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 ${className}`}>
+        <div className={`fixed inset-0 bg-foreground backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 ${className}`}>
             <div className="bg-[#fffff0] dark:bg-panel rounded-2xl shadow-2xl w-full max-w-2xl h-full max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden border border-brand-primary/30">
                 {/* Header */}
                 <div className="bg-[#fffff0] dark:bg-panel flex items-center justify-between p-3 sm:p-4 border-b border-brand-primary/20">
@@ -125,7 +125,7 @@ export function LocationPicker({
                 </div>
 
                 {/* Instructions */}
-                <div className="px-3 py-2 sm:px-4 bg-panel/50 border-b border-brand-primary/10">
+                <div className="px-3 py-2 sm:px-4 bg-background border-b border-brand-primary/10">
                     <p className="text-xs sm:text-sm text-muted font-medium text-center">{t('location.clickMap')}</p>
                 </div>
 
@@ -133,7 +133,7 @@ export function LocationPicker({
                 <div className="flex-1 relative">
                     <div ref={mapContainerRef} className="w-full h-full" />
                     {(isLoading || isGeocoding) && (
-                        <div className="absolute inset-0 bg-background opacity-90 flex items-center justify-center">
+                        <div className="absolute inset-0 bg-background flex items-center justify-center">
                             <div className="flex flex-col items-center gap-2 bg-[#fffff0] dark:bg-panel p-3 sm:p-4 rounded-lg shadow-lg border border-brand-primary/20">
                                 <div className="animate-spin rounded-full h-6 w-6 sm:h-8 sm:w-8 border-b-2 border-brand-primary"></div>
                                 <p className="text-xs sm:text-sm text-foreground">
@@ -159,10 +159,10 @@ export function LocationPicker({
                     )}
 
                     {selectedLocation && (
-                        <div className="p-3 bg-background opacity-70 rounded-lg border border-brand-primary/20 text-left">
+                        <div className="p-3 bg-background rounded-lg border border-brand-primary/20 text-left">
                             <p className="text-sm font-medium text-foreground mb-1">{t('location.selectedAddress')}</p>
-                            <p className="text-sm text-muted min-h-[20px] break-words">{selectedLocation.address}</p>
-                            <p className="text-xs text-muted mt-1">
+                            <p className="text-sm text-muted font-medium min-h-[20px] break-words">{selectedLocation.address}</p>
+                            <p className="text-xs text-muted font-medium mt-1">
                                 {selectedLocation.lat.toFixed(4)}, {selectedLocation.lng.toFixed(4)}
                             </p>
                         </div>

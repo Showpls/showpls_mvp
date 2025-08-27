@@ -319,7 +319,7 @@ export default function Chat() {
           const text = await res.text();
           const json = JSON.parse(text);
           message = json?.error || message;
-        } catch {}
+        } catch { }
         throw new Error(message);
       }
       const json = await res.json();
@@ -348,7 +348,7 @@ export default function Chat() {
     scrollToBottom();
   }, [messages]);
 
-  
+
   // Safe TON display
   const tonDisplay = useMemo(() => {
     try {
@@ -412,13 +412,13 @@ export default function Chat() {
 
   if (isOrderError || !order) {
     return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
           <div className="w-8 h-8 rounded-full mx-auto mb-4 bg-red-500/20"></div>
-          <p className="text-text-muted">
+          <p className="text-muted font-medium">
             {t('chat.failedToLoadOrder') || 'Failed to load order.'}
           </p>
-          <div className="text-xs text-text-muted mt-2">
+          <div className="text-xs text-muted font-medium mt-2">
             {(orderError as any)?.message || ''}
           </div>
         </div>
@@ -427,7 +427,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Chat Header */}
       <div className="glass-panel p-4 mb-6 sticky top-0 z-40">
         <div className="max-w-sm mx-auto flex items-center justify-between">
@@ -455,7 +455,7 @@ export default function Chat() {
               <div className="font-semibold">
                 {otherUser?.firstName || otherUser?.username || t('chat.unknown')}
               </div>
-              <div className="text-xs text-text-muted flex items-center">
+              <div className="text-xs text-muted font-medium flex items-center">
                 <Star className="w-3 h-3 text-yellow-400 mr-1" />
                 {otherProfile ? (Number(otherProfile.rating || 0) > 0 ? Number(otherProfile.rating).toFixed(2) : '—') : '—'}
               </div>
@@ -475,7 +475,7 @@ export default function Chat() {
           {/* Order Info */}
           <Card className="glass-panel border-brand-primary/20">
             <CardContent className="p-4 text-center">
-              <div className="text-sm text-text-muted mb-2">
+              <div className="text-sm text-muted font-medium mb-2">
                 {t('chat.orderHash')} #{order.id.slice(-6)}
               </div>
               <div className="font-semibold">{order.title}</div>
@@ -521,7 +521,7 @@ export default function Chat() {
           {/* Messages */}
           <div className="space-y-3">
             {areMessagesLoading && (
-              <div className="text-center text-text-muted text-sm py-4">
+              <div className="text-center text-muted font-medium text-sm py-4">
                 {t('chat.loadingMessages') || 'Loading messages...'}
               </div>
             )}
@@ -613,8 +613,6 @@ export default function Chat() {
         </div>
       </div>
 
-      {/* Quick replies removed */}
-
       {/* Chat Input */}
       <div className="fixed bottom-0 left-0 right-0 bg-indigo-900 p-4">
         <form onSubmit={handleSendMessage} className="max-w-sm mx-auto space-y-2">
@@ -636,7 +634,7 @@ export default function Chat() {
               value={message}
               onChange={(e) => setMessage(e.target.value)}
               placeholder={t('chat.typeMessage')}
-              className="flex-1 bg-panel border-transparent rounded-md h-10 text-sm"
+              className="flex-1 bg-[#fffff0] dark:bg-panel border-transparent rounded-md h-10 text-sm"
               disabled={!chatEnabled}
             />
             {/* Actions: Refund / Finish / Send */}

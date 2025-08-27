@@ -385,7 +385,7 @@ export default function TelegramWebApp() {
                       </div>
                       <div className="flex gap-2 justify-center">
                         {currentUser?.isProvider ? (
-                          <Button size="sm" variant="outline" onClick={() => window.location.href = '/map'}>
+                          <Button size="sm" className="bg-brand-primary text-background" onClick={() => window.location.href = '/map'}>
                             {String(t('twa.findRequests') || 'Find requests')}
                           </Button>
                         ) : (
@@ -425,7 +425,7 @@ export default function TelegramWebApp() {
                       {String(t('twa.findRequests') || 'Find requests')}
                     </Button>
                   ) : (
-                    <Button size="sm" className="bg-brand-primary text-white" onClick={handleCreateRequest}>
+                    <Button size="sm" className="bg-brand-primary text-background" onClick={handleCreateRequest}>
                       {String(t('twa.createOrder') || 'Create order')}
                     </Button>
                   )}

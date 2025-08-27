@@ -45,7 +45,7 @@ export const OrderDetailsSheet: React.FC<OrderDetailsSheetProps> = ({ order, isO
             <div className="flex-1 pr-0">
               <div className="flex items-center gap-3 mb-2">
                 {getMediaTypeIcon(order.mediaType)}
-                <SheetTitle className="text-xl font-bold text-background">{order.title}</SheetTitle>
+                <SheetTitle className="text-xl font-bold text-foreground">{order.title}</SheetTitle>
               </div>
               <SheetDescription className="text-muted font-medium text-sm leading-relaxed">
                 {order.description}
