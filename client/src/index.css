@@ -15,7 +15,7 @@ button:hover {
   --foreground: #090909;
 
   /* 3 & 4. Card colors (light mode) */
-  --card: oklch(80.9% 0.105 251.813); /* tailwind blue 300 */
+  --card: var(--panel);
   --card-foreground: oklch(50% 0.134 242.749); /* tailwind sky 700 */
 
   /* 5. Primary same as card (tailwind blue 300) */
@@ -91,7 +91,7 @@ button:hover {
   --foreground: #ffffff;
 
   /* 3 & 4. Card same values as light (not inverted unless desired) */
-  --card: oklch(80.9% 0.105 251.813);
+  --card: var(--panel);
   --card-foreground: oklch(50% 0.134 242.749);
 
   /* 5. Primary same (tailwind blue 300) */
@@ -226,10 +226,6 @@ button:hover {
 }
 
 @layer components {
-  .glass-panel {
-    @apply backdrop-blur-xl bg-panel/80 border border-brand-primary/20;
-  }
-
   .gradient-bg {
     background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
   }
@@ -243,6 +239,35 @@ button:hover {
 }
 
 @layer utilities {
+    /* Glass panel utility: declared in utilities layer to override bg-card on Card */
+    .glass-panel {
+      -webkit-backdrop-filter: blur(24px);
+      backdrop-filter: blur(24px);
+
+      /* Use explicit rgba for broad support (Telegram WebView) */
+      background: rgba(255, 255, 255, 0.8) !important;
+      background-color: rgba(255, 255, 255, 0.8) !important;
+
+      border-width: 1px;
+      border-style: solid;
+    }
+
+    /* Dark mode background for glass panel */
+    .dark .glass-panel {
+      background: rgba(9, 9, 9, 0.7) !important;
+      background-color: rgba(9, 9, 9, 0.7) !important;
+    }
+
+    /* Higher specificity to override Card's default bg-card */
+    .glass-panel.bg-card {
+      background: rgba(255, 255, 255, 0.8) !important;
+      background-color: rgba(255, 255, 255, 0.8) !important;
+    }
+    .dark .glass-panel.bg-card {
+      background: rgba(9, 9, 9, 0.7) !important;
+      background-color: rgba(9, 9, 9, 0.7) !important;
+    }
+
   .world-map-bg {
     background-image: url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080");
     background-size: cover;

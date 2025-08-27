@@ -1,23 +1,3 @@
-// import Header from "@/landing/Header";
-// import HeroSection from "@/landing/HeroSection";
-// import ShowcaseSection from "@/landing/ShowcaseSection";
-// import WhyShowplsSection from "@/landing/FourCardSection";
-// import TestimonialsSection from "@/landing/TestimonialSection";
-// import CtaFooterSection from "@/landing/CtaFooterSection";
-
-// export default function ModernLanding() {
-//   return (
-//     <div className="max-w-[1440px] px-8 md:px-12 lg:px-20">
-//       <Header />
-//       <HeroSection />
-//       <ShowcaseSection />
-//       <WhyShowplsSection />
-//       <TestimonialsSection />
-//       <CtaFooterSection />
-//     </div>
-//   )
-// }
-
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,7 +60,7 @@ function NewLanding() {
       {/* Header */}
       <header className="flex justify-between items-center w-full py-4">
         <div className="flex items-center gap-3 md:gap-4">
-          <div className="bg-emerald-600 rounded-xl p-1">
+          <div className={"rounded-xl p-1" + (theme === "light" && " bg-black")}>
             <img
               src="/logo4.png"
               alt="SHOWPLS"
@@ -219,12 +199,12 @@ function NewLanding() {
               {t('hero.subtitle')}
             </p>
             <div className="flex flex-row gap-2 md:gap-3 lg:gap-4 mt-6 md:mt-8 lg:mt-12 font-medium items-center justify-center lg:justify-normal">
-            <a href="https://t.me/showplsbot" target="_blank">
-              <button className="flex items-center gap-2 px-2 md:px-3 py-2 rounded-3xl transition-all duration-150 bg-primary text-primary-foreground hover:opacity-75 hover:transform hover:-translate-y-1">
-                <EyeIcon size={20} />
-                {t('hero.seeButton')}
-              </button>
-            </a>
+              <a href="https://t.me/showplsbot" target="_blank">
+                <button className="flex items-center gap-2 px-2 md:px-3 py-2 rounded-3xl transition-all duration-150 bg-primary text-primary-foreground hover:opacity-75 hover:transform hover:-translate-y-1">
+                  <EyeIcon size={20} />
+                  {t('hero.seeButton')}
+                </button>
+              </a>
               <a href="https://t.me/showplsbot" target="_blank">
                 <button className="flex items-center gap-2 px-[7px] md:px-[11px] py-[7px] rounded-3xl border-2 transition-all duration-150 border-primary text-card-foreground dark:text-primary hover:bg-primary hover:text-black hover:dark:text-black  hover:transform hover:-translate-y-1">
                   <WebcamIcon size={20} />
@@ -488,7 +468,7 @@ function NewLanding() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card dark:bg-card-foreground border-none">
+          <Card className="bg-primary dark:bg-card-foreground border-none">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div>
                 <div className="w-14 h-14 rounded-xl flex items-center justify-center">
@@ -509,7 +489,7 @@ function NewLanding() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card dark:bg-card-foreground border-none">
+          <Card className="bg-primary dark:bg-card-foreground border-none">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div>
                 <div className="w-14 h-14 rounded-xl flex items-center justify-center">
@@ -530,7 +510,7 @@ function NewLanding() {
             </CardContent>
           </Card>
 
-          <Card className="bg-card dark:bg-card-foreground border-none">
+          <Card className="bg-primary dark:bg-card-foreground border-none">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div>
                 <div className="w-14 h-14 rounded-xl flex items-center justify-center">
