@@ -171,7 +171,7 @@ export default function Profile() {
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
                     <div className="text-sm">{t('profile.role')}</div>
-                    <Button size="sm" variant="outline" className="flex items-center gap-2" onClick={async () => { handleRoleSwitch }}>
+                    <Button size="sm" variant="outline" className="flex items-center gap-2" onClick={handleRoleSwitch}>
                       {currentUser?.isProvider ? (
                         <ShoppingCart className="w-4 h-4" />
                       ) : (
