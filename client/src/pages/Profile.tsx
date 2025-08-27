@@ -74,14 +74,22 @@ export default function Profile() {
   };
 
   const handleRoleSwitch = async () => {
+    console.log("[HANDLEROLESWITCH] I AM HERE")
     const confirmSwitch = window.confirm(
       String(t('profile.confirmSwitch') || 'Are you sure you want to switch your role?')
     );
     if (!confirmSwitch) return;
 
+    console.log("This is current user isProvider:", currentUser.isProvider)
+
     // If switching TO provider (current user is not provider)
     if (!currentUser.isProvider) {
+      console.log("Run now: setShowLocationPicker(true)")
       setShowLocationPicker(true); // Show location picker
+      console.log("Run now: await updateProfile({isProvider: true})")
+      await updateProfile({
+        isProvider: true
+      })
       return; // Wait for location selection to complete
     }
 
