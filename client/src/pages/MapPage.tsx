@@ -7,6 +7,7 @@ import { ArrowLeft, Filter, X, Crosshair, Eye, MapPin } from "lucide-react";
 import { Link } from "wouter";
 import { InteractiveMap } from "@/components/InteractiveMap";
 import { OrderDetailsSheet } from '@/components/OrderDetailsSheet';
+import { X } from 'lucide-react';
 import { bootstrapTelegramAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { getAuthToken } from "@/lib/auth";
@@ -15,6 +16,8 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 export default function MapPage() {
     const { t } = useTranslation();
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    const [selectedProvider, setSelectedProvider] = useState<any>(null);
+    const [showProviderSheet, setShowProviderSheet] = useState(false);
 
     const { currentUser } = useCurrentUser();
 
@@ -27,10 +30,22 @@ export default function MapPage() {
 
     const handleOrderClick = (order: any) => {
         setSelectedOrder(order);
+        setSelectedProvider(null);
+    };
+
+    const handleProviderClick = (provider: any) => {
+        setSelectedProvider(provider);
+        setSelectedOrder(null);
+        setShowProviderSheet(true);
     };
 
     const closeOrderDetails = () => {
         setSelectedOrder(null);
+    };
+
+    const closeProviderDetails = () => {
+        setSelectedProvider(null);
+        setShowProviderSheet(false);
     };
 
     return (
@@ -61,6 +76,7 @@ export default function MapPage() {
                     {/* Interactive Map */}
                     <InteractiveMap
                         onOrderClick={handleOrderClick}
+                        onProviderClick={handleProviderClick}
                         className="h-full w-full"
                     />
 
@@ -74,6 +90,57 @@ export default function MapPage() {
                             }
                         }}
                     />
+
+                    {/* Provider Details Sheet */}
+                    {selectedProvider && (
+                        <div className={`fixed inset-0 z-50 bg-black/50 transition-opacity duration-300 ${showProviderSheet ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                            <div className={`fixed bottom-0 left-0 right-0 bg-background rounded-t-3xl p-6 transition-transform duration-300 ${showProviderSheet ? 'translate-y-0' : 'translate-y-full'}`}>
+                                <div className="flex justify-between items-center mb-4">
+                                    <h2 className="text-xl font-bold">{selectedProvider.name || 'Provider'}</h2>
+                                    <button 
+                                        onClick={closeProviderDetails}
+                                        className="p-2 rounded-full hover:bg-muted"
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
+                                </div>
+                                
+                                {selectedProvider.rating && (
+                                    <div className="flex items-center mb-4">
+                                        <span className="text-yellow-500 mr-1">★</span>
+                                        <span className="text-sm text-muted-foreground">
+                                            {selectedProvider.rating.toFixed(1)}
+                                            {selectedProvider.reviewCount && ` (${selectedProvider.reviewCount} reviews)`}
+                                        </span>
+                                    </div>
+                                )}
+
+                                {selectedProvider.specialties?.length > 0 && (
+                                    <div className="mb-4">
+                                        <h3 className="text-sm font-medium mb-2">Specialties</h3>
+                                        <div className="flex flex-wrap gap-2">
+                                            {selectedProvider.specialties.map((specialty: string, index: number) => (
+                                                <span key={index} className="bg-primary/10 text-primary text-xs px-3 py-1 rounded-full">
+                                                    {specialty}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {selectedProvider.location?.address && (
+                                    <div className="flex items-center text-sm text-muted-foreground mb-4">
+                                        <MapPin className="w-4 h-4 mr-1" />
+                                        <span>{selectedProvider.location.address}</span>
+                                    </div>
+                                )}
+
+                                <Button className="w-full mt-4" onClick={closeProviderDetails}>
+                                    Close
+                                </Button>
+                            </div>
+                        </div>
+                    )}
 
                 </div>
             </div>

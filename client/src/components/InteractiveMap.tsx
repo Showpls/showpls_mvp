@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { mapService } from "@/lib/map";
 import { getAuthToken } from "@/lib/auth";
@@ -7,14 +7,16 @@ import { useTheme } from "next-themes";
 
 interface InteractiveMapProps {
   onOrderClick?: (order: any) => void;
-  isClickable?: boolean;
+  onProviderClick?: (provider: any) => void;
   initialCenter?: [number, number];
   initialZoom?: number;
   className?: string;
+  isClickable?: boolean;
 }
 
 export function InteractiveMap({
   onOrderClick,
+  onProviderClick,
   initialCenter = [37.6176, 55.7558],
   initialZoom = 10,
   className = "",
@@ -38,10 +40,12 @@ export function InteractiveMap({
     },
   });
 
-  // Fetch orders
-  const { data: allOrders = [], isLoading } = useQuery<any[]>({
+  // Fetch orders if user is a provider
+  const { data: allOrders = [], isLoading: isLoadingOrders } = useQuery<any[]>({
     queryKey: ['/api/orders'],
     queryFn: async () => {
+      if (!currentUser?.isProvider) return [];
+      
       const token = getAuthToken();
       try {
         const response = await fetch('/api/orders', {
@@ -54,9 +58,34 @@ export function InteractiveMap({
         return Array.isArray(data.orders) ? data.orders : [];
       } catch (error) {
         console.error('[INTERACTIVE_MAP] Failed to fetch all orders:', error);
-        return []; // Return empty array on failure
+        return [];
       }
     },
+    enabled: !!currentUser?.isProvider,
+  });
+
+  // Fetch providers if user is not a provider
+  const { data: providers = [], isLoading: isLoadingProviders } = useQuery<any[]>({
+    queryKey: ['/api/providers'],
+    queryFn: async () => {
+      if (currentUser?.isProvider) return [];
+      
+      const token = getAuthToken();
+      try {
+        const response = await fetch('/api/providers', {
+          headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        if (!response.ok) {
+          throw new Error('Failed to fetch providers');
+        }
+        const data = await response.json();
+        return Array.isArray(data.providers) ? data.providers : [];
+      } catch (error) {
+        console.error('[INTERACTIVE_MAP] Failed to fetch providers:', error);
+        return [];
+      }
+    },
+    enabled: !currentUser?.isProvider,
   });
 
   // Initialize map
@@ -88,16 +117,22 @@ export function InteractiveMap({
     };
   }, [initialCenter, initialZoom, isMapInitialized]);
 
-  // Effect to update map markers when orders change
+  // Effect to update map markers when orders or providers change
   useEffect(() => {
     if (!isMapInitialized) return;
 
-    mapService.addOrderMarkers(allOrders, currentUser, onOrderClick, isClickable);
-
-    if (allOrders.length > 0) {
-      setTimeout(() => mapService.fitBounds(), 100);
+    if (currentUser?.isProvider) {
+      mapService.addOrderMarkers(allOrders, currentUser, onOrderClick, isClickable);
+      if (allOrders.length > 0) {
+        setTimeout(() => mapService.fitBounds(), 100);
+      }
+    } else {
+      mapService.addProviderMarkers(providers, currentUser, onProviderClick, isClickable);
+      if (providers.length > 0) {
+        setTimeout(() => mapService.fitBounds(), 100);
+      }
     }
-  }, [isMapInitialized, allOrders, currentUser, onOrderClick, isClickable]);
+  }, [isMapInitialized, allOrders, providers, currentUser, onOrderClick, onProviderClick, isClickable]);
 
   return (
     <div className={`relative ${className}`}>
@@ -108,14 +143,16 @@ export function InteractiveMap({
       />
 
       {/* Loading Overlay */}
-      {isLoading && (
-        <div className="absolute inset-0 bg-black/20 flex items-center justify-center rounded-lg">
-          <div className="bg-white p-4 rounded-lg shadow-lg">
+      {isLoadingOrders || isLoadingProviders ? (
+        <div className="absolute inset-0 bg-black/20 flex items-center justify-center rounded-lg z-10">
+          <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="text-sm mt-2">Загрузка карты...</p>
+            <p className="text-sm mt-2 text-center">
+              {currentUser?.isProvider ? 'Загрузка заказов...' : 'Загрузка специалистов...'}
+            </p>
           </div>
         </div>
-      )}
+      ) : null}
     </div>
   );
 }

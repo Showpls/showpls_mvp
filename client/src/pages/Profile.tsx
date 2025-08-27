@@ -74,32 +74,35 @@ export default function Profile() {
   };
 
   const handleRoleSwitch = async () => {
-    console.log("[HANDLEROLESWITCH] I AM HERE")
     const confirmSwitch = window.confirm(
       String(t('profile.confirmSwitch') || 'Are you sure you want to switch your role?')
     );
     if (!confirmSwitch) return;
 
-    console.log("This is current user isProvider:", currentUser.isProvider)
-
-    // If switching TO provider (current user is not provider)
-    if (!currentUser.isProvider) {
-      console.log("Run now: setShowLocationPicker(true)")
-      setShowLocationPicker(true); // Show location picker
-      console.log("Run now: await updateProfile({isProvider: true})")
-      await updateProfile({
-        isProvider: true
-      })
-      return; // Wait for location selection to complete
-    }
-
-    // If switching FROM provider (current user is provider)
-    else {
-      await updateProfile({
-        isProvider: false,
-        location: null // Optional: clear location when switching back
-      });
-      await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
+    try {
+      if (!currentUser.isProvider) {
+        // For switching TO provider, we'll show the location picker first
+        setShowLocationPicker(true);
+      } else {
+        // For switching FROM provider (back to buyer)
+        await updateProfile({
+          isProvider: false,
+          location: null
+        });
+        
+        // Invalidate all relevant queries
+        await Promise.all([
+          queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
+          queryClient.invalidateQueries({ queryKey: ['/api/providers'] })
+        ]);
+        
+        // Show success message
+        alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer');
+      }
+    } catch (error) {
+      console.error('Error switching role:', error);
+      alert(t('profile.roleSwitchError') || 'Failed to switch role. Please try again.');
     }
   };
 
@@ -226,13 +229,28 @@ export default function Profile() {
         <LocationPicker
           initialLocation={typeof data?.location === 'object' ? (data.location as any) : undefined}
           onLocationSelect={async (loc) => {
-            // Update both location AND role in one call
-            await updateProfile({
-              location: loc,
-              isProvider: true // This is the key addition!
-            });
-            setShowLocationPicker(false);
-            await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
+            try {
+              // First update the provider status and location
+              await updateProfile({
+                location: loc,
+                isProvider: true
+              });
+              
+              // Then invalidate all relevant queries to refresh the UI
+              await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
+                queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
+                queryClient.invalidateQueries({ queryKey: ['/api/providers'] })
+              ]);
+              
+              setShowLocationPicker(false);
+              
+              // Show success message
+              alert(t('profile.roleSwitchedToProvider') || 'You are now a provider! Your location has been set.');
+            } catch (error) {
+              console.error('Error updating location and role:', error);
+              alert(t('profile.locationUpdateError') || 'Failed to update location. Please try again.');
+            }
           }}
           onClose={() => setShowLocationPicker(false)}
           hideCloseButton

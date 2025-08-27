@@ -88,6 +88,67 @@ export class MapService {
     return this.map;
   }
 
+  // Add markers for providers
+  addProviderMarkers(
+    providers: any[],
+    currentUser?: any,
+    onMarkerClick?: (provider: any) => void,
+    isClickable: boolean = true
+  ) {
+    if (!this.map) return;
+
+    // Clear existing markers
+    this.clearMarkers();
+
+    providers.forEach((provider) => {
+      if (provider.location?.lat && provider.location?.lng) {
+        // Create marker element for provider
+        const el = document.createElement("div");
+        el.className = "provider-marker";
+        el.style.width = "36px";
+        el.style.height = "36px";
+        el.style.borderRadius = "50% 50% 50% 0";
+        el.style.background = "#4f46e5"; // Indigo color for providers
+        el.style.border = "2px solid var(--background)";
+        el.style.boxShadow = "0 2px 8px rgba(0,0,0,0.3)";
+        el.style.cursor = "pointer";
+        el.style.display = "flex";
+        el.style.alignItems = "center";
+        el.style.justifyContent = "center";
+        el.style.transform = "rotate(-45deg)";
+
+        // Add provider icon
+        const icon = document.createElement("div");
+        icon.innerHTML = "👤";
+        icon.style.fontSize = "16px";
+        icon.style.color = "white";
+        icon.style.transform = "rotate(45deg)";
+        el.appendChild(icon);
+
+        // Create marker
+        const marker = new mapboxgl.Marker(el)
+          .setLngLat([provider.location.lng, provider.location.lat])
+          .addTo(this.map!);
+
+        // Add popup with provider info
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
+          this.createProviderPopupHTML(provider, currentUser)
+        );
+
+        if (isClickable) {
+          marker.setPopup(popup);
+
+          // Add click handler
+          if (onMarkerClick) {
+            el.addEventListener("click", () => onMarkerClick(provider));
+          }
+        }
+
+        this.markers.push(marker);
+      }
+    });
+  }
+
   // Add markers for orders
   addOrderMarkers(
     orders: any[],
@@ -130,7 +191,7 @@ export class MapService {
 
         // Add popup
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-          this.createPopupHTML(order, currentUser)
+          this.createOrderPopupHTML(order, currentUser)
         );
 
         if (isClickable) {
@@ -175,8 +236,42 @@ export class MapService {
     }
   }
 
-  // Create popup HTML
-  private createPopupHTML(order: any, currentUser?: any): string {
+  // Create popup HTML for providers
+  private createProviderPopupHTML(provider: any, currentUser?: any): string {
+    return `
+      <div style="min-width: 200px; font-family: system-ui, sans-serif;">
+        <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">
+          ${provider.name || 'Provider'}
+        </h3>
+        ${provider.rating ? `
+          <div style="display: flex; align-items: center; margin-bottom: 8px;">
+            <span style="color: #f59e0b; margin-right: 4px;">★</span>
+            <span style="font-size: 14px; color: #666;">
+              ${provider.rating.toFixed(1)}${provider.reviewCount ? ` (${provider.reviewCount} reviews)` : ''}
+            </span>
+          </div>
+        ` : ''}
+        ${provider.specialties?.length ? `
+          <div style="margin-bottom: 8px;">
+            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Specialties:</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 4px;">
+              ${provider.specialties.map((s: string) => 
+                `<span style="background: #e0e7ff; color: #4f46e5; font-size: 12px; 
+                   padding: 2px 6px; border-radius: 4px;">${s}</span>`
+              ).join('')}
+            </div>
+          </div>
+        ` : ''}
+        <div style="display: flex; align-items: center; font-size: 12px; color: #666;">
+          <span style="margin-right: 4px;">📍</span>
+          <span>${provider.location?.address || 'Location not specified'}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  // Create popup HTML for orders
+  private createOrderPopupHTML(order: any, currentUser?: any): string {
     const canAccept =
       currentUser &&
       currentUser.id !== order.requesterId &&
@@ -206,7 +301,7 @@ export class MapService {
     return `
       <div style="min-width: 200px; font-family: system-ui, sans-serif;">
         <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: 600;">${
-          order.title
+          order.title || 'Order'
         }</h3>
         <p style="margin: 0 0 8px 0; font-size: 14px; color: #666;">${order.description?.substring(
           0,
