@@ -69,8 +69,11 @@ export default function Profile() {
       },
       body: JSON.stringify(payload),
     });
-    if (!res.ok) throw new Error('Failed to update profile');
-    await res.json();
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({}));
+      throw new Error(error.error || 'Failed to update profile');
+    }
+    return await res.json();
   };
 
   const handleRoleSwitch = async () => {
@@ -85,24 +88,32 @@ export default function Profile() {
         setShowLocationPicker(true);
       } else {
         // For switching FROM provider (back to buyer)
-        await updateProfile({
+        const updatedUser = await updateProfile({
           isProvider: false,
           location: null
         });
         
-        // Invalidate all relevant queries
-        await Promise.all([
-          queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
-          queryClient.invalidateQueries({ queryKey: ['/api/providers'] })
-        ]);
-        
-        // Show success message
-        alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer');
+        if (updatedUser) {
+          // Invalidate all relevant queries to refresh the UI
+          await Promise.all([
+            queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
+            queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
+            queryClient.invalidateQueries({ queryKey: ['/api/providers'] }),
+            queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+          ]);
+          
+          // Show success message
+          alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer');
+          
+          // Force a page reload to ensure all state is reset
+          window.location.reload();
+        } else {
+          throw new Error('No response from server');
+        }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error switching role:', error);
-      alert(t('profile.roleSwitchError') || 'Failed to switch role. Please try again.');
+      alert(t('profile.roleSwitchError') || `Failed to switch role: Unknown error`);
     }
   };
 
@@ -231,25 +242,33 @@ export default function Profile() {
           onLocationSelect={async (loc) => {
             try {
               // First update the provider status and location
-              await updateProfile({
+              const updatedUser = await updateProfile({
                 location: loc,
                 isProvider: true
               });
               
-              // Then invalidate all relevant queries to refresh the UI
-              await Promise.all([
-                queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
-                queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
-                queryClient.invalidateQueries({ queryKey: ['/api/providers'] })
-              ]);
-              
-              setShowLocationPicker(false);
-              
-              // Show success message
-              alert(t('profile.roleSwitchedToProvider') || 'You are now a provider! Your location has been set.');
+              if (updatedUser) {
+                // Invalidate all relevant queries to refresh the UI
+                await Promise.all([
+                  queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
+                  queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
+                  queryClient.invalidateQueries({ queryKey: ['/api/providers'] }),
+                  queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+                ]);
+                
+                setShowLocationPicker(false);
+                
+                // Show success message
+                alert(t('profile.roleSwitchedToProvider') || 'You are now a provider! Your location has been set.');
+                
+                // Force a page reload to ensure all state is reset
+                window.location.reload();
+              } else {
+                throw new Error('No response from server');
+              }
             } catch (error) {
               console.error('Error updating location and role:', error);
-              alert(t('profile.locationUpdateError') || 'Failed to update location. Please try again.');
+              alert(t('profile.locationUpdateError') || `Failed to update location: 'Unknown error'`);
             }
           }}
           onClose={() => setShowLocationPicker(false)}
