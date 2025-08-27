@@ -16,6 +16,7 @@ import { locationService } from "@/lib/location";
 import { InteractiveMap } from "@/components/InteractiveMap";
 import { LocationPicker } from "@/components/LocationPicker";
 import TelegramWebApp from "./TelegramWebApp";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface OrderData {
   title: string;
@@ -40,6 +41,7 @@ export default function CreateOrder() {
     isSampleOrder: false,
   });
 
+  const { currentUser } = useCurrentUser()
   const [showMap, setShowMap] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   // Removed immediate escrow creation on order creation; funding occurs after provider accepts
@@ -48,8 +50,6 @@ export default function CreateOrder() {
   const wallet = useTonWallet();
   const [tonConnectUI] = useTonConnectUI();
   const { t } = useTranslation();
-
-
 
   const queryClient = useQueryClient();
 
@@ -60,6 +60,10 @@ export default function CreateOrder() {
         await bootstrapTelegramAuth();
       }
     })();
+
+    if (currentUser.isProvider) {
+      window.location.href = '/twa';
+    }
 
     // Initialize location service
     const initLocation = async () => {

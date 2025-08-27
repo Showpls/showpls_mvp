@@ -163,7 +163,13 @@ export default function TelegramWebApp() {
     },
   });
 
-  const handleCreateRequest = () => window.location.href = '/create-order';
+  const handleCreateRequest = () => {
+    if (currentUser.isProvider) {
+      window.alert('You must be seller in order to create orders. Change that in settings');
+      return
+    }
+    window.location.href = '/create-order';
+  }
   const handleMapFilter = (mediaType: string) => setSelectedMediaType(mediaType);
   const fillSampleRequest = () => setShowCreateForm(true);
 
@@ -205,19 +211,19 @@ export default function TelegramWebApp() {
       {/* Onboarding Blocking Overlay */}
       {currentUser && (currentUser as any).onboardingCompleted === false && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="w-full max-w-md bg-panel rounded-xl border border-brand-primary/30 shadow-xl">
+          <div className="w-full max-w-md bg-[#fffff0] dark:bg-panel rounded-xl border border-brand-primary/30 shadow-xl">
             <div className="p-4 space-y-4">
-              <h3 className="font-semibold text-lg">{String(t('twa.welcome') || 'Welcome to Showpls')}</h3>
-              <div className="text-sm text-text-muted">{String(t('twa.completeOnboarding') || 'Please choose your role and set your location to continue.')}</div>
+              <h3 className="font-semibold text-lg text-foreground">{String(t('twa.welcome') || 'Welcome to Showpls')}</h3>
+              <div className="text-sm text-muted font-medium">{String(t('twa.completeOnboarding') || 'Please choose your role and set your location to continue.')}</div>
 
               <div className="space-y-2">
-                <div className="text-xs text-text-muted">{String(t('twa.chooseRole') || 'Choose your role')}:</div>
+                <div className="text-xs text-muted">{String(t('twa.chooseRole') || 'Choose your role')}:</div>
                 <div className="grid grid-cols-2 gap-2">
                   <Button
                     type="button"
                     variant="outline"
                     aria-pressed={!onboarding.isProvider}
-                    className={`justify-center gap-2 border transition-none ${!onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-panel border-brand-primary/30'}`}
+                    className={`justify-center gap-2 font-medium border transition-none ${!onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-panel border-brand-primary/30'}`}
                     onClick={() => setOnboarding(o => ({ ...o, isProvider: false }))}
                   >
                     <ShoppingBag className="w-4 h-4" /> {String(t('twa.roleBuyer') || 'Buyer')}
@@ -226,36 +232,33 @@ export default function TelegramWebApp() {
                     type="button"
                     variant="outline"
                     aria-pressed={onboarding.isProvider}
-                    className={`justify-center gap-2 border transition-none ${onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-panel border-brand-primary/30'}`}
+                    className={`justify-center gap-2 border font-medium transition-none ${onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-panel border-brand-primary/30'}`}
                     onClick={() => setOnboarding(o => ({ ...o, isProvider: true }))}
                   >
                     <Camera className="w-4 h-4" /> {String(t('twa.roleProvider') || 'Seller')}
                   </Button>
                 </div>
-                <div className="text-[11px] text-text-muted">{onboarding.isProvider ? String(t('twa.roleProviderHint') || 'You will fulfill requests and earn TON') : String(t('twa.roleBuyerHint') || 'You will create requests and pay in TON')}</div>
+                <div className="text-[11px] text-muted">{onboarding.isProvider ? String(t('twa.roleProviderHint') || 'You will fulfill requests and earn TON') : String(t('twa.roleBuyerHint') || 'You will create requests and pay in TON')}</div>
               </div>
 
-              <div className="space-y-2">
-                <div className="text-xs text-text-muted">{String(t('twa.setLocation') || 'Set your location')}:</div>
-                {onboarding.location ? (
-                  <div className="p-2 rounded-md bg-panel/60 text-sm">
-                    <div className="font-medium">{onboarding.location.address || `${onboarding.location.lat.toFixed(4)}, ${onboarding.location.lng.toFixed(4)}`}</div>
-                    <div className="text-text-muted text-xs">{onboarding.location.lat.toFixed(4)}, {onboarding.location.lng.toFixed(4)}</div>
-                  </div>
-                ) : (
-                  <div className="text-sm text-text-muted">{String(t('twa.locationNotSet') || 'No location selected')}</div>
-                )}
-                <div className="flex flex-wrap gap-2">
-                  <Button size="sm" variant="default" className="w-full justify-center bg-brand-primary text-white" onClick={() => setShowLocationPicker(true)}>
-                    <MapPin className="w-4 h-4 mr-2" /> {String(t('twa.pickOnMap') || 'Pick on map')}
-                  </Button>
-                  {onboarding.location && (
-                    <Button size="sm" variant="outline" onClick={() => setOnboarding(o => ({ ...o, location: null }))}>
-                      {String(t('twa.clearLocation') || 'Clear')}
-                    </Button>
+              {onboarding.isProvider && (
+                <div className="space-y-2">
+                  <div className="text-xs text-muted">{String(t('twa.setLocation') || 'Set your location')}:</div>
+                  {onboarding.location ? (
+                    <div className="py-2 rounded-md text-sm">
+                      <div className="font-medium text-foreground">{onboarding.location.address || `${onboarding.location.lat.toFixed(4)}, ${onboarding.location.lng.toFixed(4)}`}</div>
+                      <div className="text-muted text-xs">{onboarding.location.lat.toFixed(4)}, {onboarding.location.lng.toFixed(4)}</div>
+                    </div>
+                  ) : (
+                    <div className="text-sm text-muted">{String(t('twa.locationNotSet') || 'No location selected')}</div>
                   )}
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="default" className="w-full justify-center bg-brand-primary text-white" onClick={() => setShowLocationPicker(true)}>
+                      <MapPin className="w-4 h-4 mr-2" /> {String(t('twa.pickOnMap') || 'Pick on map')}
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              )}
 
               <Button
                 disabled={saving || !onboarding.location}
@@ -296,7 +299,6 @@ export default function TelegramWebApp() {
             </CardContent>
           </Card>
 
-          {/* Profile section removed; open profile from top-right button */}
           <Card
             className="glass-panel border-brand-primary/20 hover:bg-brand-accent/10 transition-all cursor-pointer"
             onClick={() => window.location.href = '/map'}

@@ -154,6 +154,9 @@ export default function Profile() {
                     <Button size="sm" variant="outline" className="flex items-center gap-2" onClick={async () => {
                       const confirmSwitch = window.confirm(String(t('profile.confirmSwitch') || 'Are you sure you want to switch your role?'));
                       if (!confirmSwitch) return;
+                      if (!currentUser.isProvider) {
+                        setShowLocationPicker(true)
+                      }
                       await updateProfile({ isProvider: !(currentUser?.isProvider ?? false) });
                       await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
                     }}>
@@ -165,12 +168,14 @@ export default function Profile() {
                       {currentUser?.isProvider ? String(t('twa.roleBuyer') || 'Buyer') : String(t('twa.roleProvider') || 'Provider')}
                     </Button>
                   </div>
-                  <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
-                    <div className="text-sm">{t('profile.updateLocation')}</div>
-                    <Button size="sm" className="bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center gap-2" onClick={() => setShowLocationPicker(true)}>
-                      <MapPin className="w-4 h-4" /> {String(t('twa.pickOnMap') || 'Pick on map')}
-                    </Button>
-                  </div>
+                  {currentUser?.isProvider && (
+                    <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
+                      <div className="text-sm">{t('profile.updateLocation')}</div>
+                      <Button size="sm" className="bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center gap-2" onClick={() => setShowLocationPicker(true)}>
+                        <MapPin className="w-4 h-4" /> {String(t('twa.pickOnMap') || 'Pick on map')}
+                      </Button>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             )}
