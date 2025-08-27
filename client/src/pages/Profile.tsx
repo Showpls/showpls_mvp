@@ -193,7 +193,12 @@ export default function Profile() {
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
                     <div className="text-sm">{t('profile.role')}</div>
-                    <Button size="sm" variant="outline" className="flex items-center gap-2" onClick={handleRoleSwitch}>
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="flex items-center gap-2" 
+                      onClick={handleRoleSwitch}
+                    >
                       {currentUser?.isProvider ? (
                         <ShoppingCart className="w-4 h-4" />
                       ) : (
@@ -241,34 +246,28 @@ export default function Profile() {
           initialLocation={typeof data?.location === 'object' ? (data.location as any) : undefined}
           onLocationSelect={async (loc) => {
             try {
-              // First update the provider status and location
-              const updatedUser = await updateProfile({
+              // Update both location and set isProvider to true
+              await updateProfile({ 
                 location: loc,
-                isProvider: true
+                isProvider: true 
               });
               
-              if (updatedUser) {
-                // Invalidate all relevant queries to refresh the UI
-                await Promise.all([
-                  queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
-                  queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
-                  queryClient.invalidateQueries({ queryKey: ['/api/providers'] }),
-                  queryClient.invalidateQueries({ queryKey: ['currentUser'] })
-                ]);
-                
-                setShowLocationPicker(false);
-                
-                // Show success message
-                alert(t('profile.roleSwitchedToProvider') || 'You are now a provider! Your location has been set.');
-                
-                // Force a page reload to ensure all state is reset
-                window.location.reload();
-              } else {
-                throw new Error('No response from server');
-              }
+              // Invalidate queries and close the picker
+              await Promise.all([
+                queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
+                queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+              ]);
+              
+              setShowLocationPicker(false);
+              
+              // Show success message
+              alert(t('profile.roleSwitchedToProvider') || 'You are now a provider! Your location has been set.');
+              
+              // Reload to ensure all state is updated
+              window.location.reload();
             } catch (error) {
               console.error('Error updating location and role:', error);
-              alert(t('profile.locationUpdateError') || `Failed to update location: 'Unknown error'`);
+              alert(t('profile.locationUpdateError') || 'Failed to update location. Please try again.');
             }
           }}
           onClose={() => setShowLocationPicker(false)}
