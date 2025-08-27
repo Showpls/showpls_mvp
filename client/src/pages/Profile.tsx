@@ -73,7 +73,27 @@ export default function Profile() {
     await res.json();
   };
 
-  // Location selection handled via LocationPicker modal
+  const handleRoleSwitch = async () => {
+    const confirmSwitch = window.confirm(
+      String(t('profile.confirmSwitch') || 'Are you sure you want to switch your role?')
+    );
+    if (!confirmSwitch) return;
+
+    // If switching TO provider (current user is not provider)
+    if (!currentUser.isProvider) {
+      setShowLocationPicker(true); // Show location picker
+      return; // Wait for location selection to complete
+    }
+
+    // If switching FROM provider (current user is provider)
+    else {
+      await updateProfile({
+        isProvider: false,
+        location: null // Optional: clear location when switching back
+      });
+      await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -151,15 +171,7 @@ export default function Profile() {
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
                     <div className="text-sm">{t('profile.role')}</div>
-                    <Button size="sm" variant="outline" className="flex items-center gap-2" onClick={async () => {
-                      const confirmSwitch = window.confirm(String(t('profile.confirmSwitch') || 'Are you sure you want to switch your role?'));
-                      if (!confirmSwitch) return;
-                      if (!currentUser.isProvider) {
-                        setShowLocationPicker(true)
-                      }
-                      await updateProfile({ isProvider: !(currentUser?.isProvider ?? false) });
-                      await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
-                    }}>
+                    <Button size="sm" variant="outline" className="flex items-center gap-2" onClick={async () => { handleRoleSwitch }}>
                       {currentUser?.isProvider ? (
                         <ShoppingCart className="w-4 h-4" />
                       ) : (
@@ -206,7 +218,11 @@ export default function Profile() {
         <LocationPicker
           initialLocation={typeof data?.location === 'object' ? (data.location as any) : undefined}
           onLocationSelect={async (loc) => {
-            await updateProfile({ location: loc });
+            // Update both location AND role in one call
+            await updateProfile({
+              location: loc,
+              isProvider: true // This is the key addition!
+            });
             setShowLocationPicker(false);
             await queryClient.invalidateQueries({ queryKey: ['/api/me'] });
           }}
