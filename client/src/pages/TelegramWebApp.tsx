@@ -318,22 +318,22 @@ export default function TelegramWebApp() {
             </h3>
             <div className="space-y-3">
               {isLoadingRecent ? (
-                <p className="text-text-muted text-sm">{t('twa.loadingActivity')}</p>
+                <p className="text-muted font-medium text-sm">{t('twa.loadingActivity')}</p>
               ) : recentOrders && recentOrders.length > 0 ? (
                 recentOrders.map((order: any) => (
-                  <div key={order.id} className="flex items-center justify-between p-3 bg-panel/50 rounded-lg">
+                  <div key={order.id} className="flex items-center justify-between p-3 bg-[#fffff0] dark:bg-panel/50 rounded-lg">
                     <div className="flex items-center">
                       <div className="w-10 h-10 bg-brand-primary/20 rounded-full flex items-center justify-center mr-3">
                         {getMediaTypeIcon(order.mediaType)}
                       </div>
                       <div>
-                        <div className="font-medium text-sm truncate w-40">{order.title}</div>
+                        <div className="font-medium text-sm truncate w-40 text-foreground">{order.title}</div>
                         <div className="text-xs text-text-muted capitalize">{order.status}</div>
                       </div>
                     </div>
                     <div className="text-right">
                       <div className="text-sm font-medium text-brand-accent">+{formatTON(order.budgetNanoTon)}</div>
-                      <div className="text-xs text-text-muted">
+                      <div className="text-xs text-muted font-medium">
                         {formatDistanceToNow(new Date(order.createdAt), { addSuffix: true, locale: i18n.language === 'ru' ? ru : undefined })}
                       </div>
                     </div>
@@ -356,28 +356,6 @@ export default function TelegramWebApp() {
           </Card>
         ) : null}
 
-        {/* Create Request Form
-        {showCreateForm ? (
-          <CreateRequestForm
-            onClose={() => setShowCreateForm(false)}
-            onSuccess={() => {
-              setShowCreateForm(false);
-            }}
-          />
-        ) : null} */}
-
-        {/* Sample Request Button - Commented out as per request
-        <Card
-          className="glass-panel border-brand-primary/20 hover:bg-brand-primary/10 transition-all cursor-pointer"
-          onClick={fillSampleRequest}
-        >
-          <CardContent className="p-4 text-center">
-            <MessageSquare className="w-5 h-5 text-brand-primary inline mr-2" />
-            <span className="font-medium">{String(t('twa.trySample'))}</span>
-          </CardContent>
-        </Card>
-        */}
-
         {/* My Orders Section */}
         <div className="space-y-4">
           <h3 className="font-semibold">{showAllMyOrders ? String(t('twa.myOrders')) : String(t('twa.myActiveOrders'))}</h3>
@@ -399,8 +377,8 @@ export default function TelegramWebApp() {
                 return (
                   <Card className="glass-panel border-brand-primary/20">
                     <CardContent className="p-4 text-center space-y-2">
-                      <div className="w-10 h-10 mx-auto rounded-full flex items-center justify-center">
-                        <MessageSquare className="w-5 h-5 text-white" />
+                      <div className="w-10 h-10 mx-auto rounded-full shadow-lg border border-brand-primary/30 bg-card flex items-center justify-center">
+                        <MessageSquare className="w-5 h-5 text-muted font-medium" />
                       </div>
                       <div className="text-sm text-muted font-medium">
                         {showAllMyOrders ? String(t('twa.noOrders') || 'You have no orders yet.') : String(t('twa.noActiveOrders') || 'You have no active orders.')}

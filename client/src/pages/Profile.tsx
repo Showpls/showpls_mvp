@@ -110,7 +110,7 @@ export default function Profile() {
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="text-sm text-muted">{t('profile.rating')}</div>
-                    <div className="text-xl font-semibold">{Number(data.rating ?? 0).toFixed(2)}</div>
+                    <div className="text-xl font-semibold text-foreground">{Number(data.rating ?? 0).toFixed(2)}</div>
                   </div>
                   {data.isProvider && (
                     <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-400">{t('profile.provider')}</Badge>
@@ -119,11 +119,11 @@ export default function Profile() {
                 <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
                   <div className="glass-panel p-3 rounded-md">
                     <div className="text-muted">{t('profile.totalOrders')}</div>
-                    <div className="font-semibold">{data.totalOrders ?? 0}</div>
+                    <div className="font-semibold text-foreground">{data.totalOrders ?? 0}</div>
                   </div>
                   <div className="glass-panel p-3 rounded-md">
                     <div className="text-muted">{t('profile.location')}</div>
-                    <div className="font-semibold">
+                    <div className="font-semibold text-foreground">
                       {typeof data.location === 'string'
                         ? data.location
                         : data.location && typeof data.location === 'object'
@@ -137,7 +137,7 @@ export default function Profile() {
 
             {isOwnProfile && (
               <Card className="glass-panel border-brand-primary/20">
-                <CardContent className="p-4 space-y-3">
+                <CardContent className="p-4 space-y-3 text-foreground font-medium">
                   <div className="font-semibold mb-1">{t('profile.settings')}</div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
                     <div className="text-sm">{t('profile.language')}</div>
