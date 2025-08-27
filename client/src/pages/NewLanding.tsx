@@ -60,7 +60,7 @@ function NewLanding() {
       {/* Header */}
       <header className="flex justify-between items-center w-full py-4">
         <div className="flex items-center gap-3 md:gap-4">
-          <div className={"rounded-xl p-1" + (theme === "light" && " bg-black")}>
+          <div className={"rounded-xl p-1 " + (theme === "light" && " bg-black")}>
             <img
               src="/logo4.png"
               alt="SHOWPLS"
@@ -69,7 +69,7 @@ function NewLanding() {
               className="rounded-xl"
             />
           </div>
-          <div className="text-2xl md:text-3xl font-bold">{t('header.title')}</div>
+          <div className="text-2xl md:text-3xl font-bold">SHOW<span className="text-blue-400 dark:text-blue-300">PLS</span></div>
         </div>
 
         {isMobile ? (
@@ -100,7 +100,7 @@ function NewLanding() {
                   <a>{t('header.about')}</a>
 
                   <div className="flex gap-6">
-                    <button className="transition-colors duration-300 hover:transform hover:-translate-y-1 transition-transform duration-200" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                    <button className="hover:transform hover:-translate-y-1 transition-all duration-200" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
                       {theme === 'dark' ? <SunIcon size={26} /> : <MoonIcon size={26} />}
                     </button>
 

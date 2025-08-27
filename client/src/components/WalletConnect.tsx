@@ -74,7 +74,7 @@ export function WalletConnect() {
     <Button
       onClick={handleConnect}
       size="sm"
-      className="bg-brand-primary hover:bg-brand-primary/80 text-white"
+      className="bg-brand-primary hover:bg-brand-primary/80 text-white text-sm font-medium"
     >
       <Wallet className="w-4 h-4 mr-1" />
       {t("wallet.connect") || "Connect Wallet"}

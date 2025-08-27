@@ -177,18 +177,18 @@ export default function TelegramWebApp() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary">
-      <div className="glass-panel rounded-none h-16 px-3 mb-6">
-        <div className="max-w-sm mx-auto flex items-center justify-between h-full">
+    <div className="min-h-screen bg-background text-foreground">
+      <div className="glass-panel rounded-none h-16 mb-6">
+        <div className="max-w-sm mx-auto flex items-center justify-between h-full px-4">
           <div className="flex items-center gap-1">
             <img src="/logo4.png" alt="Showpls" className="block max-h-10 h-full object-contain mr-2 select-none" />
-            <h2 className="text-text-primary text-base font-semibold tracking-wide select-none">Showpls</h2>          </div>
+            <h2 className="text-foreground text-lg font-semibold tracking-wide select-none">SHOW<span className="text-blue-400 dark:text-blue-300">PLS</span></h2>          </div>
           <div className="flex items-center space-x-2">
             <WalletConnect />
             <Button
               variant="outline"
               size="sm"
-              className="bg-panel border-brand-primary/30 w-9 h-9 p-2"
+              className="border-brand-primary/30 p-2"
               onClick={() => {
                 if (currentUser?.id) {
                   window.location.href = `/profile/${currentUser.id}`;
@@ -291,8 +291,8 @@ export default function TelegramWebApp() {
           >
             <CardContent className="p-4 text-center">
               <Plus className="w-8 h-8 text-brand-primary mb-2 mx-auto" />
-              <div className="font-medium">{String(t('twa.newRequest'))}</div>
-              <div className="text-sm text-text-muted">{String(t('twa.createOrder'))}</div>
+              <div className="font-medium text-foreground">{String(t('twa.newRequest'))}</div>
+              <div className="text-sm font-medium text-muted">{String(t('twa.createOrder'))}</div>
             </CardContent>
           </Card>
 
@@ -303,8 +303,8 @@ export default function TelegramWebApp() {
           >
             <CardContent className="p-4 text-center">
               <MapPin className="w-8 h-8 text-brand-accent mb-2 mx-auto" />
-              <div className="font-medium">{String(t('twa.nearby'))}</div>
-              <div className="text-sm text-text-muted">{String(t('twa.findRequests'))}</div>
+              <div className="font-medium text-foreground">{String(t('twa.nearby'))}</div>
+              <div className="text-sm text-muted font-medium">{String(t('twa.findRequests'))}</div>
             </CardContent>
           </Card>
         </div>
@@ -312,7 +312,7 @@ export default function TelegramWebApp() {
         {/* Recent Activity */}
         <Card className="glass-panel border-brand-primary/20">
           <CardContent className="p-4">
-            <h3 className="font-semibold mb-4 flex items-center">
+            <h3 className="font-semibold mb-4 flex items-center text-foreground">
               <Clock className="w-5 h-5 text-brand-primary mr-2" />
               {String(t('twa.recentActivity'))}
             </h3>
@@ -340,7 +340,7 @@ export default function TelegramWebApp() {
                   </div>
                 ))
               ) : (
-                <p className="text-text-muted text-sm">{t('twa.noRecentActivity')}</p>
+                <p className="text-muted font-medium text-sm">{t('twa.noRecentActivity')}</p>
               )}
             </div>
           </CardContent>
@@ -399,10 +399,10 @@ export default function TelegramWebApp() {
                 return (
                   <Card className="glass-panel border-brand-primary/20">
                     <CardContent className="p-4 text-center space-y-2">
-                      <div className="w-10 h-10 mx-auto rounded-full bg-panel/60 flex items-center justify-center">
-                        <MessageSquare className="w-5 h-5 text-text-muted" />
+                      <div className="w-10 h-10 mx-auto rounded-full flex items-center justify-center">
+                        <MessageSquare className="w-5 h-5 text-white" />
                       </div>
-                      <div className="text-sm text-text-muted">
+                      <div className="text-sm text-muted font-medium">
                         {showAllMyOrders ? String(t('twa.noOrders') || 'You have no orders yet.') : String(t('twa.noActiveOrders') || 'You have no active orders.')}
                       </div>
                       <div className="flex gap-2 justify-center">
@@ -437,10 +437,10 @@ export default function TelegramWebApp() {
           ) : (
             <Card className="glass-panel border-brand-primary/20">
               <CardContent className="p-4 text-center space-y-2">
-                <div className="w-10 h-10 mx-auto rounded-full bg-panel/60 flex items-center justify-center">
-                  <MessageSquare className="w-5 h-5 text-text-muted" />
+                <div className="w-10 h-10 mx-auto rounded-full shadow-lg border border-brand-primary/30 bg-card flex items-center justify-center">
+                  <MessageSquare className="w-5 h-5 text-muted font-medium" />
                 </div>
-                <div className="text-sm text-text-muted">{String(t('twa.noOrders') || 'You have no orders yet.')}</div>
+                <div className="text-sm text-muted font-medium">{String(t('twa.noOrders') || 'You have no orders yet.')}</div>
                 <div className="flex gap-2 justify-center">
                   {currentUser?.isProvider ? (
                     <Button size="sm" variant="outline" onClick={() => window.location.href = '/map'}>

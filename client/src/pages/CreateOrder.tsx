@@ -143,7 +143,7 @@ export default function CreateOrder() {
 
     // Require connected TON wallet
     if (!wallet) {
-      try { tonConnectUI.openModal(); } catch {}
+      try { tonConnectUI.openModal(); } catch { }
       return;
     }
 
@@ -190,12 +190,12 @@ export default function CreateOrder() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-primary text-text-primary p-4">
+    <div className="min-h-screen bg-background text-foreground p-4">
       <div className="max-w-2xl mx-auto space-y-6">
         {/* Header */}
-        <div className="flex items-center gap-4 text-text-primary">
+        <div className="flex items-center gap-2 text-foreground">
           <Link href="/twa">
-            <Button variant="ghost" size="icon" className="text-text-primary hover:bg-text-primary/10">
+            <Button variant="ghost" className="hover:bg-text-primary/10">
               <ArrowLeft size={20} />
             </Button>
           </Link>
@@ -204,61 +204,61 @@ export default function CreateOrder() {
 
         <Card className="glass-panel border-brand-primary/20">
           <CardHeader>
-            <CardTitle className="text-text-primary flex items-center gap-2">
+            <CardTitle className="text-foreground flex items-center gap-2">
               <Camera size={24} />
               {t('createOrder.newContentRequest')}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-6 font-medium">
               {/* Sample Data Button */}
               <Button
                 type="button"
                 variant="outline"
                 onClick={fillSampleData}
-                className="w-full"
+                className="w-full text-md text-foreground font-medium bg-[#FFFFF0] dark:bg-panel/60"
               >
                 {t('createOrder.fillSample')}
               </Button>
 
               {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title" className="text-text-primary">{t('createOrder.orderTitle')}</Label>
+                <Label htmlFor="title" className="text-foreground">{t('createOrder.orderTitle')}</Label>
                 <Input
                   id="title"
                   value={orderData.title}
                   onChange={(e) => setOrderData({ ...orderData, title: e.target.value })}
                   placeholder={t('createOrder.orderTitlePlaceholder')}
-                  className="bg-panel/60 border-brand-primary/30 text-text-primary placeholder:text-text-muted"
+                  className="bg-[#FFFFF0] dark:bg-panel/60 border-brand-primary/30 text-muted placeholder:text-muted"
                 />
               </div>
 
               {/* Description */}
               <div className="space-y-2">
-                <Label htmlFor="description" className="text-text-primary">{t('createOrder.description')}</Label>
+                <Label htmlFor="description" className="text-foreground">{t('createOrder.description')}</Label>
                 <Textarea
                   id="description"
                   value={orderData.description}
                   onChange={(e) => setOrderData({ ...orderData, description: e.target.value })}
                   placeholder={t('createOrder.descriptionPlaceholder')}
                   rows={4}
-                  className="bg-panel/60 border-brand-primary/30 text-text-primary placeholder:text-text-muted"
+                  className="bg-[#FFFFF0] dark:bg-panel/60 border-brand-primary/30 text-muted placeholder:text-muted"
                 />
               </div>
 
               {/* Media Type */}
               <div className="space-y-2">
-                <Label className="text-text-primary">{t('createOrder.contentType')}</Label>
+                <Label className="text-foreground">{t('createOrder.contentType')}</Label>
                 <Select
                   value={orderData.mediaType}
                   onValueChange={(value: 'photo' | 'video' | 'live') =>
                     setOrderData({ ...orderData, mediaType: value })
                   }
                 >
-                  <SelectTrigger className="bg-panel/60 border-brand-primary/30 text-text-primary">
+                  <SelectTrigger className="bg-[#FFFFF0] dark:bg-panel/60 border-brand-primary/30 text-muted font-medium placeholder:text-muted">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-panel border-brand-primary/30 text-text-primary">
+                  <SelectContent className="bg-[#FFFFF0] dark:bg-panel border-brand-primary/30 text-muted font-medium placeholder:text-muted">
                     <SelectItem value="photo">
                       <div className="flex items-center gap-2">
                         <Camera size={16} />
@@ -283,7 +283,7 @@ export default function CreateOrder() {
 
               {/* Location */}
               <div className="space-y-2">
-                <Label className="text-text-primary">{t('createOrder.location')}</Label>
+                <Label className="text-foreground">{t('createOrder.location')}</Label>
                 <div className="flex gap-2">
                   <Input
                     value={orderData.location.address || t('createOrder.specifyAddress')}
@@ -292,18 +292,18 @@ export default function CreateOrder() {
                       location: { ...orderData.location, address: e.target.value }
                     })}
                     placeholder={t('createOrder.addressPlaceholder')}
-                    className="bg-panel/60 border-brand-primary/30 text-text-primary placeholder:text-text-muted"
+                    className="bg-[#FFFFF0] dark:bg-panel/60 border-brand-primary/30 text-muted placeholder:text-muted"
                   />
                   <Button
                     type="button"
                     variant="outline"
                     onClick={() => setShowLocationPicker(true)}
-                    className="shrink-0"
+                    className="shrink-0 text-foreground"
                   >
                     <Map size={16} />
                   </Button>
                 </div>
-                <div className="text-sm text-text-muted">
+                <div className="text-sm text-muted">
                   {t('createOrder.coordinates', { lat: orderData.location.lat.toFixed(4), lng: orderData.location.lng.toFixed(4) })}
                 </div>
               </div>
@@ -327,7 +327,7 @@ export default function CreateOrder() {
               {/* Interactive Map for nearby orders */}
               {showMap && (
                 <div className="space-y-2">
-                  <Label className="text-text-primary">{t('createOrder.nearbyOrdersMap')}</Label>
+                  <Label className="text-foreground">{t('createOrder.nearbyOrdersMap')}</Label>
                   <InteractiveMap
                     onOrderClick={(order) => {
                       console.log('Nearby order clicked:', order);
@@ -342,15 +342,15 @@ export default function CreateOrder() {
 
               {/* Budget */}
               <div className="space-y-2">
-                <Label htmlFor="budget" className="text-text-primary">{t('createOrder.budget')}</Label>
+                <Label htmlFor="budget" className="text-foreground">{t('createOrder.budget')}</Label>
                 <Select
                   value={orderData.budgetNanoTon}
                   onValueChange={(value) => setOrderData({ ...orderData, budgetNanoTon: value })}
                 >
-                  <SelectTrigger className="bg-panel/60 border-brand-primary/30 text-text-primary">
+                  <SelectTrigger className="bg-[#FFFFF0] dark:bg-panel/60 border-brand-primary/30 text-muted placeholder:text-muted font-medium">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-panel border-brand-primary/30 text-text-primary">
+                  <SelectContent className="bg-[#FFFFF0] dark:bg-panel border-brand-primary/30 text-foreground">
                     <SelectItem value="1000000000">1 TON</SelectItem>
                     <SelectItem value="2500000000">2.5 TON</SelectItem>
                     <SelectItem value="5000000000">5 TON</SelectItem>

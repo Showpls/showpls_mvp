@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { mapService } from "@/lib/map";
 import { getAuthToken } from "@/lib/auth";
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { useTheme } from "next-themes";
 
 interface InteractiveMapProps {
   onOrderClick?: (order: any) => void;
@@ -21,6 +22,7 @@ export function InteractiveMap({
 }: InteractiveMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
+  const { theme } = useTheme()
 
   // Fetch current user
   const { data: currentUser } = useQuery({
@@ -61,7 +63,7 @@ export function InteractiveMap({
   useEffect(() => {
     if (mapContainerRef.current && !isMapInitialized) {
       try {
-        mapService.initializeMap(mapContainerRef.current, initialCenter, initialZoom);
+        mapService.initializeMap(mapContainerRef.current, initialCenter, initialZoom, theme);
         setIsMapInitialized(true);
         console.log('[INTERACTIVE_MAP] Map initialized successfully');
 

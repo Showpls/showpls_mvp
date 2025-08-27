@@ -14,7 +14,7 @@ import { useCurrentUser } from '@/hooks/useCurrentUser';
 
 export default function MapPage() {
     const { t } = useTranslation();
-        const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    const [selectedOrder, setSelectedOrder] = useState<any>(null);
 
     const { currentUser } = useCurrentUser();
 
@@ -34,13 +34,13 @@ export default function MapPage() {
     };
 
     return (
-        <div className="h-screen bg-bg-primary text-text-primary flex flex-col">
+        <div className="h-screen bg-background text-foreground flex flex-col">
             {/* Header */}
-            <div className="glass-panel p-4">
+            <div className="dark:glass-panel p-4">
                 <div className="max-w-6xl mx-auto flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href="/twa">
-                            <Button variant="ghost" size="icon" className="text-text-primary hover:bg-text-primary/10">
+                            <Button variant="ghost" size="icon" className="text-foreground">
                                 <ArrowLeft size={20} />
                             </Button>
                         </Link>
@@ -48,7 +48,7 @@ export default function MapPage() {
                             <div className="w-8 h-8 bg-brand-primary rounded-full flex items-center justify-center">
                                 <MapPin className="w-4 h-4 text-white" />
                             </div>
-                            <h1 className="text-xl font-bold text-text-primary">{t('map.title') || 'Карта заказов'}</h1>
+                            <h1 className="text-xl font-bold text-foreground">{t('map.title') || 'Карта заказов'}</h1>
                         </div>
                     </div>
 
