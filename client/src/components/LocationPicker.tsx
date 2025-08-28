@@ -109,7 +109,7 @@ export function LocationPicker({
     };
 
     return (
-        <div className={`fixed inset-0 bg-foreground backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 ${className}`}>
+        <div className={`fixed inset-0 bg-transparent backdrop-blur-md z-50 flex items-center justify-center p-2 sm:p-4 ${className}`}>
             <div className="bg-[#fffff0] dark:bg-panel rounded-2xl shadow-2xl w-full max-w-2xl h-full max-h-[95vh] sm:max-h-[90vh] flex flex-col overflow-hidden border border-brand-primary/30">
                 {/* Header */}
                 <div className="bg-[#fffff0] dark:bg-panel flex items-center justify-between p-3 sm:p-4 border-b border-brand-primary/20">

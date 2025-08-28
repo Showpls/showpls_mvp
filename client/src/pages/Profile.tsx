@@ -112,6 +112,7 @@ export default function Profile() {
         // For switching TO provider, we need location first
         console.log('Setting up to switch to provider - showing location picker');
         setRoleSwitchDirection('toProvider');
+        setIsUpdating(false); // FIXED: Don't keep updating state true when showing location picker
         setShowLocationPicker(true);
       } else {
         // For switching FROM provider (back to buyer) - do it immediately
@@ -158,6 +159,7 @@ export default function Profile() {
 
   const handleLocationSelect = async (loc: any) => {
     console.log('Location selected:', loc);
+    setIsUpdating(true); // FIXED: Set updating state here when actually updating
 
     try {
       const payload: any = { location: loc };
@@ -207,12 +209,18 @@ export default function Profile() {
     setIsUpdating(false);
   };
 
+  // FIXED: Show location picker even when updating for role switch
+  const shouldShowLocationPicker = showLocationPicker;
+  const shouldShowOverlay = isUpdating && !showLocationPicker; // Don't show overlay when location picker is active
+
   // Add some debugging info
   console.log('Current user state:', {
     currentUser: currentUser?.isProvider,
     profileData: data?.isProvider,
     isUpdating,
-    roleSwitchDirection
+    roleSwitchDirection,
+    shouldShowLocationPicker,
+    shouldShowOverlay
   });
 
   return (
@@ -298,16 +306,16 @@ export default function Profile() {
                       variant="outline"
                       className="flex items-center gap-2"
                       onClick={() => handleRoleSwitch(currentUser?.isProvider ? 'toBuyer' : 'toProvider')}
-                      disabled={isUpdating}
+                      disabled={isUpdating && !showLocationPicker} // FIXED: Don't disable when location picker is shown
                     >
-                      {isUpdating ? (
+                      {(isUpdating && !showLocationPicker) ? (
                         <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
                       ) : currentUser?.isProvider ? (
                         <ShoppingCart className="w-4 h-4" />
                       ) : (
                         <Store className="w-4 h-4" />
                       )}
-                      {isUpdating
+                      {(isUpdating && !showLocationPicker)
                         ? (t('profile.updating') || 'Updating...')
                         : currentUser?.isProvider
                           ? String(t('twa.roleBuyer') || 'Switch to Buyer')
@@ -325,7 +333,7 @@ export default function Profile() {
                           setRoleSwitchDirection(null);
                           setShowLocationPicker(true);
                         }}
-                        disabled={isUpdating}
+                        disabled={isUpdating && !showLocationPicker} // FIXED: Don't disable when location picker is shown
                       >
                         <MapPin className="w-4 h-4" />
                         {String(t('twa.pickOnMap') || 'Pick on map')}
@@ -359,7 +367,7 @@ export default function Profile() {
         )}
       </div>
 
-      {showLocationPicker && (
+      {shouldShowLocationPicker && (
         <LocationPicker
           initialLocation={typeof data?.location === 'object' ? (data.location as any) : undefined}
           onLocationSelect={handleLocationSelect}
@@ -369,7 +377,7 @@ export default function Profile() {
         />
       )}
 
-      {isUpdating && (
+      {shouldShowOverlay && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="glass-panel p-6 rounded-lg text-center">
             <div className="animate-spin w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full mx-auto mb-4" />
