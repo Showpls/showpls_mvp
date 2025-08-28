@@ -85,14 +85,14 @@ export default function Profile() {
     try {
       if (!currentUser.isProvider) {
         // For switching TO provider, we'll show the location picker first
-        setShowLocationPicker(true);
+        setShowLocationPicker(true)
       } else {
         // For switching FROM provider (back to buyer)
         const updatedUser = await updateProfile({
           isProvider: false,
           location: null
         });
-        
+
         if (updatedUser) {
           // Invalidate all relevant queries to refresh the UI
           await Promise.all([
@@ -101,10 +101,10 @@ export default function Profile() {
             queryClient.invalidateQueries({ queryKey: ['/api/providers'] }),
             queryClient.invalidateQueries({ queryKey: ['currentUser'] })
           ]);
-          
+
           // Show success message
           alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer');
-          
+
           // Force a page reload to ensure all state is reset
           window.location.reload();
         } else {
@@ -193,10 +193,10 @@ export default function Profile() {
                   </div>
                   <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
                     <div className="text-sm">{t('profile.role')}</div>
-                    <Button 
-                      size="sm" 
-                      variant="outline" 
-                      className="flex items-center gap-2" 
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="flex items-center gap-2"
                       onClick={handleRoleSwitch}
                     >
                       {currentUser?.isProvider ? (
@@ -247,22 +247,22 @@ export default function Profile() {
           onLocationSelect={async (loc) => {
             try {
               // Update both location and set isProvider to true
-              await updateProfile({ 
+              await updateProfile({
                 location: loc,
-                isProvider: true 
+                isProvider: true
               });
-              
+
               // Invalidate queries and close the picker
               await Promise.all([
                 queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
                 queryClient.invalidateQueries({ queryKey: ['currentUser'] })
               ]);
-              
+
               setShowLocationPicker(false);
-              
+
               // Show success message
               alert(t('profile.roleSwitchedToProvider') || 'You are now a provider! Your location has been set.');
-              
+
               // Reload to ensure all state is updated
               window.location.reload();
             } catch (error) {

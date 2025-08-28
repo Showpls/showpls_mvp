@@ -72,11 +72,11 @@ function NewLanding() {
           <div className="text-2xl md:text-3xl font-bold">SHOW<span className="text-blue-400 dark:text-blue-300">PLS</span></div>
         </div>
 
-        {isMobile ? (
+        {isMobile || isTablet ? (
           <>
             <button
               onClick={() => setIsMobileMenuOpen(true)}
-              className="md:hidden transition-colors duration-300 text-foreground"
+              className="lg:hidden transition-colors duration-300 text-foreground"
             >
               <ListIcon size={36} />
             </button>
@@ -96,8 +96,10 @@ function NewLanding() {
 
                 <nav className="flex flex-col items-baseline gap-6 text-2xl font-medium">
                   <a>{t('header.home')}</a>
-                  <a>{t('header.features')}</a>
-                  <a>{t('header.about')}</a>
+                  <a>{t("header.howItWorks")}</a>
+                  <a>{t('header.roadmap')}</a>
+                  <a>{t('header.joinTestnet')}</a>
+                  <a>{t('header.community')}</a>
 
                   <div className="flex gap-6">
                     <button className="hover:transform hover:-translate-y-1 transition-all duration-200" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
@@ -141,10 +143,12 @@ function NewLanding() {
             )}
           </>
         ) : (
-          <div className="flex items-center gap-3 md:gap-4 lg:gap-6 text-base md:text-lg font-medium">
-            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-transform duration-200">{t('header.home')}</a>
-            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-transform duration-200">{t('header.features')}</a>
-            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-transform duration-200">{t('header.about')}</a>
+          <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-base md:text-lg font-medium">
+            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t('header.home')}</a>
+            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t('header.howItWorks')}</a>
+            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t('header.roadmap')}</a>
+            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t('header.joinTestnet')}</a>
+            <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t('header.community')}</a>
 
             <button className="transition-colors duration-300 hover:transform hover:-translate-y-1 transition-transform duration-200" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
               {theme === 'dark' ? <SunIcon size={24} /> : <MoonIcon size={24} />}
@@ -609,16 +613,16 @@ function NewLanding() {
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-emerald-600">
+              <div className={"rounded-xl p-1 " + (theme === "light" && " bg-black")}>
                 <img
                   src="/logo4.png"
                   alt="SHOWPLS"
-                  width={32}
-                  height={32}
+                  width={isMobile ? 31 : 42}
+                  height={isMobile ? 31 : 42}
                   className="rounded-xl"
                 />
               </div>
-              <div className="text-2xl font-bold">Showpls</div>
+              <div className="text-2xl md:text-3xl font-bold">SHOW<span className="text-blue-400 dark:text-blue-300">PLS</span></div>
             </div>
             <p className="max-w-xs text-muted-foreground">
               {t('footer.description')}

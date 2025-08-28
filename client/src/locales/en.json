@@ -4,7 +4,11 @@
     "home": "Home",
     "features": "Features",
     "about": "About",
-    "start": "Start"
+    "start": "Start",
+    "howItWorks": "How it Works",
+    "roadmap": "Roadmap",
+    "joinTestnet": "Join Testnet",
+    "community": "Community"
   },
   "hero": {
     "title": "Your Eyes Everywhere",

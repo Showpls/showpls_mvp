@@ -7,7 +7,6 @@ import { ArrowLeft, Filter, X, Crosshair, Eye, MapPin } from "lucide-react";
 import { Link } from "wouter";
 import { InteractiveMap } from "@/components/InteractiveMap";
 import { OrderDetailsSheet } from '@/components/OrderDetailsSheet';
-import { X } from 'lucide-react';
 import { bootstrapTelegramAuth } from "@/lib/auth";
 import { useQuery } from "@tanstack/react-query";
 import { getAuthToken } from "@/lib/auth";
@@ -97,14 +96,14 @@ export default function MapPage() {
                             <div className={`fixed bottom-0 left-0 right-0 bg-background rounded-t-3xl p-6 transition-transform duration-300 ${showProviderSheet ? 'translate-y-0' : 'translate-y-full'}`}>
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="text-xl font-bold">{selectedProvider.name || 'Provider'}</h2>
-                                    <button 
+                                    <button
                                         onClick={closeProviderDetails}
                                         className="p-2 rounded-full hover:bg-muted"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
                                 </div>
-                                
+
                                 {selectedProvider.rating && (
                                     <div className="flex items-center mb-4">
                                         <span className="text-yellow-500 mr-1">★</span>

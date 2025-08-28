@@ -4,7 +4,11 @@
     "home": "الصفحة الرئيسية",
     "features": "الميزات",
     "about": "عن",
-    "start": "ابدأ"
+    "start": "ابدأ",
+    "howItWorks": "كيف يعمل",
+    "roadmap": "الخطة",
+    "joinTestnet": "ادخل الاختبار",
+    "community": "المجتمع"
   },
   "hero": {
     "title": "عيونك في كل مكان",

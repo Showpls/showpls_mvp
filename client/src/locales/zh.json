@@ -4,7 +4,11 @@
     "home": "首页",
     "features": "功能",
     "about": "关于",
-    "start": "开始"
+    "start": "开始",
+    "howItWorks": "如何运作",
+    "roadmap": "路线",
+    "joinTestnet": "加入测试",
+    "community": "社区"
   },
   "hero": {
     "title": "您的眼睛无处不在",

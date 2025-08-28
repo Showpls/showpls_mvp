@@ -4,7 +4,11 @@
     "home": "Главная",
     "features": "Функции",
     "about": "О нас",
-    "start": "Начать"
+    "start": "Начать",
+    "howItWorks": "Как работает",
+    "roadmap": "План",
+    "joinTestnet": "В тестнет",
+    "community": "Сообщество"
   },
   "hero": {
     "title": "Ваши глаза повсюду",

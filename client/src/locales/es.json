@@ -4,7 +4,11 @@
     "home": "Inicio",
     "features": "Características",
     "about": "Acerca de",
-    "start": "Comenzar"
+    "start": "Comenzar",
+    "howItWorks": "Cómo funciona",
+    "roadmap": "Ruta",
+    "joinTestnet": "Unirse testnet",
+    "community": "Comunidad"
   },
   "hero": {
     "title": "Tus ojos en todas partes",
