@@ -29,12 +29,12 @@ export default function Profile() {
   const { id } = useParams<{ id: string }>();
   const [locationPath, setLocationPath] = useLocation();
   const { t } = useTranslation();
-  const { currentUser } = useCurrentUser();
+  const { currentUser, refetch: refetchCurrentUser } = useCurrentUser();
   const { theme, setTheme } = useTheme();
   const queryClient = useQueryClient();
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [roleSwitchDirection, setRoleSwitchDirection] = useState<'toProvider' | 'toBuyer' | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false); // Add loading state
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const { data, isLoading, isError, refetch } = useQuery<PublicUserProfile>({
     queryKey: ["/api/users", id],
@@ -64,7 +64,7 @@ export default function Profile() {
   const updateProfile = async (payload: any) => {
     const token = getAuthToken();
 
-    console.log('Updating profile with payload:', payload); // Debug log
+    console.log('Updating profile with payload:', payload);
 
     const res = await fetch('/api/me', {
       method: 'PUT',
@@ -76,14 +76,24 @@ export default function Profile() {
     });
 
     if (!res.ok) {
-      const error = await res.json().catch(() => ({}));
-      console.error('Update profile error:', error); // Debug log
-      throw new Error(error.error || error.message || 'Failed to update profile');
+      const errorData = await res.json().catch(() => ({ error: 'Network error' }));
+      console.error('Update profile error:', errorData);
+      throw new Error(errorData.error || errorData.message || `Server error: ${res.status}`);
     }
 
     const result = await res.json();
-    console.log('Profile updated successfully:', result); // Debug log
+    console.log('Profile updated successfully:', result);
     return result;
+  };
+
+  const invalidateAllQueries = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
+      queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
+      queryClient.invalidateQueries({ queryKey: ['/api/providers'] }),
+      queryClient.invalidateQueries({ queryKey: ['currentUser'] }),
+      queryClient.invalidateQueries({ queryKey: ['/api/users', id] })
+    ]);
   };
 
   const handleRoleSwitch = async (direction: 'toProvider' | 'toBuyer') => {
@@ -94,46 +104,45 @@ export default function Profile() {
     const confirmSwitch = window.confirm(confirmMessage);
     if (!confirmSwitch) return;
 
+    console.log(`Starting role switch to: ${direction}`);
     setIsUpdating(true);
 
     try {
       if (direction === 'toProvider') {
-        // For switching TO provider, set direction and show location picker
+        // For switching TO provider, we need location first
+        console.log('Setting up to switch to provider - showing location picker');
         setRoleSwitchDirection('toProvider');
         setShowLocationPicker(true);
       } else {
-        // For switching FROM provider (back to buyer)
-        setRoleSwitchDirection('toBuyer');
+        // For switching FROM provider (back to buyer) - do it immediately
+        console.log('Switching to buyer immediately');
         await handleSwitchToBuyer();
       }
     } catch (error: any) {
-      console.error('Error switching role:', error);
+      console.error('Error in role switch:', error);
       alert(t('profile.roleSwitchError') || `Failed to switch role: ${error.message}`);
-    } finally {
       setIsUpdating(false);
+      setRoleSwitchDirection(null);
     }
   };
 
   const handleSwitchToBuyer = async () => {
     try {
+      console.log('Executing switch to buyer');
+
       const updatedUser = await updateProfile({
         isProvider: false,
         location: null
       });
 
-      console.log('Switched to buyer, updated user:', updatedUser);
+      console.log('Successfully switched to buyer:', updatedUser);
 
-      // Invalidate all relevant queries to refresh the UI
+      // Invalidate and refetch all data
+      await invalidateAllQueries();
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
-        queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
-        queryClient.invalidateQueries({ queryKey: ['/api/providers'] }),
-        queryClient.invalidateQueries({ queryKey: ['currentUser'] }),
-        queryClient.invalidateQueries({ queryKey: ['/api/users', id] }) // Also invalidate current profile
+        refetch(),
+        refetchCurrentUser()
       ]);
-
-      // Refetch profile data
-      await refetch();
 
       // Show success message
       alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer! Your location has been cleared.');
@@ -141,43 +150,42 @@ export default function Profile() {
     } catch (error: any) {
       console.error('Error switching to buyer:', error);
       throw error;
+    } finally {
+      setIsUpdating(false);
+      setRoleSwitchDirection(null);
     }
   };
 
   const handleLocationSelect = async (loc: any) => {
-    setIsUpdating(true);
+    console.log('Location selected:', loc);
 
     try {
-      console.log('Selected location:', loc);
-
       const payload: any = { location: loc };
 
-      // Only set isProvider to true if we're switching to provider role
+      // If we're in the middle of switching to provider, also set isProvider
       if (roleSwitchDirection === 'toProvider') {
         payload.isProvider = true;
+        console.log('Including isProvider: true in payload for role switch');
       }
 
-      console.log('Updating with payload:', payload);
+      console.log('Updating profile with payload:', payload);
 
       const updatedUser = await updateProfile(payload);
+      console.log('Profile updated successfully:', updatedUser);
 
-      console.log('Location updated, user:', updatedUser);
-
-      // Invalidate queries and refetch data
+      // Invalidate and refetch all data
+      await invalidateAllQueries();
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
-        queryClient.invalidateQueries({ queryKey: ['currentUser'] }),
-        queryClient.invalidateQueries({ queryKey: ['/api/users', id] }),
-        queryClient.invalidateQueries({ queryKey: ['/api/providers'] })
+        refetch(),
+        refetchCurrentUser()
       ]);
 
-      // Refetch profile data
-      await refetch();
-
+      // Close location picker and reset state
       setShowLocationPicker(false);
       const wasRoleSwitch = roleSwitchDirection === 'toProvider';
       setRoleSwitchDirection(null);
 
+      // Show appropriate success message
       if (wasRoleSwitch) {
         alert(t('profile.roleSwitchedToProvider') || 'You are now a seller! Your location has been set.');
       } else {
@@ -193,10 +201,19 @@ export default function Profile() {
   };
 
   const handleCloseLocationPicker = () => {
+    console.log('Closing location picker');
     setShowLocationPicker(false);
     setRoleSwitchDirection(null);
     setIsUpdating(false);
   };
+
+  // Add some debugging info
+  console.log('Current user state:', {
+    currentUser: currentUser?.isProvider,
+    profileData: data?.isProvider,
+    isUpdating,
+    roleSwitchDirection
+  });
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -341,6 +358,7 @@ export default function Profile() {
           </>
         )}
       </div>
+
       {showLocationPicker && (
         <LocationPicker
           initialLocation={typeof data?.location === 'object' ? (data.location as any) : undefined}
@@ -350,6 +368,7 @@ export default function Profile() {
           hideUseCurrentButton={false}
         />
       )}
+
       {isUpdating && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="glass-panel p-6 rounded-lg text-center">

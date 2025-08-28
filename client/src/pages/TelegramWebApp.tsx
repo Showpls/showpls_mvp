@@ -261,7 +261,7 @@ export default function TelegramWebApp() {
               )}
 
               <Button
-                disabled={saving || (!onboarding.location && !onboarding.isProvider)}
+                disabled={saving || (!onboarding.location && onboarding.isProvider)}
                 onClick={completeOnboarding}
                 className="w-full bg-brand-primary text-white mt-3"
               >
