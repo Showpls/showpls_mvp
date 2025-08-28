@@ -29,13 +29,14 @@ export default function Profile() {
   const { id } = useParams<{ id: string }>();
   const [locationPath, setLocationPath] = useLocation();
   const { t } = useTranslation();
-  const { currentUser } = useCurrentUser(); // Added refetch function
+  const { currentUser } = useCurrentUser();
   const { theme, setTheme } = useTheme();
   const queryClient = useQueryClient();
   const [showLocationPicker, setShowLocationPicker] = useState(false);
-  const [roleSwitchDirection, setRoleSwitchDirection] = useState<'toProvider' | 'toBuyer' | null>(null); // Track role switch direction
+  const [roleSwitchDirection, setRoleSwitchDirection] = useState<'toProvider' | 'toBuyer' | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false); // Add loading state
 
-  const { data, isLoading, isError } = useQuery<PublicUserProfile>({
+  const { data, isLoading, isError, refetch } = useQuery<PublicUserProfile>({
     queryKey: ["/api/users", id],
     enabled: !!id,
     queryFn: async () => {
@@ -62,6 +63,9 @@ export default function Profile() {
 
   const updateProfile = async (payload: any) => {
     const token = getAuthToken();
+
+    console.log('Updating profile with payload:', payload); // Debug log
+
     const res = await fetch('/api/me', {
       method: 'PUT',
       headers: {
@@ -70,18 +74,27 @@ export default function Profile() {
       },
       body: JSON.stringify(payload),
     });
+
     if (!res.ok) {
       const error = await res.json().catch(() => ({}));
-      throw new Error(error.error || 'Failed to update profile');
+      console.error('Update profile error:', error); // Debug log
+      throw new Error(error.error || error.message || 'Failed to update profile');
     }
-    return await res.json();
+
+    const result = await res.json();
+    console.log('Profile updated successfully:', result); // Debug log
+    return result;
   };
 
   const handleRoleSwitch = async (direction: 'toProvider' | 'toBuyer') => {
-    const confirmSwitch = window.confirm(
-      String(t('profile.confirmSwitch') || 'Are you sure you want to switch your role?')
-    );
+    const confirmMessage = direction === 'toProvider'
+      ? (t('profile.confirmSwitchToProvider') || 'Are you sure you want to become a seller? You will need to set your location.')
+      : (t('profile.confirmSwitchToBuyer') || 'Are you sure you want to become a buyer? Your location will be cleared.');
+
+    const confirmSwitch = window.confirm(confirmMessage);
     if (!confirmSwitch) return;
+
+    setIsUpdating(true);
 
     try {
       if (direction === 'toProvider') {
@@ -96,36 +109,47 @@ export default function Profile() {
     } catch (error: any) {
       console.error('Error switching role:', error);
       alert(t('profile.roleSwitchError') || `Failed to switch role: ${error.message}`);
+    } finally {
+      setIsUpdating(false);
     }
   };
 
   const handleSwitchToBuyer = async () => {
-    const updatedUser = await updateProfile({
-      isProvider: false,
-      location: null
-    });
+    try {
+      const updatedUser = await updateProfile({
+        isProvider: false,
+        location: null
+      });
 
-    if (updatedUser) {
+      console.log('Switched to buyer, updated user:', updatedUser);
+
       // Invalidate all relevant queries to refresh the UI
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
         queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
         queryClient.invalidateQueries({ queryKey: ['/api/providers'] }),
-        queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+        queryClient.invalidateQueries({ queryKey: ['currentUser'] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users', id] }) // Also invalidate current profile
       ]);
 
-      // Show success message
-      alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer');
+      // Refetch profile data
+      await refetch();
 
-      // Force a page reload to ensure all state is reset
-      window.location.reload();
-    } else {
-      throw new Error('No response from server');
+      // Show success message
+      alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer! Your location has been cleared.');
+
+    } catch (error: any) {
+      console.error('Error switching to buyer:', error);
+      throw error;
     }
   };
 
   const handleLocationSelect = async (loc: any) => {
+    setIsUpdating(true);
+
     try {
+      console.log('Selected location:', loc);
+
       const payload: any = { location: loc };
 
       // Only set isProvider to true if we're switching to provider role
@@ -133,29 +157,45 @@ export default function Profile() {
         payload.isProvider = true;
       }
 
-      await updateProfile(payload);
+      console.log('Updating with payload:', payload);
 
-      // Invalidate queries and close the picker
+      const updatedUser = await updateProfile(payload);
+
+      console.log('Location updated, user:', updatedUser);
+
+      // Invalidate queries and refetch data
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
-        queryClient.invalidateQueries({ queryKey: ['currentUser'] })
+        queryClient.invalidateQueries({ queryKey: ['currentUser'] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/users', id] }),
+        queryClient.invalidateQueries({ queryKey: ['/api/providers'] })
       ]);
 
+      // Refetch profile data
+      await refetch();
+
       setShowLocationPicker(false);
+      const wasRoleSwitch = roleSwitchDirection === 'toProvider';
       setRoleSwitchDirection(null);
 
-      if (roleSwitchDirection === 'toProvider') {
-        alert(t('profile.roleSwitchedToProvider') || 'You are now a provider! Your location has been set.');
+      if (wasRoleSwitch) {
+        alert(t('profile.roleSwitchedToProvider') || 'You are now a seller! Your location has been set.');
       } else {
         alert(t('profile.locationUpdated') || 'Your location has been updated.');
       }
 
-      // Reload to ensure all state is updated
-      window.location.reload();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error updating location:', error);
-      alert(t('profile.locationUpdateError') || 'Failed to update location. Please try again.');
+      alert(t('profile.locationUpdateError') || `Failed to update location: ${error.message}`);
+    } finally {
+      setIsUpdating(false);
     }
+  };
+
+  const handleCloseLocationPicker = () => {
+    setShowLocationPicker(false);
+    setRoleSwitchDirection(null);
+    setIsUpdating(false);
   };
 
   return (
@@ -195,8 +235,10 @@ export default function Profile() {
                     <div className="text-sm text-muted">{t('profile.rating')}</div>
                     <div className="text-xl font-semibold text-foreground">{Number(data.rating ?? 0).toFixed(2)}</div>
                   </div>
-                  {data.isProvider && (
-                    <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-400">{t('profile.provider')}</Badge>
+                  {(data.isProvider || currentUser?.isProvider) && (
+                    <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-400">
+                      {t('profile.provider') || 'Seller'}
+                    </Badge>
                   )}
                 </div>
                 <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
@@ -239,16 +281,24 @@ export default function Profile() {
                       variant="outline"
                       className="flex items-center gap-2"
                       onClick={() => handleRoleSwitch(currentUser?.isProvider ? 'toBuyer' : 'toProvider')}
+                      disabled={isUpdating}
                     >
-                      {currentUser?.isProvider ? (
+                      {isUpdating ? (
+                        <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
+                      ) : currentUser?.isProvider ? (
                         <ShoppingCart className="w-4 h-4" />
                       ) : (
                         <Store className="w-4 h-4" />
                       )}
-                      {currentUser?.isProvider ? String(t('twa.roleBuyer') || 'Buyer') : String(t('twa.roleProvider') || 'Provider')}
+                      {isUpdating
+                        ? (t('profile.updating') || 'Updating...')
+                        : currentUser?.isProvider
+                          ? String(t('twa.roleBuyer') || 'Switch to Buyer')
+                          : String(t('twa.roleProvider') || 'Switch to Seller')
+                      }
                     </Button>
                   </div>
-                  {currentUser?.isProvider && (
+                  {(currentUser?.isProvider || data?.isProvider) && (
                     <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
                       <div className="text-sm">{t('profile.updateLocation')}</div>
                       <Button
@@ -258,8 +308,10 @@ export default function Profile() {
                           setRoleSwitchDirection(null);
                           setShowLocationPicker(true);
                         }}
+                        disabled={isUpdating}
                       >
-                        <MapPin className="w-4 h-4" /> {String(t('twa.pickOnMap') || 'Pick on map')}
+                        <MapPin className="w-4 h-4" />
+                        {String(t('twa.pickOnMap') || 'Pick on map')}
                       </Button>
                     </div>
                   )}
@@ -293,13 +345,18 @@ export default function Profile() {
         <LocationPicker
           initialLocation={typeof data?.location === 'object' ? (data.location as any) : undefined}
           onLocationSelect={handleLocationSelect}
-          onClose={() => {
-            setShowLocationPicker(false);
-            setRoleSwitchDirection(null);
-          }}
-          hideCloseButton
-          hideUseCurrentButton
+          onClose={handleCloseLocationPicker}
+          hideCloseButton={false}
+          hideUseCurrentButton={false}
         />
+      )}
+      {isUpdating && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+          <div className="glass-panel p-6 rounded-lg text-center">
+            <div className="animate-spin w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full mx-auto mb-4" />
+            <div className="text-sm font-medium">{t('profile.updating') || 'Updating profile...'}</div>
+          </div>
+        </div>
       )}
     </div>
   );

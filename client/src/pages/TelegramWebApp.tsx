@@ -223,7 +223,7 @@ export default function TelegramWebApp() {
                     type="button"
                     variant="outline"
                     aria-pressed={!onboarding.isProvider}
-                    className={`justify-center gap-2 font-medium border transition-none ${!onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-panel border-brand-primary/30'}`}
+                    className={`justify-center gap-2 font-medium border transition-none ${!onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-[#fffff0] dark:bg-panel border-brand-primary/30'}`}
                     onClick={() => setOnboarding(o => ({ ...o, isProvider: false }))}
                   >
                     <ShoppingBag className="w-4 h-4" /> {String(t('twa.roleBuyer') || 'Buyer')}
@@ -232,7 +232,7 @@ export default function TelegramWebApp() {
                     type="button"
                     variant="outline"
                     aria-pressed={onboarding.isProvider}
-                    className={`justify-center gap-2 border font-medium transition-none ${onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-panel border-brand-primary/30'}`}
+                    className={`justify-center gap-2 border font-medium transition-none ${onboarding.isProvider ? 'bg-brand-primary text-white border-brand-primary' : 'bg-[#fffff0] dark:bg-panel border-brand-primary/30'}`}
                     onClick={() => setOnboarding(o => ({ ...o, isProvider: true }))}
                   >
                     <Camera className="w-4 h-4" /> {String(t('twa.roleProvider') || 'Seller')}
@@ -261,7 +261,7 @@ export default function TelegramWebApp() {
               )}
 
               <Button
-                disabled={saving || !onboarding.location}
+                disabled={saving || (!onboarding.location && !onboarding.isProvider)}
                 onClick={completeOnboarding}
                 className="w-full bg-brand-primary text-white mt-3"
               >
