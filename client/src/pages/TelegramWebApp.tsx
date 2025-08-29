@@ -32,7 +32,7 @@ export default function TelegramWebApp() {
   const [showAllMyOrders, setShowAllMyOrders] = useState(false);
   const [selectedMediaType, setSelectedMediaType] = useState<string>('');
   const { theme, setTheme } = useTheme();
-  const { currentUser, isLoading } = useCurrentUser();
+  const { currentUser, isLoading, error } = useCurrentUser();
   const queryClient = useQueryClient();
   const [onboarding, setOnboarding] = useState({
     isProvider: false,
@@ -41,13 +41,12 @@ export default function TelegramWebApp() {
   const [saving, setSaving] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [onboardingInitialized, setOnboardingInitialized] = useState(false);
+  const [hasError, setHasError] = useState(false);
 
   const formatTON = (nanoTon: string | number): string => {
     const ton = Number(nanoTon) / 1e9;
     return `${ton.toLocaleString()} TON`;
   };
-
-  // Theme toggle moved to Profile page
 
   useEffect(() => {
     // Initialize Telegram Web App
@@ -70,10 +69,34 @@ export default function TelegramWebApp() {
     initTelegramWebApp();
   }, []);
 
+  useEffect(() => {
+    if (error) {
+      console.error("Error fetching current user:", error);
+      setHasError(true);
+    }
+  }, [error]);
+
   if (isLoading) {
     return (
       <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center">
         <div className="w-10 h-10 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // Show error state if something went wrong
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Card className="p-6 text-center">
+          <h2 className="text-lg font-semibold mb-2">Something went wrong</h2>
+          <p className="text-muted-foreground mb-4">
+            Unable to load user data. Please try refreshing the page.
+          </p>
+          <Button onClick={() => window.location.reload()}>
+            Refresh Page
+          </Button>
+        </Card>
       </div>
     );
   }
