@@ -91,11 +91,11 @@ export default function Profile() {
       queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
       queryClient.invalidateQueries({ queryKey: ['/api/orders'] }),
       queryClient.invalidateQueries({ queryKey: ['/api/providers'] }),
-      queryClient.invalidateQueries({ queryKey: ['currentUser'] }),
       queryClient.invalidateQueries({ queryKey: ['/api/users', id] })
     ]);
   };
 
+  // FIXED: Simplified role switch logic with better state management
   const handleRoleSwitch = async (direction: 'toProvider' | 'toBuyer') => {
     const confirmMessage = direction === 'toProvider'
       ? (t('profile.confirmSwitchToProvider') || 'Are you sure you want to become a seller? You will need to set your location.')
@@ -104,19 +104,14 @@ export default function Profile() {
     const confirmSwitch = window.confirm(confirmMessage);
     if (!confirmSwitch) return;
 
-    console.log(`Starting role switch to: ${direction}`);
-    setIsUpdating(true);
+    setIsUpdating(true); // Set updating state BEFORE async operations
 
     try {
       if (direction === 'toProvider') {
-        // For switching TO provider, we need location first
-        console.log('Setting up to switch to provider - showing location picker');
         setRoleSwitchDirection('toProvider');
         setShowLocationPicker(true);
-        setIsUpdating(false); // Don't show overlay when location picker is open
+        // Don't reset isUpdating here - location picker will handle it
       } else {
-        // For switching FROM provider (back to buyer) - do it immediately
-        console.log('Switching to buyer immediately');
         await handleSwitchToBuyer();
       }
     } catch (error: any) {
@@ -127,6 +122,7 @@ export default function Profile() {
     }
   };
 
+  // FIXED: Added direct cache update after successful role switch
   const handleSwitchToBuyer = async () => {
     try {
       console.log('Executing switch to buyer');
@@ -138,14 +134,23 @@ export default function Profile() {
 
       console.log('Successfully switched to buyer:', updatedUser);
 
-      // Invalidate and refetch all data
-      await invalidateAllQueries();
-      await Promise.all([
-        refetch(),
-        refetchCurrentUser()
-      ]);
+      // FIXED: IMMEDIATE CACHE UPDATE - critical fix
+      queryClient.setQueryData(['/api/me'], (old: any) => {
+        if (!old) return old;
+        return { ...old, isProvider: false, location: null };
+      });
 
-      // Show success message
+      // Update public profile cache if it's the current user's profile
+      if (data?.id === currentUser?.id) {
+        queryClient.setQueryData(['/api/users', id], (old: any) => {
+          if (!old) return old;
+          return { ...old, isProvider: false, location: null };
+        });
+      }
+
+      // FIXED: Removed redundant refetch (cache update is immediate)
+      await invalidateAllQueries();
+
       alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer! Your location has been cleared.');
 
     } catch (error: any) {
@@ -157,15 +162,15 @@ export default function Profile() {
     }
   };
 
+  // FIXED: Added direct cache update for location/role changes
   const handleLocationSelect = async (loc: any) => {
     console.log('Location selected:', loc);
     setIsUpdating(true);
-    setShowLocationPicker(false); // Close picker first
+    setShowLocationPicker(false);
 
     try {
       const payload: any = { location: loc };
 
-      // If we're in the middle of switching to provider, also set isProvider
       if (roleSwitchDirection === 'toProvider') {
         payload.isProvider = true;
         console.log('Including isProvider: true in payload for role switch');
@@ -176,17 +181,22 @@ export default function Profile() {
       const updatedUser = await updateProfile(payload);
       console.log('Profile updated successfully:', updatedUser);
 
-      // Invalidate and refetch all data
-      await invalidateAllQueries();
-      await Promise.all([
-        refetch(),
-        refetchCurrentUser()
-      ]);
+      // FIXED: IMMEDIATE CACHE UPDATE - critical fix
+      queryClient.setQueryData(['/api/me'], (old: any) => {
+        if (!old) return old;
+        return { ...old, ...payload };
+      });
+
+      if (data?.id === currentUser?.id) {
+        queryClient.setQueryData(['/api/users', id], (old: any) => {
+          if (!old) return old;
+          return { ...old, ...payload };
+        });
+      }
 
       const wasRoleSwitch = roleSwitchDirection === 'toProvider';
       setRoleSwitchDirection(null);
 
-      // Show appropriate success message
       if (wasRoleSwitch) {
         alert(t('profile.roleSwitchedToProvider') || 'You are now a seller! Your location has been set.');
       } else {
