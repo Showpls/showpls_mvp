@@ -194,9 +194,9 @@ function NewLanding() {
 
       {/* Hero Section - Tablet Optimization */}
       <section className="mt-8 md:mt-12 lg:mt-14 w-full">
-        <div className="flex flex-col md:flex-row gap-6 md:gap-8 lg:gap-12">
+        <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 lg:gap-12">
           <div className="w-full md:w-[46%]">
-            <h1 className="text-center lg:text-left text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight md:leading-[80px] lg:leading-[100px]">
+            <h1 className="text-center lg:text-left text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight md:leading-snug">
               {t('hero.title')}
             </h1>
             <p className="text-center lg:text-left mt-3 md:mt-5 lg:mt-7 text-base md:text-lg lg:text-xl leading-relaxed text-muted-foreground">
@@ -359,13 +359,13 @@ function NewLanding() {
 
               {/* RIGHT: text above arrow, centered column */}
               <div className="flex-1 flex flex-col items-center justify-center gap-3">
-                <div className={`font-bold text-center leading-tight ${isTablet ? 'text-3xl md:text-5xl' : 'text-2xl'}`}>
+                <div className={`font-bold text-center leading-tight ${isTablet ? 'text-xl' : 'text-3xl'}`}>
                   {t('earnSection.earnText')}
                 </div>
                 <div>
                   <ArrowElbowDownLeftIcon
                     weight="fill"
-                    size={isTablet ? 96 : 74}
+                    size={isTablet ? 74 : 96}
                     className="text-black dark:text-white"
                   />
                 </div>
@@ -399,13 +399,13 @@ function NewLanding() {
             <div className="mt-4 md:mt-6 flex items-center gap-4 w-full">
               {/* left: text over arrow, centered */}
               <div className="flex-1 flex flex-col items-center justify-center gap-3">
-                <div className={`font-bold text-center leading-tight ${isTablet ? 'text-3xl md:text-5xl' : 'text-2xl'}`}>
+                <div className={`font-bold text-center leading-tight ${isTablet ? 'text-2xl' : 'text-4xl'}`}>
                   {t('earnSection.anywhereText')}
                 </div>
                 <div>
                   <ArrowElbowDownLeftIcon
                     weight="fill"
-                    size={isTablet ? 96 : 74}
+                    size={isTablet ? 74 : 96}
                     className="text-black dark:text-white transform scale-x-[-1]"
                   />
                 </div>
@@ -442,7 +442,7 @@ function NewLanding() {
             </p>
           </div>
           <a href="https://t.me/showplsbot" target="_blank">
-            <button className="font-medium flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-opacity duration-300 bg-secondary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-transform duration-200">
+            <button className="font-medium flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 duration-200 bg-secondary text-secondary-foreground items-center hover:transform hover:-translate-y-1 transition-all">
               <TelegramLogoIcon size={24} />
               {t('header.start')}
             </button>
@@ -472,63 +472,63 @@ function NewLanding() {
             </CardContent>
           </Card>
 
-          <Card className="bg-primary dark:bg-card-foreground border-none">
+          <Card className="bg-card-foreground dark:bg-primary border-none">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div>
                 <div className="w-14 h-14 rounded-xl flex items-center justify-center">
-                  <GlobeIcon size={48} className="dark:text-white text-black" />
+                  <GlobeIcon size={48} className="text-white dark:text-black" />
                 </div>
-                <CardTitle className="mt-6 text-2xl md:text-3xl dark:text-white text-black">
+                <CardTitle className="mt-6 text-2xl md:text-3xl text-white dark:text-black">
                   {t('features.globalNetwork')}
                 </CardTitle>
-                <p className="mt-4 text-muted-foreground font-medium">
+                <p className="mt-4 text-white dark:text-black font-medium">
                   {t('features.globalDescription')}
                 </p>
               </div>
               <a href="https://t.me/showplsbot" target="_blank">
-                <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                <button className="mt-8 bg-primary dark:bg-card-foreground px-4 py-1 font-medium rounded-3xl transition-opacity duration-150 w-fit text-black dark:text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
                   {t('features.startNow')}
                 </button>
               </a>
             </CardContent>
           </Card>
 
-          <Card className="bg-primary dark:bg-card-foreground border-none">
+          <Card className="bg-card-foreground dark:bg-primary border-none">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div>
                 <div className="w-14 h-14 rounded-xl flex items-center justify-center">
-                  <WalletIcon size={48} className="dark:text-white text-black" />
+                  <WalletIcon size={48} className="text-white dark:text-black" />
                 </div>
-                <CardTitle className="mt-6 text-2xl md:text-3xl dark:text-white text-black">
+                <CardTitle className="mt-6 text-2xl md:text-3xl text-white dark:text-black">
                   {t('features.telegramWallet')}
                 </CardTitle>
-                <p className="mt-4 text-muted-foreground font-medium">
+                <p className="mt-4 text-white dark:text-black font-medium">
                   {t('features.walletDescription')}
                 </p>
               </div>
               <a href="https://t.me/showplsbot" target="_blank">
-                <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                <button className="mt-8 bg-primary dark:bg-card-foreground px-4 py-1 font-medium rounded-3xl transition-opacity duration-150 w-fit text-black dark:text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
                   {t('features.startNow')}
                 </button>
               </a>
             </CardContent>
           </Card>
 
-          <Card className="bg-primary dark:bg-card-foreground border-none">
+          <Card className="bg-card-foreground dark:bg-primary border-none">
             <CardContent className="p-6 flex flex-col justify-between h-full">
               <div>
                 <div className="w-14 h-14 rounded-xl flex items-center justify-center">
-                  <VerifiedIcon size={48} className="dark:text-white text-black" />
+                  <VerifiedIcon size={48} className="text-white dark:text-black" />
                 </div>
-                <CardTitle className="mt-6 text-2xl md:text-3xl dark:text-white text-black">
+                <CardTitle className="mt-6 text-2xl md:text-3xl text-white dark:text-black">
                   {t('features.verifiedCommunity')}
                 </CardTitle>
-                <p className="mt-4 text-muted-foreground font-medium">
+                <p className="mt-4 text-white dark:text-black font-medium">
                   {t('features.verifiedDescription')}
                 </p>
               </div>
               <a href="https://t.me/showplsbot" target="_blank">
-                <button className="mt-8 bg-card-foreground dark:bg-primary px-4 py-1 font-medium rounded-3xl transition-colors duration-300 w-fit text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
+                <button className="mt-8 bg-primary dark:bg-card-foreground px-4 py-1 font-medium rounded-3xl transition-opacity duration-150 w-fit text-black dark:text-white hover:opacity-75 hover:transform hover:-translate-y-1 transition-transform duration-200">
                   {t('features.startNow')}
                 </button>
               </a>
