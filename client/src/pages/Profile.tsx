@@ -11,7 +11,7 @@ import { useTheme } from "next-themes";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getAuthToken } from "@/lib/auth";
 import { LocationPicker } from "@/components/LocationPicker";
-import { MapPin, ShoppingCart, Store, User, Star, Settings, ArrowLeft } from "lucide-react";
+import { MapPin, ShoppingCart, Store, User, Star, Settings, ArrowLeft, UserCog } from "lucide-react";
 
 interface PublicUserProfile {
   id: string;
@@ -258,7 +258,7 @@ export default function Profile() {
           <div className="text-center text-muted-foreground py-8">{t('profile.loading')}</div>
         )}
         {isError && (
-          <div className="text-center text-red-400 py-8">{t('profile.failedToLoad') || 'Failed to load profile'}</div>
+          <div className="text-center text-red-400 py-8">{t('profile.failedToLoad')}</div>
         )}
         {!isLoading && !isError && data && (
           <>
@@ -268,11 +268,11 @@ export default function Profile() {
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
                     <User className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
-                    <h3 className="font-semibold text-foreground">{t('profile.userInfo') || 'User Information'}</h3>
+                    <h3 className="font-semibold text-foreground">{t('profile.role')}</h3>
                   </div>
                   {(data.isProvider || currentUser?.isProvider) && (
                     <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-400 flex-shrink-0">
-                      {t('profile.provider') || 'Seller'}
+                      {t('profile.provider')}
                     </Badge>
                   )}
                 </div>
@@ -312,33 +312,32 @@ export default function Profile() {
                 <Card className="glass-panel border-brand-primary/20">
                   <CardContent className="p-5">
                     <div className="flex items-center mb-4">
-                      <Settings className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
-                      <h3 className="font-semibold text-foreground">{t('profile.roleManagement') || 'Role Management'}</h3>
+                      <UserCog className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
+                      <h3 className="font-semibold text-foreground">{t('profile.role')}</h3>
                     </div>
 
                     <div className="space-y-4">
                       <div className="flex flex-col space-y-2">
-                        <div className="text-sm text-muted-foreground">{t('profile.currentRole') || 'Current Role'}</div>
                         <Button
                           size="lg"
                           variant="outline"
-                          className="w-full flex items-center justify-center gap-2 h-12"
+                          className="w-full flex items-center justify-center gap-2 h-12 text-lg"
                           onClick={() => handleRoleSwitch(currentUser?.isProvider ? 'toBuyer' : 'toProvider')}
                           disabled={isUpdating && !showLocationPicker}
                         >
                           {(isUpdating && !showLocationPicker) ? (
-                            <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full flex-shrink-0" />
+                            <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full flex-shrink-0 text-brand-primary" />
                           ) : currentUser?.isProvider ? (
-                            <Store className="w-5 h-5 flex-shrink-0" />
+                            <ShoppingCart className="w-5 h-5 flex-shrink-0 text-brand-primary" />
                           ) : (
-                            <ShoppingCart className="w-5 h-5 flex-shrink-0" />
+                            <Store className="w-5 h-5 flex-shrink-0 text-brand-primary" />
                           )}
                           <span className="text-foreground">
                             {(isUpdating && !showLocationPicker)
-                              ? (t('profile.updating') || 'Updating...')
+                              ? t('profile.updating')
                               : currentUser?.isProvider
-                                ? String(t('twa.roleBuyer') || 'Switch to Buyer')
-                                : String(t('twa.roleProvider') || 'Switch to Seller')
+                                ? t('profile.role')
+                                : t('profile.provider')
                             }
                           </span>
                         </Button>
@@ -346,18 +345,17 @@ export default function Profile() {
 
                       {(currentUser?.isProvider || data?.isProvider) && (
                         <div className="flex flex-col space-y-2">
-                          <div className="text-sm text-muted-foreground">{t('profile.updateLocation') || 'Update Location'}</div>
                           <Button
                             size="lg"
-                            className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center justify-center gap-2 h-12"
+                            className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center justify-center gap-2 h-12 text-lg"
                             onClick={() => {
                               setRoleSwitchDirection(null);
                               setShowLocationPicker(true);
                             }}
                             disabled={isUpdating && !showLocationPicker}
                           >
-                            <MapPin className="w-5 h-5 flex-shrink-0" />
-                            <span>{String(t('twa.pickOnMap') || 'Pick on map')}</span>
+                            <MapPin className="w-5 h-5 flex-shrink-0 text-white" />
+                            <span>{t('profile.updateLocation')}</span>
                           </Button>
                         </div>
                       )}
@@ -370,19 +368,19 @@ export default function Profile() {
                   <CardContent className="p-5">
                     <div className="flex items-center mb-4">
                       <Settings className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
-                      <h3 className="font-semibold text-foreground">{t('profile.preferences') || 'Preferences'}</h3>
+                      <h3 className="font-semibold text-foreground">{t('profile.settings')}</h3>
                     </div>
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between p-3 rounded-md bg-[#fffff0] dark:bg-panel">
-                        <div className="text-sm text-foreground">{t('profile.language') || 'Language'}</div>
+                        <div className="text-sm text-foreground">{t('profile.language')}</div>
                         <LanguageSwitcher />
                       </div>
                       <div className="flex items-center justify-between p-3 rounded-md bg-[#fffff0] dark:bg-panel">
-                        <div className="text-sm text-foreground">{t('profile.theme') || 'Theme'}</div>
+                        <div className="text-sm text-foreground">{t('profile.theme')}</div>
                         <Button size="sm" variant="outline" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
                           <span className="text-foreground">
-                            {theme === 'dark' ? String(t('profile.light') || 'Light') : String(t('profile.dark') || 'Dark')}
+                            {theme === 'dark' ? t('profile.light') : t('profile.dark')}
                           </span>
                         </Button>
                       </div>
@@ -397,7 +395,7 @@ export default function Profile() {
                 <CardContent className="p-5">
                   <div className="flex items-center mb-4">
                     <Star className="w-5 h-5 mr-2 text-brand-accent flex-shrink-0" />
-                    <h3 className="font-semibold text-foreground">{t('profile.rateUser') || 'Rate User'}</h3>
+                    <h3 className="font-semibold text-foreground">{t('profile.rateUser')}</h3>
                   </div>
 
                   {orderIdFromQuery ? (
@@ -407,10 +405,10 @@ export default function Profile() {
                         toUserId={data.id}
                         onSuccess={() => { /* no-op on profile page */ }}
                       />
-                      <div className="text-xs text-muted-foreground font-medium mt-3">{t('profile.ratingNote') || 'You can rate this user after completing an order with them.'}</div>
+                      <div className="text-xs text-muted-foreground font-medium mt-3">{t('profile.ratingNote')}</div>
                     </>
                   ) : (
-                    <div className="text-sm text-muted-foreground font-medium">{t('profile.ratingEligibilityHint') || 'You need to complete an order with this user before you can rate them.'}</div>
+                    <div className="text-sm text-muted-foreground font-medium">{t('profile.ratingEligibilityHint')}</div>
                   )}
                 </CardContent>
               </Card>
@@ -433,7 +431,7 @@ export default function Profile() {
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="glass-panel p-6 rounded-lg text-center">
             <div className="animate-spin w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full mx-auto mb-4 flex-shrink-0" />
-            <div className="text-sm font-medium text-foreground">{t('profile.updating') || 'Updating profile...'}</div>
+            <div className="text-sm font-medium text-foreground">{t('profile.updating')}</div>
           </div>
         </div>
       )}
