@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { WalletConnect } from "@/components/WalletConnect";
-// import { CreateRequestForm } from "@/components/CreateRequestForm";
 import { MapView } from "@/components/MapView";
 import { LocationPicker } from "@/components/LocationPicker";
 import { OrderCard } from "@/components/OrderCard";
@@ -33,11 +32,11 @@ export default function TelegramWebApp() {
   const [showAllMyOrders, setShowAllMyOrders] = useState(false);
   const [selectedMediaType, setSelectedMediaType] = useState<string>('');
   const { theme, setTheme } = useTheme();
-  const { currentUser } = useCurrentUser();
+  const { currentUser, isLoading } = useCurrentUser();
   const queryClient = useQueryClient();
   const [onboarding, setOnboarding] = useState({
-    isProvider: currentUser?.isProvider ?? false,
-    location: currentUser?.location ?? null as null | { lat: number; lng: number; address?: string },
+    isProvider: false,
+    location: null as null | { lat: number; lng: number; address?: string },
   });
   const [saving, setSaving] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
@@ -71,9 +70,18 @@ export default function TelegramWebApp() {
     initTelegramWebApp();
   }, []);
 
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-brand-primary border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  // Initialize onboarding state after loading completes
   useEffect(() => {
-    // Initialize onboarding state once when currentUser becomes available to prevent UI glitches
     if (!currentUser || onboardingInitialized) return;
+
     setOnboarding({
       isProvider: currentUser?.isProvider ?? false,
       location: (currentUser as any)?.location ?? null,

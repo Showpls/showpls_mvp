@@ -265,11 +265,8 @@ export default function Profile() {
             {/* User Stats Card */}
             <Card className="glass-panel border-brand-primary/20">
               <CardContent className="p-5">
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center">
-                    <User className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
-                    <h3 className="font-semibold text-foreground">{t('profile.role')}</h3>
-                  </div>
+                <div className="flex items-center mb-4">
+                  <User className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
                   {(data.isProvider || currentUser?.isProvider) && (
                     <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-400 flex-shrink-0">
                       {t('profile.provider')}
@@ -320,8 +317,7 @@ export default function Profile() {
                       <div className="flex flex-col space-y-2">
                         <Button
                           size="lg"
-                          variant="outline"
-                          className="w-full flex items-center justify-center gap-2 h-12 text-lg"
+                          className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center justify-center gap-2 h-12 text-base"
                           onClick={() => handleRoleSwitch(currentUser?.isProvider ? 'toBuyer' : 'toProvider')}
                           disabled={isUpdating && !showLocationPicker}
                         >
@@ -336,7 +332,7 @@ export default function Profile() {
                             {(isUpdating && !showLocationPicker)
                               ? t('profile.updating')
                               : currentUser?.isProvider
-                                ? t('profile.role')
+                                ? t('chat.provider')
                                 : t('profile.provider')
                             }
                           </span>
@@ -347,14 +343,15 @@ export default function Profile() {
                         <div className="flex flex-col space-y-2">
                           <Button
                             size="lg"
-                            className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center justify-center gap-2 h-12 text-lg"
+                            variant="outline"
+                            className="w-full text-foreground flex items-center justify-center gap-2 h-12 text-base"
                             onClick={() => {
                               setRoleSwitchDirection(null);
                               setShowLocationPicker(true);
                             }}
                             disabled={isUpdating && !showLocationPicker}
                           >
-                            <MapPin className="w-5 h-5 flex-shrink-0 text-white" />
+                            <MapPin className="w-5 h-5 flex-shrink-0" />
                             <span>{t('profile.updateLocation')}</span>
                           </Button>
                         </div>
