@@ -221,7 +221,7 @@ export default function Profile() {
   });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground overflow-y-hidden">
       <div className="glass-panel p-4 mb-4 sticky top-0 z-40 shadow-md">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
