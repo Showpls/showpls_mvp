@@ -11,7 +11,7 @@ import { useTheme } from "next-themes";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getAuthToken } from "@/lib/auth";
 import { LocationPicker } from "@/components/LocationPicker";
-import { MapPin, ShoppingCart, Store } from "lucide-react";
+import { MapPin, ShoppingCart, Store, User, Star, Settings, ArrowLeft } from "lucide-react";
 
 interface PublicUserProfile {
   id: string;
@@ -112,7 +112,6 @@ export default function Profile() {
         // For switching TO provider, we need location first
         console.log('Setting up to switch to provider - showing location picker');
         setRoleSwitchDirection('toProvider');
-        setIsUpdating(false); // FIXED: Don't keep updating state true when showing location picker
         setShowLocationPicker(true);
       } else {
         // For switching FROM provider (back to buyer) - do it immediately
@@ -159,7 +158,7 @@ export default function Profile() {
 
   const handleLocationSelect = async (loc: any) => {
     console.log('Location selected:', loc);
-    setIsUpdating(true); // FIXED: Set updating state here when actually updating
+    setIsUpdating(true);
 
     try {
       const payload: any = { location: loc };
@@ -209,11 +208,9 @@ export default function Profile() {
     setIsUpdating(false);
   };
 
-  // FIXED: Show location picker even when updating for role switch
   const shouldShowLocationPicker = showLocationPicker;
-  const shouldShowOverlay = isUpdating && !showLocationPicker; // Don't show overlay when location picker is active
+  const shouldShowOverlay = isUpdating && !showLocationPicker;
 
-  // Add some debugging info
   console.log('Current user state:', {
     currentUser: currentUser?.isProvider,
     profileData: data?.isProvider,
@@ -225,26 +222,28 @@ export default function Profile() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="glass-panel p-4 mb-6 sticky top-0 z-40">
+      <div className="glass-panel p-4 mb-4 sticky top-0 z-40 shadow-md">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <Button variant="ghost" size="sm" className="mr-2 text-foreground" onClick={() => setLocationPath('/twa')}>
-              ←
+              <ArrowLeft className="w-5 h-5" />
             </Button>
-            <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center mr-3">
-              <span className="text-white font-semibold text-sm">{initial}</span>
-            </div>
-            <div>
-              <div className="font-semibold">{displayName}</div>
-              {data?.username && (
-                <div className="text-xs text-muted font-medium">@{data.username}</div>
-              )}
+            <div className="flex items-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center mr-3">
+                <span className="text-white font-semibold text-sm">{initial}</span>
+              </div>
+              <div>
+                <div className="font-semibold text-lg">{displayName}</div>
+                {data?.username && (
+                  <div className="text-xs text-muted font-medium">@{data.username}</div>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="max-w-sm mx-auto px-4 pb-20 space-y-4 font-medium">
+      <div className="max-w-sm mx-auto px-4 pb-20 space-y-6 font-medium">
         {isLoading && (
           <div className="text-center text-muted py-8">{t('profile.loading')}</div>
         )}
@@ -253,12 +252,13 @@ export default function Profile() {
         )}
         {!isLoading && !isError && data && (
           <>
+            {/* User Stats Card */}
             <Card className="glass-panel border-brand-primary/20">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <div className="text-sm text-muted">{t('profile.rating')}</div>
-                    <div className="text-xl font-semibold text-foreground">{Number(data.rating ?? 0).toFixed(2)}</div>
+              <CardContent className="p-5">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center">
+                    <User className="w-5 h-5 mr-2 text-brand-primary" />
+                    <h3 className="font-semibold">{t('profile.userInfo') || 'User Information'}</h3>
                   </div>
                   {(data.isProvider || currentUser?.isProvider) && (
                     <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-400">
@@ -266,88 +266,126 @@ export default function Profile() {
                     </Badge>
                   )}
                 </div>
-                <div className="mt-3 grid grid-cols-2 gap-3 text-sm">
-                  <div className="glass-panel p-3 rounded-md">
-                    <div className="text-muted">{t('profile.totalOrders')}</div>
-                    <div className="font-semibold text-foreground">{data.totalOrders ?? 0}</div>
+
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="glass-panel p-3 rounded-md flex flex-col items-center">
+                    <Star className="w-5 h-5 text-yellow-500 mb-1" />
+                    <div className="text-xs text-muted">{t('profile.rating')}</div>
+                    <div className="font-semibold text-foreground text-lg">{Number(data.rating ?? 0).toFixed(2)}</div>
                   </div>
-                  <div className="glass-panel p-3 rounded-md">
-                    <div className="text-muted">{t('profile.location')}</div>
-                    <div className="font-semibold text-foreground">
-                      {typeof data.location === 'string'
-                        ? data.location
-                        : data.location && typeof data.location === 'object'
-                          ? `${Number((data.location as any).lat).toFixed(5)}, ${Number((data.location as any).lng).toFixed(5)}`
-                          : t('profile.locationUnknown')}
-                    </div>
+                  <div className="glass-panel p-3 rounded-md flex flex-col items-center">
+                    <ShoppingCart className="w-5 h-5 text-brand-primary mb-1" />
+                    <div className="text-xs text-muted">{t('profile.totalOrders')}</div>
+                    <div className="font-semibold text-foreground text-lg">{data.totalOrders ?? 0}</div>
+                  </div>
+                </div>
+
+                <div className="glass-panel p-3 rounded-md">
+                  <div className="flex items-center mb-1">
+                    <MapPin className="w-4 h-4 mr-2 text-brand-primary" />
+                    <div className="text-xs text-muted">{t('profile.location')}</div>
+                  </div>
+                  <div className="font-semibold text-foreground text-sm truncate">
+                    {typeof data.location === 'string'
+                      ? data.location
+                      : data.location && typeof data.location === 'object'
+                        ? `${Number((data.location as any).lat).toFixed(5)}, ${Number((data.location as any).lng).toFixed(5)}`
+                        : t('profile.locationUnknown')}
                   </div>
                 </div>
               </CardContent>
             </Card>
 
             {isOwnProfile && (
-              <Card className="glass-panel border-brand-primary/20">
-                <CardContent className="p-4 space-y-3 text-foreground font-medium">
-                  <div className="font-semibold mb-1">{t('profile.settings')}</div>
-                  <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
-                    <div className="text-sm">{t('profile.language')}</div>
-                    <LanguageSwitcher />
-                  </div>
-                  <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
-                    <div className="text-sm">{t('profile.theme')}</div>
-                    <Button size="sm" variant="outline" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                      {theme === 'dark' ? String(t('profile.light') || 'Light') : String(t('profile.dark') || 'Dark')}
-                    </Button>
-                  </div>
-                  <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
-                    <div className="text-sm">{t('profile.role')}</div>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="flex items-center gap-2"
-                      onClick={() => handleRoleSwitch(currentUser?.isProvider ? 'toBuyer' : 'toProvider')}
-                      disabled={isUpdating && !showLocationPicker} // FIXED: Don't disable when location picker is shown
-                    >
-                      {(isUpdating && !showLocationPicker) ? (
-                        <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full" />
-                      ) : currentUser?.isProvider ? (
-                        <ShoppingCart className="w-4 h-4" />
-                      ) : (
-                        <Store className="w-4 h-4" />
-                      )}
-                      {(isUpdating && !showLocationPicker)
-                        ? (t('profile.updating') || 'Updating...')
-                        : currentUser?.isProvider
-                          ? String(t('twa.roleBuyer') || 'Switch to Buyer')
-                          : String(t('twa.roleProvider') || 'Switch to Seller')
-                      }
-                    </Button>
-                  </div>
-                  {(currentUser?.isProvider || data?.isProvider) && (
-                    <div className="flex items-center justify-between p-2 rounded-md bg-[#fffff0] dark:bg-panel">
-                      <div className="text-sm">{t('profile.updateLocation')}</div>
-                      <Button
-                        size="sm"
-                        className="bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center gap-2"
-                        onClick={() => {
-                          setRoleSwitchDirection(null);
-                          setShowLocationPicker(true);
-                        }}
-                        disabled={isUpdating && !showLocationPicker} // FIXED: Don't disable when location picker is shown
-                      >
-                        <MapPin className="w-4 h-4" />
-                        {String(t('twa.pickOnMap') || 'Pick on map')}
-                      </Button>
+              <>
+                {/* Role Management Card */}
+                <Card className="glass-panel border-brand-primary/20">
+                  <CardContent className="p-5">
+                    <div className="flex items-center mb-4">
+                      <Settings className="w-5 h-5 mr-2 text-brand-primary" />
+                      <h3 className="font-semibold">{t('profile.roleManagement') || 'Role Management'}</h3>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
+
+                    <div className="space-y-4">
+                      <div className="flex flex-col space-y-2">
+                        <div className="text-sm text-muted">{t('profile.currentRole') || 'Current Role'}</div>
+                        <Button
+                          size="lg"
+                          variant="outline"
+                          className="w-full flex items-center justify-center gap-2 h-12"
+                          onClick={() => handleRoleSwitch(currentUser?.isProvider ? 'toBuyer' : 'toProvider')}
+                          disabled={isUpdating && !showLocationPicker}
+                        >
+                          {(isUpdating && !showLocationPicker) ? (
+                            <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
+                          ) : currentUser?.isProvider ? (
+                            <Store className="w-5 h-5" />
+                          ) : (
+                            <ShoppingCart className="w-5 h-5" />
+                          )}
+                          {(isUpdating && !showLocationPicker)
+                            ? (t('profile.updating') || 'Updating...')
+                            : currentUser?.isProvider
+                              ? String(t('twa.roleBuyer') || 'Switch to Buyer')
+                              : String(t('twa.roleProvider') || 'Switch to Seller')
+                          }
+                        </Button>
+                      </div>
+
+                      {(currentUser?.isProvider || data?.isProvider) && (
+                        <div className="flex flex-col space-y-2">
+                          <div className="text-sm text-muted">{t('profile.updateLocation') || 'Update Location'}</div>
+                          <Button
+                            size="lg"
+                            className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center justify-center gap-2 h-12"
+                            onClick={() => {
+                              setRoleSwitchDirection(null);
+                              setShowLocationPicker(true);
+                            }}
+                            disabled={isUpdating && !showLocationPicker}
+                          >
+                            <MapPin className="w-5 h-5" />
+                            {String(t('twa.pickOnMap') || 'Pick on map')}
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Preferences Card */}
+                <Card className="glass-panel border-brand-primary/20">
+                  <CardContent className="p-5">
+                    <div className="flex items-center mb-4">
+                      <Settings className="w-5 h-5 mr-2 text-brand-primary" />
+                      <h3 className="font-semibold">{t('profile.preferences') || 'Preferences'}</h3>
+                    </div>
+
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between p-3 rounded-md bg-[#fffff0] dark:bg-panel">
+                        <div className="text-sm">{t('profile.language') || 'Language'}</div>
+                        <LanguageSwitcher />
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-md bg-[#fffff0] dark:bg-panel">
+                        <div className="text-sm">{t('profile.theme') || 'Theme'}</div>
+                        <Button size="sm" variant="outline" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                          {theme === 'dark' ? String(t('profile.light') || 'Light') : String(t('profile.dark') || 'Dark')}
+                        </Button>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
             )}
 
             {!isOwnProfile && (
               <Card className="glass-panel border-brand-accent/20">
-                <CardContent className="p-4">
-                  <div className="font-semibold mb-3">{t('profile.rateUser')}</div>
+                <CardContent className="p-5">
+                  <div className="flex items-center mb-4">
+                    <Star className="w-5 h-5 mr-2 text-brand-accent" />
+                    <h3 className="font-semibold">{t('profile.rateUser') || 'Rate User'}</h3>
+                  </div>
+
                   {orderIdFromQuery ? (
                     <>
                       <RatingForm
@@ -355,10 +393,10 @@ export default function Profile() {
                         toUserId={data.id}
                         onSuccess={() => { /* no-op on profile page */ }}
                       />
-                      <div className="text-xs text-muted font-medium mt-2">{t('profile.ratingNote')}</div>
+                      <div className="text-xs text-muted font-medium mt-3">{t('profile.ratingNote') || 'You can rate this user after completing an order with them.'}</div>
                     </>
                   ) : (
-                    <div className="text-sm text-muted font-medium">{t('profile.ratingEligibilityHint')}</div>
+                    <div className="text-sm text-muted font-medium">{t('profile.ratingEligibilityHint') || 'You need to complete an order with this user before you can rate them.'}</div>
                   )}
                 </CardContent>
               </Card>
