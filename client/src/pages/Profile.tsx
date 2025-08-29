@@ -113,6 +113,7 @@ export default function Profile() {
         console.log('Setting up to switch to provider - showing location picker');
         setRoleSwitchDirection('toProvider');
         setShowLocationPicker(true);
+        setIsUpdating(false); // Don't show overlay when location picker is open
       } else {
         // For switching FROM provider (back to buyer) - do it immediately
         console.log('Switching to buyer immediately');
@@ -159,6 +160,7 @@ export default function Profile() {
   const handleLocationSelect = async (loc: any) => {
     console.log('Location selected:', loc);
     setIsUpdating(true);
+    setShowLocationPicker(false); // Close picker first
 
     try {
       const payload: any = { location: loc };
@@ -181,8 +183,6 @@ export default function Profile() {
         refetchCurrentUser()
       ]);
 
-      // Close location picker and reset state
-      setShowLocationPicker(false);
       const wasRoleSwitch = roleSwitchDirection === 'toProvider';
       setRoleSwitchDirection(null);
 
@@ -226,16 +226,16 @@ export default function Profile() {
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
             <Button variant="ghost" size="sm" className="mr-2 text-foreground" onClick={() => setLocationPath('/twa')}>
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-5 h-5 flex-shrink-0" />
             </Button>
             <div className="flex items-center">
-              <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center mr-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-brand-primary to-brand-accent rounded-full flex items-center justify-center mr-3 flex-shrink-0">
                 <span className="text-white font-semibold text-sm">{initial}</span>
               </div>
-              <div>
-                <div className="font-semibold text-lg">{displayName}</div>
+              <div className="min-w-0">
+                <div className="font-semibold text-lg text-foreground truncate">{displayName}</div>
                 {data?.username && (
-                  <div className="text-xs text-muted font-medium">@{data.username}</div>
+                  <div className="text-xs text-muted-foreground font-medium truncate">@{data.username}</div>
                 )}
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function Profile() {
 
       <div className="max-w-sm mx-auto px-4 pb-20 space-y-6 font-medium">
         {isLoading && (
-          <div className="text-center text-muted py-8">{t('profile.loading')}</div>
+          <div className="text-center text-muted-foreground py-8">{t('profile.loading')}</div>
         )}
         {isError && (
           <div className="text-center text-red-400 py-8">{t('profile.failedToLoad') || 'Failed to load profile'}</div>
@@ -257,11 +257,11 @@ export default function Profile() {
               <CardContent className="p-5">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center">
-                    <User className="w-5 h-5 mr-2 text-brand-primary" />
-                    <h3 className="font-semibold">{t('profile.userInfo') || 'User Information'}</h3>
+                    <User className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
+                    <h3 className="font-semibold text-foreground">{t('profile.userInfo') || 'User Information'}</h3>
                   </div>
                   {(data.isProvider || currentUser?.isProvider) && (
-                    <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-400">
+                    <Badge variant="secondary" className="bg-emerald-500/20 text-emerald-400 flex-shrink-0">
                       {t('profile.provider') || 'Seller'}
                     </Badge>
                   )}
@@ -269,21 +269,21 @@ export default function Profile() {
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
                   <div className="glass-panel p-3 rounded-md flex flex-col items-center">
-                    <Star className="w-5 h-5 text-yellow-500 mb-1" />
-                    <div className="text-xs text-muted">{t('profile.rating')}</div>
+                    <Star className="w-5 h-5 text-yellow-500 mb-1 flex-shrink-0" />
+                    <div className="text-xs text-muted-foreground text-center">{t('profile.rating')}</div>
                     <div className="font-semibold text-foreground text-lg">{Number(data.rating ?? 0).toFixed(2)}</div>
                   </div>
                   <div className="glass-panel p-3 rounded-md flex flex-col items-center">
-                    <ShoppingCart className="w-5 h-5 text-brand-primary mb-1" />
-                    <div className="text-xs text-muted">{t('profile.totalOrders')}</div>
+                    <ShoppingCart className="w-5 h-5 text-brand-primary mb-1 flex-shrink-0" />
+                    <div className="text-xs text-muted-foreground text-center">{t('profile.totalOrders')}</div>
                     <div className="font-semibold text-foreground text-lg">{data.totalOrders ?? 0}</div>
                   </div>
                 </div>
 
                 <div className="glass-panel p-3 rounded-md">
                   <div className="flex items-center mb-1">
-                    <MapPin className="w-4 h-4 mr-2 text-brand-primary" />
-                    <div className="text-xs text-muted">{t('profile.location')}</div>
+                    <MapPin className="w-4 h-4 mr-2 text-brand-primary flex-shrink-0" />
+                    <div className="text-xs text-muted-foreground">{t('profile.location')}</div>
                   </div>
                   <div className="font-semibold text-foreground text-sm truncate">
                     {typeof data.location === 'string'
@@ -302,13 +302,13 @@ export default function Profile() {
                 <Card className="glass-panel border-brand-primary/20">
                   <CardContent className="p-5">
                     <div className="flex items-center mb-4">
-                      <Settings className="w-5 h-5 mr-2 text-brand-primary" />
-                      <h3 className="font-semibold">{t('profile.roleManagement') || 'Role Management'}</h3>
+                      <Settings className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
+                      <h3 className="font-semibold text-foreground">{t('profile.roleManagement') || 'Role Management'}</h3>
                     </div>
 
                     <div className="space-y-4">
                       <div className="flex flex-col space-y-2">
-                        <div className="text-sm text-muted">{t('profile.currentRole') || 'Current Role'}</div>
+                        <div className="text-sm text-muted-foreground">{t('profile.currentRole') || 'Current Role'}</div>
                         <Button
                           size="lg"
                           variant="outline"
@@ -317,24 +317,26 @@ export default function Profile() {
                           disabled={isUpdating && !showLocationPicker}
                         >
                           {(isUpdating && !showLocationPicker) ? (
-                            <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full" />
+                            <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full flex-shrink-0" />
                           ) : currentUser?.isProvider ? (
-                            <Store className="w-5 h-5" />
+                            <Store className="w-5 h-5 flex-shrink-0" />
                           ) : (
-                            <ShoppingCart className="w-5 h-5" />
+                            <ShoppingCart className="w-5 h-5 flex-shrink-0" />
                           )}
-                          {(isUpdating && !showLocationPicker)
-                            ? (t('profile.updating') || 'Updating...')
-                            : currentUser?.isProvider
-                              ? String(t('twa.roleBuyer') || 'Switch to Buyer')
-                              : String(t('twa.roleProvider') || 'Switch to Seller')
-                          }
+                          <span className="text-foreground">
+                            {(isUpdating && !showLocationPicker)
+                              ? (t('profile.updating') || 'Updating...')
+                              : currentUser?.isProvider
+                                ? String(t('twa.roleBuyer') || 'Switch to Buyer')
+                                : String(t('twa.roleProvider') || 'Switch to Seller')
+                            }
+                          </span>
                         </Button>
                       </div>
 
                       {(currentUser?.isProvider || data?.isProvider) && (
                         <div className="flex flex-col space-y-2">
-                          <div className="text-sm text-muted">{t('profile.updateLocation') || 'Update Location'}</div>
+                          <div className="text-sm text-muted-foreground">{t('profile.updateLocation') || 'Update Location'}</div>
                           <Button
                             size="lg"
                             className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center justify-center gap-2 h-12"
@@ -344,8 +346,8 @@ export default function Profile() {
                             }}
                             disabled={isUpdating && !showLocationPicker}
                           >
-                            <MapPin className="w-5 h-5" />
-                            {String(t('twa.pickOnMap') || 'Pick on map')}
+                            <MapPin className="w-5 h-5 flex-shrink-0" />
+                            <span>{String(t('twa.pickOnMap') || 'Pick on map')}</span>
                           </Button>
                         </div>
                       )}
@@ -357,19 +359,21 @@ export default function Profile() {
                 <Card className="glass-panel border-brand-primary/20">
                   <CardContent className="p-5">
                     <div className="flex items-center mb-4">
-                      <Settings className="w-5 h-5 mr-2 text-brand-primary" />
-                      <h3 className="font-semibold">{t('profile.preferences') || 'Preferences'}</h3>
+                      <Settings className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
+                      <h3 className="font-semibold text-foreground">{t('profile.preferences') || 'Preferences'}</h3>
                     </div>
 
                     <div className="space-y-4">
                       <div className="flex items-center justify-between p-3 rounded-md bg-[#fffff0] dark:bg-panel">
-                        <div className="text-sm">{t('profile.language') || 'Language'}</div>
+                        <div className="text-sm text-foreground">{t('profile.language') || 'Language'}</div>
                         <LanguageSwitcher />
                       </div>
                       <div className="flex items-center justify-between p-3 rounded-md bg-[#fffff0] dark:bg-panel">
-                        <div className="text-sm">{t('profile.theme') || 'Theme'}</div>
+                        <div className="text-sm text-foreground">{t('profile.theme') || 'Theme'}</div>
                         <Button size="sm" variant="outline" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                          {theme === 'dark' ? String(t('profile.light') || 'Light') : String(t('profile.dark') || 'Dark')}
+                          <span className="text-foreground">
+                            {theme === 'dark' ? String(t('profile.light') || 'Light') : String(t('profile.dark') || 'Dark')}
+                          </span>
                         </Button>
                       </div>
                     </div>
@@ -382,8 +386,8 @@ export default function Profile() {
               <Card className="glass-panel border-brand-accent/20">
                 <CardContent className="p-5">
                   <div className="flex items-center mb-4">
-                    <Star className="w-5 h-5 mr-2 text-brand-accent" />
-                    <h3 className="font-semibold">{t('profile.rateUser') || 'Rate User'}</h3>
+                    <Star className="w-5 h-5 mr-2 text-brand-accent flex-shrink-0" />
+                    <h3 className="font-semibold text-foreground">{t('profile.rateUser') || 'Rate User'}</h3>
                   </div>
 
                   {orderIdFromQuery ? (
@@ -393,10 +397,10 @@ export default function Profile() {
                         toUserId={data.id}
                         onSuccess={() => { /* no-op on profile page */ }}
                       />
-                      <div className="text-xs text-muted font-medium mt-3">{t('profile.ratingNote') || 'You can rate this user after completing an order with them.'}</div>
+                      <div className="text-xs text-muted-foreground font-medium mt-3">{t('profile.ratingNote') || 'You can rate this user after completing an order with them.'}</div>
                     </>
                   ) : (
-                    <div className="text-sm text-muted font-medium">{t('profile.ratingEligibilityHint') || 'You need to complete an order with this user before you can rate them.'}</div>
+                    <div className="text-sm text-muted-foreground font-medium">{t('profile.ratingEligibilityHint') || 'You need to complete an order with this user before you can rate them.'}</div>
                   )}
                 </CardContent>
               </Card>
@@ -418,8 +422,8 @@ export default function Profile() {
       {shouldShowOverlay && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
           <div className="glass-panel p-6 rounded-lg text-center">
-            <div className="animate-spin w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full mx-auto mb-4" />
-            <div className="text-sm font-medium">{t('profile.updating') || 'Updating profile...'}</div>
+            <div className="animate-spin w-8 h-8 border-2 border-brand-primary border-t-transparent rounded-full mx-auto mb-4 flex-shrink-0" />
+            <div className="text-sm font-medium text-foreground">{t('profile.updating') || 'Updating profile...'}</div>
           </div>
         </div>
       )}
