@@ -19,6 +19,36 @@ export default function Header(props: any) {
     const [currentLanguage, setCurrentLanguage] = useState(i18n.language || 'en');
     const [headerDropdownOpen, setHeaderDropdownOpen] = useState(false);
 
+    const navigationLinks = [
+        {
+            title: t('header.home'),
+            href: "#home"
+        },
+        {
+            title: t("header.howItWorks"),
+            href: "#howItWorks"
+        },
+        {
+            title: t("header.useCases"),
+            href: "#useCases"
+        },
+        {
+            title: t('header.aiVision'),
+            href: "#aiVision"
+        },
+        {
+            title: t('header.community'),
+            href: "#testimonials"
+        },
+        {
+            title: t('header.learnMore'),
+            href: "/learnMore"
+        },
+        {
+            title: t('header.joinTestnet'),
+            href: "/joinTestnet"
+        }
+    ]
 
     const handleLanguageChange = (languageCode: string) => {
         setCurrentLanguage(languageCode);
@@ -30,16 +60,16 @@ export default function Header(props: any) {
     return (
         <header className="flex justify-between items-center w-full py-4" >
             <div className="flex items-center gap-3 md:gap-4">
-                <div className={"rounded-xl p-1 " + (theme === "light" && " bg-black")}>
+                <div className={"rounded-lg p-1 " + (theme === "light" && " bg-black")}>
                     <img
                         src="/logo4.png"
                         alt="SHOWPLS"
-                        width={isMobile ? 31 : 42}
-                        height={isMobile ? 31 : 42}
+                        width={isMobile ? 31 : 36}
+                        height={isMobile ? 31 : 36}
                         className="rounded-xl"
                     />
                 </div>
-                <div className="text-2xl md:text-3xl font-bold">SHOW<span className="text-blue-400 dark:text-blue-300">PLS</span></div>
+                <div className="text-2xl font-bold">SHOW<span className="text-blue-400 dark:text-blue-300">PLS</span></div>
             </div>
 
             {
@@ -66,16 +96,14 @@ export default function Header(props: any) {
                                 </div>
 
                                 <nav className="flex flex-col items-baseline gap-6 text-2xl font-medium">
-                                    <a>{t('header.home')}</a>
-                                    <a>{t("header.howItWorks")}</a>
-                                    <a>{t("header.useCases")}</a>
-                                    <a>{t('header.aiVision')}</a>
-                                    <a>{t('header.community')}</a>
-                                    <a>{t('header.learnMore')}</a>
-                                    <a>{t('header.joinTestnet')}</a>
+                                    {navigationLinks.map((link, index) => {
+                                        return (
+                                            <a href={link.href} key={index}>{link.title}</a>
+                                        )
+                                    })}
 
                                     <div className="flex gap-6">
-                                        <button className="hover:transform hover:-translate-y-1 transition-all duration-200" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
+                                        <button className="flex-shrink-0 hover:transform hover:-translate-y-1 transition-all duration-200" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
                                             {theme === 'dark' ? <SunIcon size={26} /> : <MoonIcon size={26} />}
                                         </button>
 
@@ -116,18 +144,17 @@ export default function Header(props: any) {
                         )}
                     </>
                 ) : (
-                    <div className="flex items-center gap-1 md:gap-2 lg:gap-3 text-base md:text-lg font-medium">
-                        <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t('header.home')}</a>
-                        <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t("header.howItWorks")}</a>
-                        <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t("header.useCases")}</a>
-                        <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t('header.aiVision')}</a>
-                        <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t('header.community')}</a>
-                        <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t('header.learnMore')}</a>
-                        <a className="px-2 md:px-3 py-1 rounded-xl hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{t('header.joinTestnet')}</a>
+                    <div className="flex items-center gap-1 md:gap-2 lg:gap-3 md:text-sm font-medium">
 
+                        {/* Navigation Links */}
+                        {navigationLinks.map((link, index) => {
+                            return (
+                                <a href={link.href} key={index} className="px-2 md:px-3 py-1 rounded-lg hover:bg-neutral-200/50 dark:hover:bg-neutral-400/30 duration-150 hover:transform hover:-translate-y-1 transition-all">{link.title}</a>
+                            )
+                        })}
 
                         <button className="transition-all duration-200 hover:transform hover:-translate-y-1 " onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                            {theme === 'dark' ? <SunIcon size={24} /> : <MoonIcon size={24} />}
+                            {theme === 'dark' ? <SunIcon size={22} /> : <MoonIcon size={22} />}
                         </button>
 
                         {/* Desktop Language Dropdown */}
@@ -136,8 +163,8 @@ export default function Header(props: any) {
                                 className="transition-all duration-200 text-foreground flex items-center gap-1 hover:transform hover:-translate-y-1"
                                 onClick={() => setHeaderDropdownOpen(!headerDropdownOpen)}
                             >
-                                <TranslateIcon size={24} />
-                                <CaretDownIcon size={16} />
+                                <TranslateIcon size={22} />
+                                <CaretDownIcon size={14} />
                             </button>
 
                             {headerDropdownOpen && (
@@ -158,8 +185,8 @@ export default function Header(props: any) {
                         </div>
 
                         <a href="https://t.me/showplsbot" target="_blank">
-                            <button className="flex gap-2.5 px-3 py-2 rounded-3xl hover:opacity-75 transition-all bg-secondary text-secondary-foreground items-center hover:transform hover:-translate-y-1 duration-200">
-                                <TelegramLogoIcon size={20} />
+                            <button className="flex gap-2.5 px-2.5 py-1.5 rounded-2xl hover:opacity-75 transition-all bg-secondary text-secondary-foreground items-center hover:transform hover:-translate-y-1 duration-200">
+                                <TelegramLogoIcon size={16} />
                                 {t('header.start')}
                             </button>
                         </a>

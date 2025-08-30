@@ -19,26 +19,30 @@
     "showButton": "I can show"
   },
   "earnSection": {
-    "earnText": "Earn real money with TON blockchain",
-    "anywhereText": "From anywhere in the world"
+    "earnText": "8.7 Billion Eyes Worldwide = Potential Executors",
+    "anywhereText": "Smartphones, cameras, drones — every lens can earn with Showpls"
   },
   "features": {
     "title": "Why use ShowPls?",
     "subtitle": "Get instant visual verification from people worldwide",
-    "realTimePayments": "Real-Time Payments",
-    "realTimeDescription": "Get instant visual verification from people worldwide",
-    "globalNetwork": "Global Network",
-    "globalDescription": "Connect with local reporters in any city, any place, any time",
-    "telegramWallet": "Telegram TON Wallet",
-    "walletDescription": "Payments are made via Telegram built-in wallet, with Ton modern cryptocurrency",
-    "verifiedCommunity": "Verified Community",
-    "verifiedDescription": "Trusted community with ratings and reviews, build reputation for better results",
+    "request": "Request",
+    "requestDescription": "User posts a request: photo, video or verification task",
+    "escrow": "Escrow",
+    "escrowDescription": "Payment is locked in a smart contract on the blockchain. This guarantees fairness: no scam, no lost money.",
+    "execution": "Execution",
+    "executionDescription": "Executor accepts the task and delivers real-time proof: photo, video or live stream",
+    "proofAndReward": "Proof & Reward",
+    "proofAndRewardDescription": "Executor uploads proof → User confirms → Instant payout",
     "startNow": "Start now"
   },
   "testimonials": {
     "title": "Testimonials",
-    "subtitle": "Greatest experience in my life!",
-    "testimonialText": "There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don't look even slightly believable."
+    "subtitle1": "Live news from anywhere in minutes",
+    "subtitle2": "Verified rentals, zero scams",
+    "subtitle3": "Real proof, not travel ads",
+    "testimonialText1": "“As a freelance journalist, I often need instant visuals from places I can't reach myself. With this app, I got live video from another continent in under 10 minutes. It's like having reporters everywhere.”",
+    "testimonialText2": "“I was about to rent an apartment abroad. Through this platform, a local user verified the property for me with photos and video. It saved me from a scam and gave full confidence before signing.”",
+    "testimonialText3": "“Needed to check if a beach was really as good as in the pictures. In less than 15 minutes, I got a real-time video from someone on the spot. No travel agency ever gave me that level of proof.”"
   },
   "cta": {
     "title": "Ready to start?",

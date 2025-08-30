@@ -9,6 +9,10 @@ button:hover {
   cursor: pointer;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 :root {
   /* 1. Background white; foreground black (light mode) */
   --background: #ffffff;
@@ -239,34 +243,34 @@ button:hover {
 }
 
 @layer utilities {
-    /* Glass panel utility: declared in utilities layer to override bg-card on Card */
-    .glass-panel {
-      -webkit-backdrop-filter: blur(24px);
-      backdrop-filter: blur(24px);
+  /* Glass panel utility: declared in utilities layer to override bg-card on Card */
+  .glass-panel {
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
 
-      /* Use explicit rgba for broad support (Telegram WebView) */
-      background: rgba(255, 255, 255, 0.8) !important;
-      background-color: rgba(255, 255, 255, 0.8) !important;
+    /* Use explicit rgba for broad support (Telegram WebView) */
+    background: rgba(255, 255, 255, 0.8) !important;
+    background-color: rgba(255, 255, 255, 0.8) !important;
 
-      border-width: 1px;
-      border-style: solid;
-    }
+    border-width: 1px;
+    border-style: solid;
+  }
 
-    /* Dark mode background for glass panel */
-    .dark .glass-panel {
-      background: rgba(9, 9, 9, 0.7) !important;
-      background-color: rgba(9, 9, 9, 0.7) !important;
-    }
+  /* Dark mode background for glass panel */
+  .dark .glass-panel {
+    background: rgba(9, 9, 9, 0.7) !important;
+    background-color: rgba(9, 9, 9, 0.7) !important;
+  }
 
-    /* Higher specificity to override Card's default bg-card */
-    .glass-panel.bg-card {
-      background: rgba(255, 255, 255, 0.8) !important;
-      background-color: rgba(255, 255, 255, 0.8) !important;
-    }
-    .dark .glass-panel.bg-card {
-      background: rgba(9, 9, 9, 0.7) !important;
-      background-color: rgba(9, 9, 9, 0.7) !important;
-    }
+  /* Higher specificity to override Card's default bg-card */
+  .glass-panel.bg-card {
+    background: rgba(255, 255, 255, 0.8) !important;
+    background-color: rgba(255, 255, 255, 0.8) !important;
+  }
+  .dark .glass-panel.bg-card {
+    background: rgba(9, 9, 9, 0.7) !important;
+    background-color: rgba(9, 9, 9, 0.7) !important;
+  }
 
   .world-map-bg {
     background-image: url("https://images.unsplash.com/photo-1451187580459-43490279c0fa?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080");

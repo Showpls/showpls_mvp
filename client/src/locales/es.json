@@ -19,26 +19,30 @@
     "showButton": "Puedo mostrar"
   },
   "earnSection": {
-    "earnText": "Gana dinero real con la blockchain de TON",
-    "anywhereText": "Desde cualquier parte del mundo"
+    "earnText": "8.7 Mil Millones de Ojos en Todo el Mundo = Ejecutores Potenciales",
+    "anywhereText": "Teléfonos inteligentes, cámaras, drones — cada lente puede ganar con Showpls"
   },
   "features": {
     "title": "¿Por qué usar ShowPls?",
     "subtitle": "Obtén verificación visual instantánea de personas en todo el mundo",
-    "realTimePayments": "Pagos en tiempo real",
-    "realTimeDescription": "Obtén verificación visual instantánea de personas en todo el mundo",
-    "globalNetwork": "Red global",
-    "globalDescription": "Conéctate con reporteros locales en cualquier ciudad, cualquier lugar, en cualquier momento",
-    "telegramWallet": "Billetera Telegram TON",
-    "walletDescription": "Los pagos se realizan a través de la billetera integrada de Telegram, con la criptomoneda moderna Ton",
-    "verifiedCommunity": "Comunidad verificada",
-    "verifiedDescription": "Comunidad confiable con calificaciones y reseñas, construye reputación para mejores resultados",
+    "request": "Solicitud",
+    "requestDescription": "El usuario publica una solicitud: foto, video o tarea de verificación.",
+    "escrow": "Fideicomiso",
+    "escrowDescription": "El pago se bloquea en un contrato inteligente en la blockchain. Esto garantiza equidad: sin estafas, sin pérdida de dinero.",
+    "execution": "Ejecución",
+    "executionDescription": "El ejecutor acepta la tarea y entrega pruebas en tiempo real: foto, video o transmisión en vivo.",
+    "proofAndReward": "Prueba y Recompensa",
+    "proofAndRewardDescription": "El ejecutor sube la prueba → El usuario confirma → Pago instantáneo.",
     "startNow": "Comenzar ahora"
   },
   "testimonials": {
     "title": "Testimonios",
-    "subtitle": "¡La mejor experiencia de mi vida!",
-    "testimonialText": "Hay muchas variaciones de pasajes de Lorem Ipsum disponibles, pero la mayoría ha sufrido alteraciones en alguna forma, por humor inyectado o palabras aleatorizadas que no parecen ni siquiera ligeramente creíbles."
+    "subtitle1": "Noticias en vivo desde cualquier lugar en minutos",
+    "subtitle2": "Alquileres verificados, sin estafas",
+    "subtitle3": "Pruebas reales, no anuncios turísticos",
+    "testimonialText1": "“Como periodista freelance, a menudo necesito imágenes instantáneas de lugares a los que no puedo llegar. Con esta app, recibí video en vivo desde otro continente en menos de 10 minutos. Es como tener reporteros en todas partes.”",
+    "testimonialText2": "“Estaba a punto de alquilar un apartamento en el extranjero. A través de esta plataforma, un usuario local verificó la propiedad con fotos y video. Me salvó de una estafa y me dio plena confianza antes de firmar.”",
+    "testimonialText3": "“Necesitaba comprobar si una playa era realmente tan buena como en las fotos. En menos de 15 minutos, recibí un video en tiempo real de alguien en el lugar. Ninguna agencia de viajes me dio nunca ese nivel de prueba.”"
   },
   "cta": {
     "title": "¿Listo para comenzar?",

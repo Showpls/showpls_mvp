@@ -15,7 +15,7 @@ export default function HeroSection() {
     };
 
     return (
-        <section className="mt-8 md:mt-12 lg:mt-14 w-full">
+        <section id="home" className="mt-8 md:mt-12 lg:mt-14 w-full">
             <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 lg:gap-12">
                 <div className="w-full md:w-[46%]">
                     <h1 className="text-center lg:text-left text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold leading-tight md:leading-snug">

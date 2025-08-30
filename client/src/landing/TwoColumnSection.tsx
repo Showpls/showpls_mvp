@@ -27,7 +27,7 @@ export default function TwoColumnSection(props: any) {
                                 <div className="hidden lg:block">
                                     <ArrowFatLeftIcon weight="fill" size={64} className="text-black dark:text-white" />
                                 </div>
-                                <div className="text-right text-2xl md:text-3xl lg:text-4xl font-bold leading-tight max-w-[56ch]">
+                                <div className="text-right text-4xl font-bold leading-tight max-w-[56ch]">
                                     {t('earnSection.earnText')}
                                 </div>
                             </div>
@@ -59,7 +59,7 @@ export default function TwoColumnSection(props: any) {
                         {/* Bottom row (left aligned) */}
                         <div className="w-full flex justify-start mt-4">
                             <div className="flex items-center gap-6 lg:gap-10">
-                                <div className="text-left text-2xl md:text-3xl lg:text-4xl font-bold leading-tight max-w-[56ch]">
+                                <div className="text-left text-4xl font-bold leading-tight max-w-[56ch]">
                                     {t('earnSection.anywhereText')}
                                 </div>
                                 <div className="hidden lg:block">
@@ -74,17 +74,17 @@ export default function TwoColumnSection(props: any) {
                     </div>
 
                     {/* RIGHT STACKED IMAGES - flexible */}
-                    <div className="flex-shrink-0 basis-[22%] max-w-[340px] min-w-[160px]">
+                    <div className="flex-shrink-0 w-1/2 max-w-[260px] min-w-[120px] h-[510px]">
                         <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg">
                             <div className="grid grid-rows-3 h-full">
-                                <div className="w-full h-full overflow-hidden">
-                                    <img src="/newYork.jpg" alt="New York" className="w-full h-full object-cover" />
+                                <div className="overflow-hidden h-full">
+                                    <img src="/smartphone.jpg" alt="New York" className="w-full h-full object-cover" />
                                 </div>
-                                <div className="w-full h-full overflow-hidden">
-                                    <img src="/london.jpg" alt="London" className="w-full h-full object-cover" />
+                                <div className="overflow-hidden h-full">
+                                    <img src="/camera.jpg" alt="London" className="w-full h-full object-cover" />
                                 </div>
-                                <div className="w-full h-full overflow-hidden">
-                                    <img src="/china.jpg" alt="China" className="w-full h-full object-cover" />
+                                <div className="overflow-hidden h-full">
+                                    <img src="/drone.jpg" alt="China" className="w-full h-full object-cover" />
                                 </div>
                             </div>
                         </div>
@@ -103,7 +103,7 @@ export default function TwoColumnSection(props: any) {
 
                         {/* RIGHT: text above arrow, centered column */}
                         <div className="flex-1 flex flex-col items-center justify-center gap-3">
-                            <div className={`font-bold text-center leading-tight ${isTablet ? 'text-xl' : 'text-3xl'}`}>
+                            <div className="font-bold text-center leading-tight text-2xl md:text-3xl">
                                 {t('earnSection.earnText')}
                             </div>
                             <div>
@@ -143,7 +143,7 @@ export default function TwoColumnSection(props: any) {
                     <div className="mt-4 md:mt-6 flex items-center gap-4 w-full">
                         {/* left: text over arrow, centered */}
                         <div className="flex-1 flex flex-col items-center justify-center gap-3">
-                            <div className={`font-bold text-center leading-tight ${isTablet ? 'text-2xl' : 'text-4xl'}`}>
+                            <div className="font-bold text-center leading-tight text-2xl md:text-3xl">
                                 {t('earnSection.anywhereText')}
                             </div>
                             <div>
@@ -160,13 +160,13 @@ export default function TwoColumnSection(props: any) {
                             <div className="w-full h-full rounded-2xl overflow-hidden shadow-lg">
                                 <div className="grid grid-rows-3 h-full">
                                     <div className="overflow-hidden h-full">
-                                        <img src="/newYork.jpg" alt="New York" className="w-full h-full object-cover" />
+                                        <img src="/smartphone.jpg" alt="New York" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="overflow-hidden h-full">
-                                        <img src="/london.jpg" alt="London" className="w-full h-full object-cover" />
+                                        <img src="/camera.jpg" alt="London" className="w-full h-full object-cover" />
                                     </div>
                                     <div className="overflow-hidden h-full">
-                                        <img src="/china.jpg" alt="China" className="w-full h-full object-cover" />
+                                        <img src="/drone.jpg" alt="China" className="w-full h-full object-cover" />
                                     </div>
                                 </div>
                             </div>

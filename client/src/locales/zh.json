@@ -19,26 +19,30 @@
     "showButton": "我可以展示"
   },
   "earnSection": {
-    "earnText": "通过TON区块链赚取真实货币",
-    "anywhereText": "来自世界任何地方"
+    "earnText": "全球 87 亿双眼睛 = 潜在执行者",
+    "anywhereText": "智能手机、相机、无人机 — 每一个镜头都能通过 Showpls 赚取收益"
   },
   "features": {
     "title": "为什么使用ShowPls？",
     "subtitle": "从世界各地的人们那里获得即时视觉验证",
-    "realTimePayments": "实时支付",
-    "realTimeDescription": "从世界各地的人们那里获得即时视觉验证",
-    "globalNetwork": "全球网络",
-    "globalDescription": "在任何城市、任何地点、任何时间与当地记者联系",
-    "telegramWallet": "Telegram TON钱包",
-    "walletDescription": "通过Telegram内置钱包使用现代加密货币Ton进行支付",
-    "verifiedCommunity": "验证社区",
-    "verifiedDescription": "值得信赖的社区，拥有评分和评论，建立声誉以获得更好的结果",
+    "request": "请求",
+    "requestDescription": "用户发布请求：照片、视频或验证任务。",
+    "escrow": "托管",
+    "escrowDescription": "付款被锁定在区块链的智能合约中。这保证了公平性：无欺诈，无资金损失。",
+    "execution": "执行",
+    "executionDescription": "执行者接受任务并交付实时证明：照片、视频或直播。",
+    "proofAndReward": "验证与奖励",
+    "proofAndRewardDescription": "执行者上传证明 → 用户确认 → 即时支付。",
     "startNow": "立即开始"
   },
   "testimonials": {
     "title": " testimonials",
-    "subtitle": "我一生中最棒的经历！",
-    "testimonialText": "Lorem Ipsum的段落有很多变体，但大多数都在某种程度上遭到了改变，通过注入幽默或随机化的词语，这些词语看起来甚至不太可信。"
+    "subtitle1": "几分钟内获取全球实时新闻",
+    "subtitle2": "租房已验证，无骗局",
+    "subtitle3": "真实证明，不是旅游广告",
+    "testimonialText1": "“作为一名自由记者，我经常需要来自无法亲自到达地点的即时画面。使用这个应用，我在不到10分钟内收到了来自另一大洲的实时视频。就像到处都有记者一样。”",
+    "testimonialText2": "“我正打算在国外租一套公寓。通过这个平台，当地用户用照片和视频验证了房产。这帮我避免了骗局，并让我在签约前完全放心。”",
+    "testimonialText3": "“我需要确认某个海滩是否真的像照片里那样好。在不到15分钟内，我收到了来自现场的实时视频。没有任何旅行社能给我这样的证明。”"
   },
   "cta": {
     "title": "准备好开始了吗？",

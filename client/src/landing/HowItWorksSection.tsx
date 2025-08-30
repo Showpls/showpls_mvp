@@ -1,5 +1,5 @@
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
-import { GlobeIcon, LightningIcon, SealCheckIcon, TelegramLogoIcon, WalletIcon } from "@phosphor-icons/react/dist/ssr";
+import { FilmStripIcon, HandCoinsIcon, LockKeyIcon, MegaphoneIcon, TelegramLogoIcon } from "@phosphor-icons/react/dist/ssr";
 import { useTranslation } from "react-i18next";
 
 export default function HowItWorksSection() {
@@ -7,10 +7,10 @@ export default function HowItWorksSection() {
     const { t } = useTranslation();
 
     return (
-        <section className="mt-20 md:mt-40 w-full">
+        <section id="howItWorks" className="mt-20 md:mt-40 w-full">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
-                    <h2 className="text-center lg:text-left text-3xl md:text-4xl lg:text-5xl font-bold">{t('features.title')}</h2>
+                    <h2 className="text-center lg:text-left text-3xl md:text-4xl lg:text-5xl font-bold">{t('howItWorks.title')}</h2>
                     <p className="text-center lg:text-left mt-2 text-base md:text-lg text-muted-foreground">
                         {t('features.subtitle')}
                     </p>
@@ -29,13 +29,13 @@ export default function HowItWorksSection() {
                     <CardContent className="p-6 flex flex-col justify-between h-full">
                         <div>
                             <div className="w-14 h-14 rounded-xl flex items-center justify-center">
-                                <LightningIcon size={48} className="text-white dark:text-black" />
+                                <MegaphoneIcon size={48} className="text-white dark:text-black" />
                             </div>
                             <CardTitle className="mt-6 text-2xl md:text-3xl text-white dark:text-black">
-                                {t('features.realTimePayments')}
+                                {t('features.request')}
                             </CardTitle>
                             <p className="mt-4 text-white dark:text-black font-medium">
-                                {t('features.realTimeDescription')}
+                                {t('features.requestDescription')}
                             </p>
                         </div>
                         <a href="https://t.me/showplsbot" target="_blank">
@@ -50,13 +50,13 @@ export default function HowItWorksSection() {
                     <CardContent className="p-6 flex flex-col justify-between h-full">
                         <div>
                             <div className="w-14 h-14 rounded-xl flex items-center justify-center">
-                                <GlobeIcon size={48} className="text-white dark:text-black" />
+                                <LockKeyIcon size={48} className="text-white dark:text-black" />
                             </div>
                             <CardTitle className="mt-6 text-2xl md:text-3xl text-white dark:text-black">
-                                {t('features.globalNetwork')}
+                                {t('features.escrow')}
                             </CardTitle>
                             <p className="mt-4 text-white dark:text-black font-medium">
-                                {t('features.globalDescription')}
+                                {t('features.escrowDescription')}
                             </p>
                         </div>
                         <a href="https://t.me/showplsbot" target="_blank">
@@ -71,13 +71,13 @@ export default function HowItWorksSection() {
                     <CardContent className="p-6 flex flex-col justify-between h-full">
                         <div>
                             <div className="w-14 h-14 rounded-xl flex items-center justify-center">
-                                <WalletIcon size={48} className="text-white dark:text-black" />
+                                <FilmStripIcon size={48} className="text-white dark:text-black" />
                             </div>
                             <CardTitle className="mt-6 text-2xl md:text-3xl text-white dark:text-black">
-                                {t('features.telegramWallet')}
+                                {t('features.execution')}
                             </CardTitle>
                             <p className="mt-4 text-white dark:text-black font-medium">
-                                {t('features.walletDescription')}
+                                {t('features.executionDescription')}
                             </p>
                         </div>
                         <a href="https://t.me/showplsbot" target="_blank">
@@ -92,13 +92,13 @@ export default function HowItWorksSection() {
                     <CardContent className="p-6 flex flex-col justify-between h-full">
                         <div>
                             <div className="w-14 h-14 rounded-xl flex items-center justify-center">
-                                <SealCheckIcon size={48} className="text-white dark:text-black" />
+                                <HandCoinsIcon size={48} className="text-white dark:text-black" />
                             </div>
                             <CardTitle className="mt-6 text-2xl md:text-3xl text-white dark:text-black">
-                                {t('features.verifiedCommunity')}
+                                {t('features.proofAndReward')}
                             </CardTitle>
                             <p className="mt-4 text-white dark:text-black font-medium">
-                                {t('features.verifiedDescription')}
+                                {t('features.proofAndRewardDescription')}
                             </p>
                         </div>
                         <a href="https://t.me/showplsbot" target="_blank">
