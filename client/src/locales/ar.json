@@ -1,14 +1,16 @@
 {
   "header": {
     "title": "SHOWPLS",
-    "home": "الصفحة الرئيسية",
     "features": "الميزات",
     "about": "عن",
     "start": "ابدأ",
+    "home": "الرئيسية",
     "howItWorks": "كيف يعمل",
-    "roadmap": "الخطة",
-    "joinTestnet": "ادخل الاختبار",
-    "community": "المجتمع"
+    "useCases": "الاستخدامات",
+    "aiVision": "رؤية الذكاء",
+    "community": "المجتمع",
+    "learnMore": "المزيد",
+    "joinTestnet": "انضم للتجربة"
   },
   "hero": {
     "title": "عيونك في كل مكان",

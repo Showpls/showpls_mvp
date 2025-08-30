@@ -1,14 +1,16 @@
 {
   "header": {
     "title": "SHOWPLS",
-    "home": "Home",
     "features": "Features",
     "about": "About",
     "start": "Start",
+    "home": "Home",
     "howItWorks": "How it Works",
-    "roadmap": "Roadmap",
-    "joinTestnet": "Join Testnet",
-    "community": "Community"
+    "useCases": "Use Cases",
+    "aiVision": "AI Vision",
+    "community": "Community",
+    "learnMore": "Learn More",
+    "joinTestnet": "Join Testnet"
   },
   "hero": {
     "title": "Your Eyes Everywhere",

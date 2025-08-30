@@ -1,14 +1,16 @@
 {
   "header": {
     "title": "SHOWPLS",
-    "home": "Inicio",
     "features": "Características",
     "about": "Acerca de",
     "start": "Comenzar",
-    "howItWorks": "Cómo funciona",
-    "roadmap": "Ruta",
-    "joinTestnet": "Unirse testnet",
-    "community": "Comunidad"
+    "home": "Inicio",
+    "howItWorks": "Cómo Funciona",
+    "useCases": "Casos de Uso",
+    "aiVision": "Visión IA",
+    "community": "Comunidad",
+    "learnMore": "Más Info",
+    "joinTestnet": "Unirse Testnet"
   },
   "hero": {
     "title": "Tus ojos en todas partes",

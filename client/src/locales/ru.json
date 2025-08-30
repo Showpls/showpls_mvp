@@ -1,14 +1,16 @@
 {
   "header": {
     "title": "SHOWPLS",
-    "home": "Главная",
     "features": "Функции",
     "about": "О нас",
     "start": "Начать",
+    "home": "Главная",
     "howItWorks": "Как работает",
-    "roadmap": "План",
-    "joinTestnet": "В тестнет",
-    "community": "Сообщество"
+    "useCases": "Примеры",
+    "aiVision": "Видение ИИ",
+    "community": "Сообщество",
+    "learnMore": "Подробнее",
+    "joinTestnet": "Тестнет"
   },
   "hero": {
     "title": "Ваши глаза повсюду",
