@@ -64,8 +64,6 @@ export default function Profile() {
   const updateProfile = async (payload: any) => {
     const token = getAuthToken();
 
-    console.log('Updating profile with payload:', payload);
-
     const res = await fetch('/api/me', {
       method: 'PUT',
       headers: {
@@ -77,13 +75,10 @@ export default function Profile() {
 
     if (!res.ok) {
       const errorData = await res.json().catch(() => ({ error: 'Network error' }));
-      console.error('Update profile error:', errorData);
       throw new Error(errorData.error || errorData.message || `Server error: ${res.status}`);
     }
 
-    const result = await res.json();
-    console.log('Profile updated successfully:', result);
-    return result;
+    return await res.json();
   };
 
   const invalidateAllQueries = async () => {
@@ -95,7 +90,6 @@ export default function Profile() {
     ]);
   };
 
-  // FIXED: Simplified role switch logic with better state management
   const handleRoleSwitch = async (direction: 'toProvider' | 'toBuyer') => {
     const confirmMessage = direction === 'toProvider'
       ? (t('profile.confirmSwitchToProvider') || 'Are you sure you want to become a seller? You will need to set your location.')
@@ -104,13 +98,12 @@ export default function Profile() {
     const confirmSwitch = window.confirm(confirmMessage);
     if (!confirmSwitch) return;
 
-    setIsUpdating(true); // Set updating state BEFORE async operations
+    setIsUpdating(true);
 
     try {
       if (direction === 'toProvider') {
         setRoleSwitchDirection('toProvider');
         setShowLocationPicker(true);
-        // Don't reset isUpdating here - location picker will handle it
       } else {
         await handleSwitchToBuyer();
       }
@@ -122,37 +115,28 @@ export default function Profile() {
     }
   };
 
-  // FIXED: Added direct cache update after successful role switch
   const handleSwitchToBuyer = async () => {
     try {
-      console.log('Executing switch to buyer');
-
       const updatedUser = await updateProfile({
         isProvider: false,
         location: null
       });
 
-      console.log('Successfully switched to buyer:', updatedUser);
-
-      // FIXED: IMMEDIATE CACHE UPDATE - critical fix
+      // Update cache immediately
       queryClient.setQueryData(['/api/me'], (old: any) => {
-        if (!old) return old;
-        return { ...old, isProvider: false, location: null };
+        return old ? { ...old, isProvider: false, location: null } : old;
       });
 
-      // Update public profile cache if it's the current user's profile
       if (data?.id === currentUser?.id) {
         queryClient.setQueryData(['/api/users', id], (old: any) => {
-          if (!old) return old;
-          return { ...old, isProvider: false, location: null };
+          return old ? { ...old, isProvider: false, location: null } : old;
         });
       }
 
-      // FIXED: Removed redundant refetch (cache update is immediate)
+      await refetchCurrentUser();
       await invalidateAllQueries();
 
       alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer! Your location has been cleared.');
-
     } catch (error: any) {
       console.error('Error switching to buyer:', error);
       throw error;
@@ -162,9 +146,7 @@ export default function Profile() {
     }
   };
 
-  // FIXED: Added direct cache update for location/role changes
   const handleLocationSelect = async (loc: any) => {
-    console.log('Location selected:', loc);
     setIsUpdating(true);
     setShowLocationPicker(false);
 
@@ -173,26 +155,23 @@ export default function Profile() {
 
       if (roleSwitchDirection === 'toProvider') {
         payload.isProvider = true;
-        console.log('Including isProvider: true in payload for role switch');
       }
 
-      console.log('Updating profile with payload:', payload);
-
       const updatedUser = await updateProfile(payload);
-      console.log('Profile updated successfully:', updatedUser);
 
-      // FIXED: IMMEDIATE CACHE UPDATE - critical fix
+      // Update cache immediately
       queryClient.setQueryData(['/api/me'], (old: any) => {
-        if (!old) return old;
-        return { ...old, ...payload };
+        return old ? { ...old, ...payload } : old;
       });
 
       if (data?.id === currentUser?.id) {
         queryClient.setQueryData(['/api/users', id], (old: any) => {
-          if (!old) return old;
-          return { ...old, ...payload };
+          return old ? { ...old, ...payload } : old;
         });
       }
+
+      await refetchCurrentUser();
+      await invalidateAllQueries();
 
       const wasRoleSwitch = roleSwitchDirection === 'toProvider';
       setRoleSwitchDirection(null);
@@ -202,7 +181,6 @@ export default function Profile() {
       } else {
         alert(t('profile.locationUpdated') || 'Your location has been updated.');
       }
-
     } catch (error: any) {
       console.error('Error updating location:', error);
       alert(t('profile.locationUpdateError') || `Failed to update location: ${error.message}`);
@@ -212,7 +190,6 @@ export default function Profile() {
   };
 
   const handleCloseLocationPicker = () => {
-    console.log('Closing location picker');
     setShowLocationPicker(false);
     setRoleSwitchDirection(null);
     setIsUpdating(false);
@@ -221,21 +198,17 @@ export default function Profile() {
   const shouldShowLocationPicker = showLocationPicker;
   const shouldShowOverlay = isUpdating && !showLocationPicker;
 
-  console.log('Current user state:', {
-    currentUser: currentUser?.isProvider,
-    profileData: data?.isProvider,
-    isUpdating,
-    roleSwitchDirection,
-    shouldShowLocationPicker,
-    shouldShowOverlay
-  });
-
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-y-hidden">
+    <div className="min-h-screen bg-background text-foreground overflow-y-auto">
       <div className="glass-panel p-4 mb-4 sticky top-0 z-40 shadow-md">
         <div className="max-w-sm mx-auto flex items-center justify-between">
           <div className="flex items-center">
-            <Button variant="ghost" size="sm" className="mr-2 text-foreground" onClick={() => setLocationPath('/twa')}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="mr-2 text-foreground hover:bg-brand-primary/10" 
+              onClick={() => setLocationPath('/twa')}
+            >
               <ArrowLeft className="w-5 h-5 flex-shrink-0" />
             </Button>
             <div className="flex items-center">
@@ -263,7 +236,7 @@ export default function Profile() {
         {!isLoading && !isError && data && (
           <>
             {/* User Stats Card */}
-            <Card className="glass-panel border-brand-primary/20">
+            <Card className="glass-panel border-brand-primary/20 hover:border-brand-primary/40 transition-colors">
               <CardContent className="p-5">
                 <div className="flex items-center mb-4">
                   <User className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
@@ -275,19 +248,19 @@ export default function Profile() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 mb-4">
-                  <div className="glass-panel p-3 rounded-md flex flex-col items-center">
+                  <div className="glass-panel p-3 rounded-md flex flex-col items-center hover:bg-brand-primary/5 transition-colors">
                     <Star className="w-5 h-5 text-yellow-500 mb-1 flex-shrink-0" />
                     <div className="text-xs text-muted-foreground text-center">{t('profile.rating')}</div>
                     <div className="font-semibold text-foreground text-lg">{Number(data.rating ?? 0).toFixed(2)}</div>
                   </div>
-                  <div className="glass-panel p-3 rounded-md flex flex-col items-center">
+                  <div className="glass-panel p-3 rounded-md flex flex-col items-center hover:bg-brand-primary/5 transition-colors">
                     <ShoppingCart className="w-5 h-5 text-brand-primary mb-1 flex-shrink-0" />
                     <div className="text-xs text-muted-foreground text-center">{t('profile.totalOrders')}</div>
                     <div className="font-semibold text-foreground text-lg">{data.totalOrders ?? 0}</div>
                   </div>
                 </div>
 
-                <div className="glass-panel p-3 rounded-md">
+                <div className="glass-panel p-3 rounded-md hover:bg-brand-primary/5 transition-colors">
                   <div className="flex items-center mb-1">
                     <MapPin className="w-4 h-4 mr-2 text-brand-primary flex-shrink-0" />
                     <div className="text-xs text-muted-foreground">{t('profile.location')}</div>
@@ -306,7 +279,7 @@ export default function Profile() {
             {isOwnProfile && (
               <>
                 {/* Role Management Card */}
-                <Card className="glass-panel border-brand-primary/20">
+                <Card className="glass-panel border-brand-primary/20 hover:border-brand-primary/40 transition-colors">
                   <CardContent className="p-5">
                     <div className="flex items-center mb-4">
                       <UserCog className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
@@ -317,23 +290,23 @@ export default function Profile() {
                       <div className="flex flex-col space-y-2">
                         <Button
                           size="lg"
-                          className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center justify-center gap-2 h-12 text-base"
+                          className="w-full bg-brand-primary hover:bg-brand-primary/90 text-white flex items-center justify-center gap-2 h-12 text-base transition-colors"
                           onClick={() => handleRoleSwitch(currentUser?.isProvider ? 'toBuyer' : 'toProvider')}
                           disabled={isUpdating && !showLocationPicker}
                         >
                           {(isUpdating && !showLocationPicker) ? (
-                            <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full flex-shrink-0 text-brand-primary" />
+                            <div className="animate-spin w-5 h-5 border-2 border-current border-t-transparent rounded-full flex-shrink-0" />
                           ) : currentUser?.isProvider ? (
-                            <ShoppingCart className="w-5 h-5 flex-shrink-0 text-brand-primary" />
+                            <ShoppingCart className="w-5 h-5 flex-shrink-0" />
                           ) : (
-                            <Store className="w-5 h-5 flex-shrink-0 text-brand-primary" />
+                            <Store className="w-5 h-5 flex-shrink-0" />
                           )}
-                          <span className="text-foreground">
+                          <span>
                             {(isUpdating && !showLocationPicker)
                               ? t('profile.updating')
                               : currentUser?.isProvider
-                                ? t('chat.provider')
-                                : t('profile.provider')
+                                ? t('profile.switchToBuyer')
+                                : t('profile.switchToProvider')
                             }
                           </span>
                         </Button>
@@ -344,7 +317,7 @@ export default function Profile() {
                           <Button
                             size="lg"
                             variant="outline"
-                            className="w-full text-foreground flex items-center justify-center gap-2 h-12 text-base"
+                            className="w-full text-foreground hover:bg-brand-primary/10 flex items-center justify-center gap-2 h-12 text-base transition-colors"
                             onClick={() => {
                               setRoleSwitchDirection(null);
                               setShowLocationPicker(true);
@@ -361,7 +334,7 @@ export default function Profile() {
                 </Card>
 
                 {/* Preferences Card */}
-                <Card className="glass-panel border-brand-primary/20">
+                <Card className="glass-panel border-brand-primary/20 hover:border-brand-primary/40 transition-colors">
                   <CardContent className="p-5">
                     <div className="flex items-center mb-4">
                       <Settings className="w-5 h-5 mr-2 text-brand-primary flex-shrink-0" />
@@ -369,16 +342,19 @@ export default function Profile() {
                     </div>
 
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between p-3 rounded-md bg-[#fffff0] dark:bg-panel">
+                      <div className="flex items-center justify-between p-3 rounded-md bg-card hover:bg-brand-primary/5 transition-colors">
                         <div className="text-sm text-foreground">{t('profile.language')}</div>
                         <LanguageSwitcher />
                       </div>
-                      <div className="flex items-center justify-between p-3 rounded-md bg-[#fffff0] dark:bg-panel">
+                      <div className="flex items-center justify-between p-3 rounded-md bg-card hover:bg-brand-primary/5 transition-colors">
                         <div className="text-sm text-foreground">{t('profile.theme')}</div>
-                        <Button size="sm" variant="outline" onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}>
-                          <span className="text-foreground">
-                            {theme === 'dark' ? t('profile.light') : t('profile.dark')}
-                          </span>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
+                          className="hover:bg-brand-primary/10"
+                          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                        >
+                          {theme === 'dark' ? t('profile.light') : t('profile.dark')}
                         </Button>
                       </div>
                     </div>
@@ -388,7 +364,7 @@ export default function Profile() {
             )}
 
             {!isOwnProfile && (
-              <Card className="glass-panel border-brand-accent/20">
+              <Card className="glass-panel border-brand-accent/20 hover:border-brand-accent/40 transition-colors">
                 <CardContent className="p-5">
                   <div className="flex items-center mb-4">
                     <Star className="w-5 h-5 mr-2 text-brand-accent flex-shrink-0" />
