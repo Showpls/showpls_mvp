@@ -59,7 +59,7 @@ export default function Profile() {
     return params.get('orderId') || '';
   }, []);
 
-  const isOwnProfile = currentUser?.id && data?.id && currentUser.id === data.id;
+  const isOwnProfile = currentUser?.id && data?.id && currentUser?.id === data.id;
 
   const updateProfile = async (payload: any) => {
     const token = getAuthToken();

@@ -124,7 +124,7 @@ router.post('/orders/:orderId/messages', authenticateEither, async (req, res) =>
       .insert(chatMessages)
       .values({
         orderId: order.id,
-        senderId: currentUser.id,
+        senderId: currentUser?.id,
         message: message,
         messageType: mediaUrl ? 'image' : 'text',
         metadata: mediaUrl ? { mediaUrl } : undefined,

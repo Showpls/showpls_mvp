@@ -295,7 +295,7 @@ export class MapService {
   private createOrderPopupHTML(order: any, currentUser?: any): string {
     const canAccept =
       currentUser &&
-      currentUser.id !== order.requesterId &&
+      currentUser?.id !== order.requesterId &&
       (order.status === "CREATED" || order.status === "FUNDED");
 
     const acceptButton = canAccept
