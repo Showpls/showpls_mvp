@@ -61,8 +61,9 @@ export default function CreateOrder() {
       }
     })();
 
-    if (currentUser.isProvider) {
+    if (currentUser?.isProvider) {
       window.location.href = '/twa';
+      return;
     }
 
     // Initialize location service

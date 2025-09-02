@@ -26,7 +26,24 @@ import { bootstrapTelegramAuth, getAuthToken } from "@/lib/auth";
 // Settings moved to Profile page
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
+// Main component that handles client-side only rendering
 export default function TelegramWebApp() {
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  // Don't render anything during server-side rendering
+  if (!isMounted) {
+    return null;
+  }
+
+  return <TelegramWebAppContent />;
+}
+
+// Client-side only component
+function TelegramWebAppContent() {
   const { t, i18n } = useTranslation();
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAllMyOrders, setShowAllMyOrders] = useState(false);
@@ -38,10 +55,15 @@ export default function TelegramWebApp() {
     isProvider: false,
     location: null as null | { lat: number; lng: number; address?: string },
   });
+  const [isClient, setIsClient] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [onboardingInitialized, setOnboardingInitialized] = useState(false);
   const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const formatTON = (nanoTon: string | number): string => {
     const ton = Number(nanoTon) / 1e9;
