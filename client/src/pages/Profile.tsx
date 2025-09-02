@@ -11,7 +11,7 @@ import { useTheme } from "next-themes";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { getAuthToken } from "@/lib/auth";
 import { LocationPicker } from "@/components/LocationPicker";
-import { MapPin, ShoppingCart, Store, User, Star, Settings, ArrowLeft, UserCog } from "lucide-react";
+import { MapPin, ShoppingCart, Store, User, Star, Settings, ArrowLeft, UserCog, X, Check } from "lucide-react";
 
 interface PublicUserProfile {
   id: string;
@@ -25,6 +25,44 @@ interface PublicUserProfile {
   photoUrl?: string;
 }
 
+// Custom Confirmation Dialog Component
+const ConfirmDialog = (props: any) => {
+  const { isOpen, title, message, onConfirm, onCancel, isLoading } = props;
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+      <div className="glass-panel p-6 rounded-lg max-w-sm w-full">
+        <h3 className="font-semibold text-foreground mb-4 text-lg">{title}</h3>
+        <p className="text-muted-foreground mb-6 text-sm leading-relaxed">{message}</p>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={onCancel}
+            disabled={isLoading}
+            className="flex-1"
+          >
+            <X className="w-4 h-4 mr-2" />
+            Cancel
+          </Button>
+          <Button
+            onClick={onConfirm}
+            disabled={isLoading}
+            className="flex-1 bg-brand-primary hover:bg-brand-primary/90"
+          >
+            {isLoading ? (
+              <div className="animate-spin w-4 h-4 border-2 border-current border-t-transparent rounded-full mr-2" />
+            ) : (
+              <Check className="w-4 h-4 mr-2" />
+            )}
+            Confirm
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default function Profile() {
   const { id } = useParams<{ id: string }>();
   const [locationPath, setLocationPath] = useLocation();
@@ -35,6 +73,15 @@ export default function Profile() {
   const [showLocationPicker, setShowLocationPicker] = useState(false);
   const [roleSwitchDirection, setRoleSwitchDirection] = useState<'toProvider' | 'toBuyer' | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
+  
+  // Confirmation dialog state
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    title: '',
+    message: '',
+    onConfirm: () => {},
+    direction: null as 'toProvider' | 'toBuyer' | null
+  });
 
   const { data, isLoading, isError, refetch } = useQuery<PublicUserProfile>({
     queryKey: ["/api/users", id],
@@ -61,6 +108,26 @@ export default function Profile() {
 
   const isOwnProfile = currentUser?.id && data?.id && currentUser?.id === data.id;
 
+  const updateProfile = async (payload: any) => {
+    const token = getAuthToken();
+
+    const res = await fetch('/api/me', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({ error: 'Network error' }));
+      throw new Error(errorData.error || errorData.message || `Server error: ${res.status}`);
+    }
+
+    return await res.json();
+  };
+
   const invalidateAllQueries = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
@@ -71,121 +138,76 @@ export default function Profile() {
   };
 
   const handleRoleSwitch = async (direction: 'toProvider' | 'toBuyer') => {
-    console.log('🔄 Role switch initiated:', direction);
-    console.log('Current user:', currentUser);
-    console.log('Current isProvider status:', currentUser?.isProvider);
-    
     const confirmMessage = direction === 'toProvider'
       ? (t('profile.confirmSwitchToProvider') || 'Are you sure you want to become a seller? You will need to set your location.')
       : (t('profile.confirmSwitchToBuyer') || 'Are you sure you want to become a buyer? Your location will be cleared.');
-  
-    const confirmSwitch = window.confirm(confirmMessage);
-    console.log('User confirmed switch:', confirmSwitch);
+
+    const confirmTitle = direction === 'toProvider'
+      ? 'Switch to Seller'
+      : 'Switch to Buyer';
+
+    // Show custom confirmation dialog instead of window.confirm
+    setConfirmDialog({
+      isOpen: true,
+      title: confirmTitle,
+      message: confirmMessage,
+      direction: direction,
+      onConfirm: () => confirmRoleSwitch(direction)
+    });
+  };
+
+  const confirmRoleSwitch = async (direction: 'toProvider' | 'toBuyer') => {
+    // Close the confirmation dialog
+    setConfirmDialog(prev => ({ ...prev, isOpen: false }));
     
-    if (!confirmSwitch) return;
-  
     setIsUpdating(true);
-    console.log('Set isUpdating to true');
-  
+
     try {
       if (direction === 'toProvider') {
-        console.log('Switching to provider - showing location picker');
         setRoleSwitchDirection('toProvider');
         setShowLocationPicker(true);
       } else {
-        console.log('Switching to buyer - calling handleSwitchToBuyer');
         await handleSwitchToBuyer();
       }
     } catch (error: any) {
-      console.error('❌ Error in role switch:', error);
-      console.error('Error details:', {
-        message: error.message,
-        stack: error.stack,
-        response: error.response
-      });
+      console.error('Error in role switch:', error);
+      // Use alert as fallback since it usually works in Telegram
       alert(t('profile.roleSwitchError') || `Failed to switch role: ${error.message}`);
       setIsUpdating(false);
       setRoleSwitchDirection(null);
     }
   };
-  
+
   const handleSwitchToBuyer = async () => {
-    console.log('🔄 Starting switch to buyer');
-    
     try {
-      console.log('Calling updateProfile with payload:', { isProvider: false, location: null });
-      
       const updatedUser = await updateProfile({
         isProvider: false,
         location: null
       });
-      
-      console.log('✅ Profile updated successfully:', updatedUser);
-  
+
       // Update cache immediately
       queryClient.setQueryData(['/api/me'], (old: any) => {
-        console.log('Updating /api/me cache:', old, '->', { ...old, isProvider: false, location: null });
         return old ? { ...old, isProvider: false, location: null } : old;
       });
-  
+
       if (data?.id === currentUser?.id) {
         queryClient.setQueryData(['/api/users', id], (old: any) => {
-          console.log('Updating /api/users cache:', old, '->', { ...old, isProvider: false, location: null });
           return old ? { ...old, isProvider: false, location: null } : old;
         });
       }
-  
-      console.log('Refetching current user...');
+
       await refetchCurrentUser();
-      
-      console.log('Invalidating all queries...');
       await invalidateAllQueries();
-  
-      console.log('✅ Switch to buyer completed successfully');
+
       alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer! Your location has been cleared.');
     } catch (error: any) {
-      console.error('❌ Error switching to buyer:', error);
+      console.error('Error switching to buyer:', error);
       throw error;
     } finally {
-      console.log('Cleaning up state...');
       setIsUpdating(false);
       setRoleSwitchDirection(null);
     }
   };
-  
-  const updateProfile = async (payload: any) => {
-    console.log('🔄 Starting updateProfile with payload:', payload);
-    
-    const token = getAuthToken();
-    console.log('Auth token exists:', !!token);
-    console.log('Token preview:', token ? `${token.substring(0, 10)}...` : 'null');
-  
-    console.log('Making API request to /api/me...');
-    const res = await fetch('/api/me', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(payload),
-    });
-  
-    console.log('API response status:', res.status);
-    console.log('API response ok:', res.ok);
-  
-    if (!res.ok) {
-      console.error('❌ API request failed');
-      const errorData = await res.json().catch(() => ({ error: 'Network error' }));
-      console.error('Error response data:', errorData);
-      throw new Error(errorData.error || errorData.message || `Server error: ${res.status}`);
-    }
-  
-    const responseData = await res.json();
-    console.log('✅ API response data:', responseData);
-    return responseData;
-  };
-
-  
 
   const handleLocationSelect = async (loc: any) => {
     setIsUpdating(true);
@@ -236,8 +258,12 @@ export default function Profile() {
     setIsUpdating(false);
   };
 
+  const handleCancelConfirmation = () => {
+    setConfirmDialog(prev => ({ ...prev, isOpen: false }));
+  };
+
   const shouldShowLocationPicker = showLocationPicker;
-  const shouldShowOverlay = isUpdating && !showLocationPicker;
+  const shouldShowOverlay = isUpdating && !showLocationPicker && !confirmDialog.isOpen;
 
   return (
     <div className="min-h-screen bg-background text-foreground overflow-y-auto">
@@ -430,6 +456,16 @@ export default function Profile() {
           </>
         )}
       </div>
+
+      {/* Custom Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={confirmDialog.isOpen}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={handleCancelConfirmation}
+        isLoading={isUpdating}
+      />
 
       {shouldShowLocationPicker && (
         <LocationPicker
