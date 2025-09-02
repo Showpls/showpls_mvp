@@ -61,26 +61,6 @@ export default function Profile() {
 
   const isOwnProfile = currentUser?.id && data?.id && currentUser?.id === data.id;
 
-  const updateProfile = async (payload: any) => {
-    const token = getAuthToken();
-
-    const res = await fetch('/api/me', {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
-      body: JSON.stringify(payload),
-    });
-
-    if (!res.ok) {
-      const errorData = await res.json().catch(() => ({ error: 'Network error' }));
-      throw new Error(errorData.error || errorData.message || `Server error: ${res.status}`);
-    }
-
-    return await res.json();
-  };
-
   const invalidateAllQueries = async () => {
     await Promise.all([
       queryClient.invalidateQueries({ queryKey: ['/api/me'] }),
@@ -91,60 +71,121 @@ export default function Profile() {
   };
 
   const handleRoleSwitch = async (direction: 'toProvider' | 'toBuyer') => {
+    console.log('🔄 Role switch initiated:', direction);
+    console.log('Current user:', currentUser);
+    console.log('Current isProvider status:', currentUser?.isProvider);
+    
     const confirmMessage = direction === 'toProvider'
       ? (t('profile.confirmSwitchToProvider') || 'Are you sure you want to become a seller? You will need to set your location.')
       : (t('profile.confirmSwitchToBuyer') || 'Are you sure you want to become a buyer? Your location will be cleared.');
-
+  
     const confirmSwitch = window.confirm(confirmMessage);
+    console.log('User confirmed switch:', confirmSwitch);
+    
     if (!confirmSwitch) return;
-
+  
     setIsUpdating(true);
-
+    console.log('Set isUpdating to true');
+  
     try {
       if (direction === 'toProvider') {
+        console.log('Switching to provider - showing location picker');
         setRoleSwitchDirection('toProvider');
         setShowLocationPicker(true);
       } else {
+        console.log('Switching to buyer - calling handleSwitchToBuyer');
         await handleSwitchToBuyer();
       }
     } catch (error: any) {
-      console.error('Error in role switch:', error);
+      console.error('❌ Error in role switch:', error);
+      console.error('Error details:', {
+        message: error.message,
+        stack: error.stack,
+        response: error.response
+      });
       alert(t('profile.roleSwitchError') || `Failed to switch role: ${error.message}`);
       setIsUpdating(false);
       setRoleSwitchDirection(null);
     }
   };
-
+  
   const handleSwitchToBuyer = async () => {
+    console.log('🔄 Starting switch to buyer');
+    
     try {
+      console.log('Calling updateProfile with payload:', { isProvider: false, location: null });
+      
       const updatedUser = await updateProfile({
         isProvider: false,
         location: null
       });
-
+      
+      console.log('✅ Profile updated successfully:', updatedUser);
+  
       // Update cache immediately
       queryClient.setQueryData(['/api/me'], (old: any) => {
+        console.log('Updating /api/me cache:', old, '->', { ...old, isProvider: false, location: null });
         return old ? { ...old, isProvider: false, location: null } : old;
       });
-
+  
       if (data?.id === currentUser?.id) {
         queryClient.setQueryData(['/api/users', id], (old: any) => {
+          console.log('Updating /api/users cache:', old, '->', { ...old, isProvider: false, location: null });
           return old ? { ...old, isProvider: false, location: null } : old;
         });
       }
-
+  
+      console.log('Refetching current user...');
       await refetchCurrentUser();
+      
+      console.log('Invalidating all queries...');
       await invalidateAllQueries();
-
+  
+      console.log('✅ Switch to buyer completed successfully');
       alert(t('profile.roleSwitchedToBuyer') || 'You are now a buyer! Your location has been cleared.');
     } catch (error: any) {
-      console.error('Error switching to buyer:', error);
+      console.error('❌ Error switching to buyer:', error);
       throw error;
     } finally {
+      console.log('Cleaning up state...');
       setIsUpdating(false);
       setRoleSwitchDirection(null);
     }
   };
+  
+  const updateProfile = async (payload: any) => {
+    console.log('🔄 Starting updateProfile with payload:', payload);
+    
+    const token = getAuthToken();
+    console.log('Auth token exists:', !!token);
+    console.log('Token preview:', token ? `${token.substring(0, 10)}...` : 'null');
+  
+    console.log('Making API request to /api/me...');
+    const res = await fetch('/api/me', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(payload),
+    });
+  
+    console.log('API response status:', res.status);
+    console.log('API response ok:', res.ok);
+  
+    if (!res.ok) {
+      console.error('❌ API request failed');
+      const errorData = await res.json().catch(() => ({ error: 'Network error' }));
+      console.error('Error response data:', errorData);
+      throw new Error(errorData.error || errorData.message || `Server error: ${res.status}`);
+    }
+  
+    const responseData = await res.json();
+    console.log('✅ API response data:', responseData);
+    return responseData;
+  };
+
+  
 
   const handleLocationSelect = async (loc: any) => {
     setIsUpdating(true);
