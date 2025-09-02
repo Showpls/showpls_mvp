@@ -6,6 +6,7 @@ import { getAuthToken } from "@/lib/auth";
 import { locationService } from "@/lib/location";
 import { InteractiveMap } from "./InteractiveMap";
 import { OrderAcceptButton } from "./OrderAcceptButton";
+import { Order } from "@/lib/map";
 
 interface MapViewProps {
   selectedMediaType: string;
@@ -17,7 +18,7 @@ export function MapView({ selectedMediaType, onMediaTypeChange, isClickable = tr
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [orders, setOrders] = useState<any[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
     // Initialize location service
@@ -39,36 +40,37 @@ export function MapView({ selectedMediaType, onMediaTypeChange, isClickable = tr
     };
   }, []);
 
-  const handleNearMe = async () => {
-    setError(null);
-    setLoading(true);
 
-    try {
-      const location = await locationService.getCurrentLocation();
-      console.log('[MAP] Location received:', location);
 
-      // Fetch orders with location
-      const token = getAuthToken();
-      const url = `/api/orders/nearby?lat=${location.latitude}&lng=${location.longitude}&radius=15`;
-      const res = await fetch(url, {
+// Update the near me handler to use proper error handling
+const handleNearMe = async () => {
+  setError(null);
+  setLoading(true);
+
+  try {
+    const location = await locationService.getCurrentLocation();
+    const token = getAuthToken();
+    
+    const response = await fetch(
+      `/api/orders/nearby?lat=${location.latitude}&lng=${location.longitude}&radius=15`,
+      {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
-      });
-
-      if (!res.ok) {
-        const txt = await res.text();
-        throw new Error(txt || res.statusText);
       }
+    );
 
-      const json = await res.json();
-      setOrders(Array.isArray(json.orders) ? json.orders : []);
-
-    } catch (e: any) {
-      console.error('[MAP] Location error:', e);
-      setError(e.message || t('map.locationError') || 'Failed to get your location');
-    } finally {
-      setLoading(false);
+    if (!response.ok) {
+      throw new Error(await response.text());
     }
-  };
+
+    const data = await response.json();
+    setOrders(Array.isArray(data.orders) ? data.orders : []);
+  } catch (e: any) {
+    console.error('[MAP] Location error:', e);
+    setError(e.message || t('map.locationError') || 'Failed to get your location');
+  } finally {
+    setLoading(false);
+  }
+};
 
   const filteredOrders = orders.filter((o) =>
     !selectedMediaType || o.mediaType === selectedMediaType

@@ -117,9 +117,12 @@ export function InteractiveMap({
     };
   }, [initialCenter, initialZoom, isMapInitialized]);
 
-  // Effect to update map markers when orders or providers change
+  // useEffect for markers
   useEffect(() => {
-    if (!isMapInitialized) return;
+    if (!isMapInitialized || !mapService.map) return;
+
+    // Clear markers first
+    mapService.clearMarkers();
 
     if (currentUser?.isProvider) {
       mapService.addOrderMarkers(allOrders, currentUser, onOrderClick, isClickable);
@@ -133,6 +136,17 @@ export function InteractiveMap({
       }
     }
   }, [isMapInitialized, allOrders, providers, currentUser, onOrderClick, onProviderClick, isClickable]);
+
+  // theme update useEffect
+  useEffect(() => {
+    if (!mapService.map || !theme) return;
+    
+    const style = theme === "dark" 
+      ? "mapbox://styles/mapbox/dark-v11"
+      : "mapbox://styles/mapbox/light-v11";
+    
+    mapService.map.setStyle(style);
+  }, [theme]);
 
   return (
     <div className={`relative ${className}`}>

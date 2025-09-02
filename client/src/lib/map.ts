@@ -1,4 +1,32 @@
 import mapboxgl from "mapbox-gl";
+
+interface Location {
+  lat: number;
+  lng: number;
+  address?: string;
+}
+
+interface BaseEntity {
+  id: string;
+  location: Location;
+}
+
+export interface Provider extends BaseEntity {
+  name: string;
+  rating?: number;
+  reviewCount?: number;
+  specialties?: string[];
+}
+
+export interface Order extends BaseEntity {
+  title: string;
+  description: string;
+  mediaType: 'photo' | 'video' | 'live';
+  budgetNanoTon: string;
+  status: string;
+  requesterId: string;
+}
+
 // Mapbox configuration
 export const MAPBOX_CONFIG = {
   accessToken: (() => {
@@ -25,7 +53,7 @@ export const MAPBOX_CONFIG = {
 
 // Map service class
 export class MapService {
-  private map: mapboxgl.Map | null = null;
+  map: mapboxgl.Map | null = null;
   private markers: mapboxgl.Marker[] = [];
   private clusters: any = null;
 
@@ -88,17 +116,13 @@ export class MapService {
     return this.map;
   }
 
-  // Add markers for providers
   addProviderMarkers(
-    providers: any[],
+    providers: Provider[],
     currentUser?: any,
-    onMarkerClick?: (provider: any) => void,
+    onMarkerClick?: (provider: Provider) => void,
     isClickable: boolean = true
   ) {
     if (!this.map) return;
-
-    // Clear existing markers
-    this.clearMarkers();
 
     providers.forEach((provider) => {
       if (provider.location?.lat && provider.location?.lng) {
@@ -151,15 +175,12 @@ export class MapService {
 
   // Add markers for orders
   addOrderMarkers(
-    orders: any[],
+    orders: Order[],
     currentUser?: any,
-    onMarkerClick?: (order: any) => void,
+    onMarkerClick?: (order: Order) => void,
     isClickable: boolean = true
   ) {
     if (!this.map) return;
-
-    // Clear existing markers
-    this.clearMarkers();
 
     orders.forEach((order) => {
       if (order.location?.lat && order.location?.lng) {

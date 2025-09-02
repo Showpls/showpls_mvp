@@ -15,19 +15,21 @@ function NewLanding() {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="flex overflow-hidden flex-col items-center pt-6 md:pt-10 min-h-screen px-4 md:px-8 lg:px-12 xl:px-20 bg-background text-foreground">
-      <Header
-        {...{
-          theme,
-          setTheme,
-          isMobile,
-          isTablet,
-          setIsMobileMenuOpen,
-          isMobileMenuOpen,
-        }}
-      />
+    <div className="flex overflow-hidden flex-col items-center pt-6 md:pt-10 min-h-screen px-4 md:px-8 lg:px-12 xl:px-20 bg-background text-foreground gap-23 md:gap-36 lg:gap-50">
+      <div>
+        <Header
+          {...{
+            theme,
+            setTheme,
+            isMobile,
+            isTablet,
+            setIsMobileMenuOpen,
+            isMobileMenuOpen,
+          }}
+        />
 
-      <HeroSection />
+        <HeroSection />
+      </div>
 
       <TwoColumnSection
         isMobile={isMobile}

@@ -66,7 +66,7 @@ export default function TestimonialsSection() {
     };
 
     return (
-        <section id="testimonials" className="mt-20 md:mt-40 w-full">
+        <section id="testimonials" className="w-full">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">{t('testimonials.title')}</h2>
 
             <div className="mt-12 flex flex-col lg:flex-row gap-8 md:gap-12 items-center">

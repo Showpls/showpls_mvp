@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { useTranslation } from "react-i18next";
 import { ArrowLeft, Filter, X, Crosshair, Eye, MapPin } from "lucide-react";
 import { Link } from "wouter";
@@ -96,14 +95,14 @@ export default function MapPage() {
                             <div className={`fixed bottom-0 left-0 right-0 bg-background rounded-t-3xl p-6 transition-transform duration-300 ${showProviderSheet ? 'translate-y-0' : 'translate-y-full'}`}>
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="text-xl font-bold">{selectedProvider.name || 'Provider'}</h2>
-                                    <button
+                                    <button 
                                         onClick={closeProviderDetails}
                                         className="p-2 rounded-full hover:bg-muted"
                                     >
                                         <X className="w-5 h-5" />
                                     </button>
                                 </div>
-
+                                
                                 {selectedProvider.rating && (
                                     <div className="flex items-center mb-4">
                                         <span className="text-yellow-500 mr-1">★</span>

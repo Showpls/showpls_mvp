@@ -8,7 +8,7 @@ export default function TwoColumnSection(props: any) {
     const { t } = useTranslation();
 
     return (
-        <section className="mt-20 md:mt-40 w-full">
+        <section className="w-full">
             {!isMobile && !isTablet ? (
                 /* DESKTOP LAYOUT - Fixed height issue */
                 <div className="relative flex items-stretch justify-between gap-8">

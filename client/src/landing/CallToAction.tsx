@@ -6,7 +6,7 @@ export default function CallToActionSection() {
     const { t } = useTranslation();
 
     return (
-        <section className="mt-20 md:mt-40 flex flex-col items-center text-center gap-6">
+        <section className="flex flex-col items-center text-center gap-6">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold">{t('cta.title')}</h2>
             <p className="text-lg md:text-xl text-muted-foreground">
                 {t('cta.subtitle')}

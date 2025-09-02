@@ -9,7 +9,7 @@ export default function Footer(props: any) {
     const { t } = useTranslation();
 
     return (
-        <footer className="mt-20 md:mt-32 w-full py-12 border-t border-border">
+        <footer className="w-full py-12 border-t border-border">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
                 <div className="flex flex-col gap-4">
                     <div className="flex items-center gap-3">

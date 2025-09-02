@@ -7,7 +7,7 @@ export default function HowItWorksSection() {
     const { t } = useTranslation();
 
     return (
-        <section id="howItWorks" className="mt-20 md:mt-40 w-full">
+        <section id="howItWorks" className="w-full">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                 <div>
                     <h2 className="text-center lg:text-left text-3xl md:text-4xl lg:text-5xl font-bold">{t('howItWorks.title')}</h2>
