@@ -15,7 +15,6 @@ import { getAuthToken, bootstrapTelegramAuth } from "@/lib/auth";
 import { locationService } from "@/lib/location";
 import { InteractiveMap } from "@/components/InteractiveMap";
 import { LocationPicker } from "@/components/LocationPicker";
-import TelegramWebApp from "./TelegramWebApp";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 interface OrderData {
@@ -377,28 +376,20 @@ export default function CreateOrder() {
               {/* Confirmation Dialog (controlled) */}
               <AlertDialog.Root open={confirmOpen} onOpenChange={setConfirmOpen}>
                 <AlertDialog.Portal>
-                  <AlertDialog.Overlay className="fixed inset-0 bg-black/60 z-[1000]" />
-                  <AlertDialog.Content className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[90vw] max-w-sm rounded-lg bg-panel text-text-primary border border-brand-primary/30 p-4 shadow-xl z-[1001]">
-                    <AlertDialog.Title className="font-semibold mb-2 text-text-primary">
+                  <AlertDialog.Overlay className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" />
+                  <AlertDialog.Content className="glass-panel p-6 rounded-lg max-w-sm w-full">
+                    <AlertDialog.Title className="font-semibold text-foreground mb-4 text-lg">
                       {t('createRequest.confirm.title')}
                     </AlertDialog.Title>
-                    <AlertDialog.Description className="text-sm text-text-muted mb-4">
+                    <AlertDialog.Description className="text-muted-foreground mb-6 text-sm leading-relaxed">
                       {t('createRequest.confirm.body')}
-                      {balanceInfo?.sufficient && (
-                        <div className="mt-2 text-xs">
-                          {t('createOrder.balanceOk', {
-                            balance: (Number(balanceInfo.balance) / 1e9).toFixed(3),
-                            required: (Number(balanceInfo.required) / 1e9).toFixed(3)
-                          })}
-                        </div>
-                      )}
                     </AlertDialog.Description>
-                    <div className="flex justify-end gap-2">
+                    <div className="flex gap-2">
                       <AlertDialog.Cancel asChild>
-                        <Button variant="outline">{t('common.cancel')}</Button>
+                        <Button variant="outline" className="flex-1">{t('common.cancel')}</Button>
                       </AlertDialog.Cancel>
                       <AlertDialog.Action asChild>
-                        <Button onClick={() => createOrderMutation.mutate(orderData)} className="bg-brand-primary hover:bg-brand-primary/90 text-white">
+                        <Button onClick={() => createOrderMutation.mutate(orderData)} className="flex-1 bg-brand-primary hover:bg-brand-primary/90 text-white">
                           {t('createRequest.confirm.confirm')}
                         </Button>
                       </AlertDialog.Action>

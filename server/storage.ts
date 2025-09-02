@@ -22,6 +22,7 @@ export interface IStorage {
   // User management
   getUser(id: string): Promise<User | undefined>;
   getUserByTelegramId(telegramId: string): Promise<User | undefined>;
+  getAllUsers(): Promise<User[]>;
   createUser(user: InsertUser): Promise<User>;
   updateUser(id: string, updates: Partial<InsertUser>): Promise<User>;
 
@@ -35,20 +36,36 @@ export interface IStorage {
   getNearbyOrders(lat: number, lng: number, radiusKm: number): Promise<Order[]>;
   // Optional chat persistence for MVP
   getChatMessages?(orderId: string): Promise<any[]>;
-  createChatMessage?(message: { orderId: string; senderId: string; message: string; messageType?: string; metadata?: any }): Promise<any>;
-  
+  createChatMessage?(message: {
+    orderId: string;
+    senderId: string;
+    message: string;
+    messageType?: string;
+    metadata?: any;
+  }): Promise<any>;
+
   // Notification management
   createNotification(notification: InsertNotification): Promise<any>;
 
   // Dispute management
   getOrderDisputes(orderId: string): Promise<Dispute[]>;
-  createDispute(params: { orderId: string; openedBy: string; reason: string; evidence?: string[] }): Promise<Dispute>;
+  createDispute(params: {
+    orderId: string;
+    openedBy: string;
+    reason: string;
+    evidence?: string[];
+  }): Promise<Dispute>;
   addDisputeEvidence(disputeId: string, evidence: string[]): Promise<Dispute>;
 
   // Ratings
   createRating(rating: InsertRating): Promise<Rating>;
-  getRatingByOrderAndFrom(orderId: string, fromUserId: string): Promise<Rating | undefined>;
-  recalculateUserRating(userId: string): Promise<{ average: number; count: number }>;
+  getRatingByOrderAndFrom(
+    orderId: string,
+    fromUserId: string
+  ): Promise<Rating | undefined>;
+  recalculateUserRating(
+    userId: string
+  ): Promise<{ average: number; count: number }>;
 }
 
 // In-memory storage for development (replace with DatabaseStorage for production)
@@ -67,6 +84,11 @@ class DatabaseStorage implements IStorage {
     });
 
     return user;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    const users = await db.query.users.findMany();
+    return users;
   }
 
   async createUser(user: InsertUser): Promise<User> {
@@ -163,7 +185,7 @@ class DatabaseStorage implements IStorage {
 
   async getAllOrders(): Promise<Order[]> {
     const allOrders = await db.query.orders.findMany({
-      where: eq(orders.status, 'CREATED'), // Only show available orders
+      where: eq(orders.status, "CREATED"), // Only show available orders
     });
 
     return allOrders;
@@ -211,7 +233,10 @@ class DatabaseStorage implements IStorage {
   async getChatMessages(orderId: string): Promise<any[]> {
     try {
       const messages = await (db as any).query.chatMessages.findMany({
-        where: eq((require("@shared/schema").chatMessages as any).orderId, orderId),
+        where: eq(
+          (require("@shared/schema").chatMessages as any).orderId,
+          orderId
+        ),
       });
       return messages || [];
     } catch {
@@ -219,14 +244,20 @@ class DatabaseStorage implements IStorage {
     }
   }
 
-  async createChatMessage(message: { orderId: string; senderId: string; message: string; messageType?: string; metadata?: any }): Promise<any> {
+  async createChatMessage(message: {
+    orderId: string;
+    senderId: string;
+    message: string;
+    messageType?: string;
+    metadata?: any;
+  }): Promise<any> {
     const [row] = await (db as any)
-      .insert((require("@shared/schema").chatMessages as any))
+      .insert(require("@shared/schema").chatMessages as any)
       .values({
         orderId: message.orderId,
         senderId: message.senderId,
         message: message.message,
-        messageType: message.messageType || 'text',
+        messageType: message.messageType || "text",
         metadata: message.metadata,
       })
       .returning();
@@ -253,7 +284,12 @@ class DatabaseStorage implements IStorage {
     return rows as Dispute[];
   }
 
-  async createDispute(params: { orderId: string; openedBy: string; reason: string; evidence?: string[] }): Promise<Dispute> {
+  async createDispute(params: {
+    orderId: string;
+    openedBy: string;
+    reason: string;
+    evidence?: string[];
+  }): Promise<Dispute> {
     const disputeId = randomUUID();
     const [row] = await (db as any)
       .insert(disputes as any)
@@ -263,18 +299,21 @@ class DatabaseStorage implements IStorage {
         reason: params.reason,
         evidence: params.evidence ?? [],
         disputeId,
-        status: 'OPEN',
+        status: "OPEN",
       })
       .returning();
     return row as Dispute;
   }
 
-  async addDisputeEvidence(disputeId: string, evidence: string[]): Promise<Dispute> {
+  async addDisputeEvidence(
+    disputeId: string,
+    evidence: string[]
+  ): Promise<Dispute> {
     // Fetch current evidence and append
     const existing = await (db as any).query.disputes.findFirst({
       where: eq((disputes as any).disputeId, disputeId),
     });
-    if (!existing) throw new Error('Dispute not found');
+    if (!existing) throw new Error("Dispute not found");
     const nextEvidence = [
       ...((existing.evidence as string[] | null) ?? []),
       ...evidence,
@@ -300,19 +339,30 @@ class DatabaseStorage implements IStorage {
     return row as Rating;
   }
 
-  async getRatingByOrderAndFrom(orderId: string, fromUserId: string): Promise<Rating | undefined> {
+  async getRatingByOrderAndFrom(
+    orderId: string,
+    fromUserId: string
+  ): Promise<Rating | undefined> {
     const existing = await (db as any).query.ratings.findFirst({
-      where: and(eq((ratings as any).orderId, orderId), eq((ratings as any).fromUserId, fromUserId)),
+      where: and(
+        eq((ratings as any).orderId, orderId),
+        eq((ratings as any).fromUserId, fromUserId)
+      ),
     });
     return existing as Rating | undefined;
   }
 
-  async recalculateUserRating(userId: string): Promise<{ average: number; count: number }> {
+  async recalculateUserRating(
+    userId: string
+  ): Promise<{ average: number; count: number }> {
     const rows = await (db as any).query.ratings.findMany({
       where: eq((ratings as any).toUserId, userId),
     });
     const count = rows?.length || 0;
-    const sum = (rows || []).reduce((acc: number, r: any) => acc + Number(r.rating || 0), 0);
+    const sum = (rows || []).reduce(
+      (acc: number, r: any) => acc + Number(r.rating || 0),
+      0
+    );
     const average = count > 0 ? sum / count : 0;
 
     await this.updateUser(userId, {

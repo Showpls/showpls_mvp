@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { mapService } from "@/lib/map";
 import { getAuthToken } from "@/lib/auth";
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { useTheme } from "next-themes";
+import { useTranslation } from "react-i18next";
 
 interface InteractiveMapProps {
   onOrderClick?: (order: any) => void;
@@ -25,6 +26,7 @@ export function InteractiveMap({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [isMapInitialized, setIsMapInitialized] = useState(false);
   const { theme } = useTheme()
+  const { t, i18n } = useTranslation();
 
   // Fetch current user
   const { data: currentUser } = useQuery({
@@ -40,12 +42,11 @@ export function InteractiveMap({
     },
   });
 
-  // Fetch orders if user is a provider
+  // Fetch orders
   const { data: allOrders = [], isLoading: isLoadingOrders } = useQuery<any[]>({
     queryKey: ['/api/orders'],
     queryFn: async () => {
-      if (!currentUser?.isProvider) return [];
-      
+
       const token = getAuthToken();
       try {
         const response = await fetch('/api/orders', {
@@ -64,22 +65,21 @@ export function InteractiveMap({
     enabled: !!currentUser?.isProvider,
   });
 
-  // Fetch providers if user is not a provider
+  // Fetch providers
   const { data: providers = [], isLoading: isLoadingProviders } = useQuery<any[]>({
-    queryKey: ['/api/providers'],
+    queryKey: ['/api/users/all'],
     queryFn: async () => {
-      if (currentUser?.isProvider) return [];
-      
+
       const token = getAuthToken();
       try {
-        const response = await fetch('/api/providers', {
+        const response = await fetch('/api/users/all', {
           headers: token ? { Authorization: `Bearer ${token}` } : {},
         });
         if (!response.ok) {
           throw new Error('Failed to fetch providers');
         }
         const data = await response.json();
-        return Array.isArray(data.providers) ? data.providers : [];
+        return Array.isArray(data.users) ? data.users : [];
       } catch (error) {
         console.error('[INTERACTIVE_MAP] Failed to fetch providers:', error);
         return [];
@@ -87,6 +87,10 @@ export function InteractiveMap({
     },
     enabled: !currentUser?.isProvider,
   });
+
+  const filteredProviders = useMemo(() => {
+    return providers.filter(provider => provider.isProvider && provider.isActive);
+  }, [providers]);
 
   // Initialize map
   useEffect(() => {
@@ -121,7 +125,6 @@ export function InteractiveMap({
   useEffect(() => {
     if (!isMapInitialized || !mapService.map) return;
 
-    // Clear markers first
     mapService.clearMarkers();
 
     if (currentUser?.isProvider) {
@@ -130,21 +133,22 @@ export function InteractiveMap({
         setTimeout(() => mapService.fitBounds(), 100);
       }
     } else {
-      mapService.addProviderMarkers(providers, currentUser, onProviderClick, isClickable);
-      if (providers.length > 0) {
+      // Use filteredProviders here
+      mapService.addProviderMarkers(filteredProviders, currentUser, onProviderClick, isClickable);
+      if (filteredProviders.length > 0) {
         setTimeout(() => mapService.fitBounds(), 100);
       }
     }
-  }, [isMapInitialized, allOrders, providers, currentUser, onOrderClick, onProviderClick, isClickable]);
+  }, [isMapInitialized, allOrders, filteredProviders, currentUser, onOrderClick, onProviderClick, isClickable]);
 
   // theme update useEffect
   useEffect(() => {
     if (!mapService.map || !theme) return;
-    
-    const style = theme === "dark" 
+
+    const style = theme === "dark"
       ? "mapbox://styles/mapbox/dark-v11"
       : "mapbox://styles/mapbox/light-v11";
-    
+
     mapService.map.setStyle(style);
   }, [theme]);
 
@@ -162,7 +166,7 @@ export function InteractiveMap({
           <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
             <p className="text-sm mt-2 text-center">
-              {currentUser?.isProvider ? 'Загрузка заказов...' : 'Загрузка специалистов...'}
+              {t('uploading')}
             </p>
           </div>
         </div>

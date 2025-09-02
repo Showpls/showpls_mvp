@@ -8,7 +8,6 @@ import { OrderCard } from "@/components/OrderCard";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link } from "wouter";
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import {
@@ -144,22 +143,6 @@ function TelegramWebAppContent() {
     }
   };
 
-  const toggleProvider = async () => {
-    await updateProfile({ isProvider: !(currentUser?.isProvider ?? false) });
-  };
-
-  const setLocationFromDevice = async () => {
-    const loc = await getDeviceLocation();
-    if (!loc) return;
-    await updateProfile({ location: loc });
-  };
-
-  const setLocationFromDeviceLocal = async () => {
-    const loc = await getDeviceLocation();
-    if (!loc) return;
-    setOnboarding(o => ({ ...o, location: loc }));
-  };
-
   const { data: userOrders } = useQuery({
     queryKey: ['/api/orders/user'],
     enabled: !!currentUser,
@@ -195,7 +178,6 @@ function TelegramWebAppContent() {
     window.location.href = '/create-order';
   }
   const handleMapFilter = (mediaType: string) => setSelectedMediaType(mediaType);
-  const fillSampleRequest = () => setShowCreateForm(true);
 
   const getMediaTypeIcon = (mediaType: string) => {
     switch (mediaType) {
@@ -233,11 +215,13 @@ function TelegramWebAppContent() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {/* Header */}
       <div className="glass-panel rounded-none h-16 mb-6">
         <div className="max-w-sm mx-auto flex items-center justify-between h-full px-4">
           <div className="flex items-center gap-1">
             <img src="/logo4.png" alt="Showpls" className="block max-h-10 h-full object-contain mr-2 select-none" />
-            <h2 className="text-foreground text-lg font-semibold tracking-wide select-none">SHOW<span className="text-blue-400 dark:text-blue-300">PLS</span></h2>          </div>
+            <h2 className="text-foreground text-lg font-semibold tracking-wide select-none">SHOW<span className="text-blue-400 dark:text-blue-300">PLS</span></h2>
+          </div>
           <div className="flex items-center space-x-2">
             <WalletConnect />
             <Button
@@ -335,7 +319,7 @@ function TelegramWebAppContent() {
       {/* Main TWA Content */}
       <div className="max-w-sm mx-auto px-4 space-y-6 pb-10">
 
-        {/* Quick Actions */}
+        {/* Create and Find request */}
         <div className="grid grid-cols-2 gap-4">
           <Card
             className="glass-panel border-brand-primary/20 hover:bg-brand-primary/10 transition-all cursor-pointer"
@@ -343,8 +327,7 @@ function TelegramWebAppContent() {
           >
             <CardContent className="p-4 text-center">
               <Plus className="w-8 h-8 text-brand-primary mb-2 mx-auto" />
-              <div className="font-medium text-foreground">{String(t('twa.newRequest'))}</div>
-              <div className="text-sm font-medium text-muted">{String(t('twa.createOrder'))}</div>
+              <div className="font-medium text-foreground">{String(t('twa.createOrder'))}</div>
             </CardContent>
           </Card>
 
@@ -354,44 +337,45 @@ function TelegramWebAppContent() {
           >
             <CardContent className="p-4 text-center">
               <MapPin className="w-8 h-8 text-brand-accent mb-2 mx-auto" />
-              <div className="font-medium text-foreground">{String(t('twa.nearby'))}</div>
-              <div className="text-sm text-muted font-medium">{String(t('twa.findRequests'))}</div>
+              <div className="font-medium text-foreground">{String(t('twa.findRequests'))}</div>
             </CardContent>
           </Card>
         </div>
 
         {/* Recent Activity */}
         <Card className="glass-panel border-brand-primary/20">
-          <CardContent className="p-4">
-            <h3 className="font-semibold mb-4 flex items-center text-foreground">
-              <Clock className="w-5 h-5 text-brand-primary mr-2" />
+          <CardContent className="p-3">
+            <h3 className="font-semibold mb-2 flex items-center text-foreground text-sm">
+              <Clock className="w-4 h-4 text-brand-primary mr-1" />
               {String(t('twa.recentActivity'))}
             </h3>
-            <div className="space-y-3">
+            <div className="space-y-2">
               {isLoadingRecent ? (
-                <p className="text-muted font-medium text-sm">{t('twa.loadingActivity')}</p>
+                <p className="text-muted font-medium text-xs">{t('twa.loadingActivity')}</p>
               ) : recentOrders && recentOrders.length > 0 ? (
                 recentOrders.map((order: any) => (
-                  <div key={order.id} className="flex items-center justify-between p-3 bg-[#fffff0] dark:bg-panel/50 rounded-lg">
-                    <div className="flex items-center">
-                      <div className="w-10 h-10 bg-brand-primary/20 rounded-full flex items-center justify-center mr-3">
+                  <div key={order.id} className="flex items-center justify-between p-2 bg-[#fffff0] dark:bg-panel/50 rounded">
+                    <div className="flex items-center min-w-0">
+                      <div className="w-6 h-6 bg-brand-primary/20 rounded-full flex items-center justify-center mr-2 text-xs">
                         {getMediaTypeIcon(order.mediaType)}
                       </div>
-                      <div>
-                        <div className="font-medium text-sm truncate w-40 text-foreground">{order.title}</div>
-                        <div className="text-xs text-text-muted capitalize">{order.status}</div>
+                      <div className="min-w-0 truncate">
+                        <div className="font-medium text-xs truncate text-foreground">{order.title}</div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-sm font-medium text-brand-accent">+{formatTON(order.budgetNanoTon)}</div>
-                      <div className="text-xs text-muted font-medium">
-                        {formatDistanceToNow(new Date(order.createdAt), { addSuffix: true, locale: i18n.language === 'ru' ? ru : undefined })}
+                    <div className="text-right shrink-0 pl-2">
+                      <div className="text-xs font-medium text-brand-accent">{formatTON(order.budgetNanoTon)}</div>
+                      <div className="text-[11px] text-muted">
+                        {formatDistanceToNow(new Date(order.createdAt), {
+                          addSuffix: true,
+                          locale: i18n.language === 'ru' ? ru : undefined
+                        })}
                       </div>
                     </div>
                   </div>
                 ))
               ) : (
-                <p className="text-muted font-medium text-sm">{t('twa.noRecentActivity')}</p>
+                <p className="text-muted font-medium text-xs">{t('twa.noRecentActivity')}</p>
               )}
             </div>
           </CardContent>
